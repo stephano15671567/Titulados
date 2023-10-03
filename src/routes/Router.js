@@ -6,7 +6,7 @@ import Secretarias from "../pages/Secretarias/Secretarias";
 import Academicos from "../pages/Academicos/Academicos";
 import Jefaturas from "../pages/Jefaturas/Jefaturas";
 import HomeS from "../pages/Secretarias/Home_Secretaria";
-import Alumnos from "C:/Users/steph/Desktop/TITULADOS RIACT/Stitio_web_InterBM/src/pages/Titulados/Titulados_Home";
+import Alumnos from "../pages/Titulados/Titulados_Home";
 import JefaturasH from "../pages/Jefaturas/Jefaturas_Home";
 import AcademicosH from "../pages/Academicos/Academicos_Home";
 
