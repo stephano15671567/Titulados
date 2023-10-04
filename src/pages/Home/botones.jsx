@@ -4,11 +4,23 @@ import { Link } from "react-router-dom"; // Importa Link
 
 function BotonesInicio() {
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight={500} bgcolor="black"    borderRadius={10} backgroundColor="rgba(0, 0, 0, 0.5)" width="120%" >
-      <Box display="flex" justifyContent="center" gap={5} >
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight={500}
+      bgcolor="black"
+      borderRadius={10}
+      backgroundColor="rgba(0, 0, 0, 0.5)"
+      width="120%"
+      sx={{
+        borderRadius: "20px", // Agrega bordes curvos
+        padding: "20px", // Añade espaciado interno
+      }}
+    >
+      <Box display="flex" justifyContent="center" gap={5}>
         <Link to="/Titulados">
           <Button
-          
             variant="contained"
             color="primary"
             size="large"
@@ -20,7 +32,6 @@ function BotonesInicio() {
               flexDirection: "column",
               alignItems: "center",
               borderRadius: 10,
-              
             }}
           >
             <img
@@ -103,7 +114,7 @@ function BotonesInicio() {
           >
             <img
               src="ruta-de-la-imagen-4.jpg"
-              alt="Imagen 3"
+              alt="Imagen 4"
               width={300}
               height={300}
               style={{ marginBottom: "20px" }}

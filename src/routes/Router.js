@@ -11,9 +11,9 @@ import JefaturasH from "../pages/Jefaturas/Jefaturas_Home";
 import AcademicosH from "../pages/Academicos/Academicos_Home";
 
 /* ***Layouts**** */
-const FullLayout = Loadable(
+/*const FullLayout = Loadable(
   lazy(() => import("../layouts/full-layout/MainLayout"))
-);
+);*/
 
 /* ***End Layouts**** */
 
@@ -29,8 +29,8 @@ const HomePage = Loadable(lazy(() => import("../pages/Home/Home")));
 
 const Router = [
   {
-    path: "/",
-    element: <FullLayout />,
+    /*path: "/",
+    element: <FullLayout />,*/
     children: [
       { path: "", exact: true, element: <HomePage /> },
       { path: "*", element: <Navigate to="/404" /> },
