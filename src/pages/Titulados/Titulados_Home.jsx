@@ -1,34 +1,66 @@
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Container, Grid, Paper } from "@mui/material";
 import { Link } from "react-router-dom";
-
-
 
 function TituladosHome() {
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="100vh"
-    >
-      <Typography variant="h4" align="center" gutterBottom>
-        Bienvenido a TituladosHome
-      </Typography>
+    <Container maxWidth="md">
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+        padding="20px"
+      >
+        <Paper elevation={3} style={{ padding: "20px", textAlign: "center", background: "lightgray", marginBottom: "20px" }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Bienvenido al Sistema de Titulación
+          </Typography>
+        </Paper>
 
-      <Box m={2}>
-        <Link to="/subir-tesis">
-          <Button variant="contained" color="primary">
-            Subir Tesis
-          </Button>
-        </Link>
+        <Grid container spacing={2} justifyContent="center">
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} style={{ padding: "20px", textAlign: "center", marginBottom: "20px" }}>
+              <Typography variant="h5" gutterBottom>
+                Subir Tesis
+              </Typography>
+              <Typography variant="body1">
+                En el Sistema de Titulación, puedes subir tu tesis de forma sencilla. Esto te permitirá completar tu proceso de titulación de manera eficiente.
+              </Typography>
+              <Link to="/subir-tesis" style={{ textDecoration: "none", marginTop: "20px", display: "block" }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  Subir Tesis
+                </Button>
+              </Link>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} style={{ padding: "20px", textAlign: "center", marginBottom: "20px" }}>
+              <Typography variant="h5" gutterBottom>
+                Ficha de Inscripción
+              </Typography>
+              <Typography variant="body1">
+                Completa la ficha de inscripción para tu seminario de título. Asegúrate de proporcionar información precisa y completa.
+              </Typography>
+              <Link to="/subir-ficha-inscripcion" style={{ textDecoration: "none", marginTop: "20px", display: "block" }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  fullWidth
+                >
+                  Subir Ficha de Inscripción
+                </Button>
+              </Link>
+            </Paper>
+          </Grid>
+        </Grid>
       </Box>
-
-      <Typography variant="body1" align="center">
-        En TituladosHome, puedes subir tu tesis de forma sencilla.
-      </Typography>
-    </Box>
+    </Container>
   );
 }
 
