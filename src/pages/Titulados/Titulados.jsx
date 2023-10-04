@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Paper, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import background1 from "./components/images/imag_valparaiso.jpg";
-import background2 from "./components/images/imagen_2.jpg";
-import background3 from "./components/images/imagen_3.jpg";
-import background4 from "../../components/images/imagen_4.jpg";
-import background5 from "../../components/images/imagen_5.jpg";
+import background1 from "../Home/components/images//imag_valparaiso.jpg";
+import background2 from "../Home/components/images/imagen_2.jpg";
+import background3 from "../Home/components/images/imagen_3.jpg";
+import background4 from "../Home/components/images/imagen_4.jpg";
+import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 
 
