@@ -12,21 +12,7 @@ import BackgroundTransition from "../../BackgroundTransition/BackgroundTransitio
 function Home() {
   return (
     <PageContainer title="Pagina inicio" description="aaaaaaaaaaaaaaaaa">
-      {/*       <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-          backgroundImage: `url(${backgrounds[currentBackgroundIndex]})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPositionY: "70%",
-          transition: "background-image 1.5s ease-in-out", // Transición suave
-        }}
-        minHeight={700}
-        className="fade-background" // Añade la clase CSS para la transición
-      > */}
+      
       <BackgroundTransition
         images={[
           background1,
