@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Paper, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import background1 from "./components/images/imag_valparaiso.jpg";
+import background2 from "./components/images/imagen_2.jpg";
+import background3 from "./components/images/imagen_3.jpg";
+import background4 from "../../components/images/imagen_4.jpg";
+import background5 from "../../components/images/imagen_5.jpg";
+import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 
 
 
@@ -32,18 +38,34 @@ function Titulados() {
   };
 
   return (
+    <BackgroundTransition
+        images={[
+          background1,
+          background2,
+          background3,
+          background4,
+          background5,
+        ]}
+        duration={5000}
+      >
+
+    
     <Box
       display="flex"
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
       minHeight="100vh"
+      
+      
     >
+      
       <Box mb={4} p={3} bgcolor="primary.main" color="white" style={boxStyle}>
         <Typography variant="h4" align="center" style={titleStyle}>
           Ingreso Titulados
         </Typography>
       </Box>
+      
       <Paper elevation={3} style={{ ...boxStyle, width: "400px" }}>
         <Typography variant="h5" align="center" gutterBottom>
           Iniciar Sesión
@@ -82,6 +104,8 @@ function Titulados() {
         </form>
       </Paper>
     </Box>
+    </BackgroundTransition>
+    
   );
 }
 

@@ -7,23 +7,12 @@ import background2 from "./components/images/imagen_2.jpg";
 import background3 from "./components/images/imagen_3.jpg";
 import background4 from "./components/images/imagen_4.jpg";
 import background5 from "./components/images/imagen_5.jpg";
+import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 
 function Home() {
-  const backgrounds = [background1, background2, background3, background4, background5];
-  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0);
-
-  // Función para cambiar la imagen de fondo cada 5 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [backgrounds.length]);
-
   return (
     <PageContainer title="Pagina inicio" description="aaaaaaaaaaaaaaaaa">
-      <Box
+      {/*       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -37,6 +26,16 @@ function Home() {
         }}
         minHeight={700}
         className="fade-background" // Añade la clase CSS para la transición
+      > */}
+      <BackgroundTransition
+        images={[
+          background1,
+          background2,
+          background3,
+          background4,
+          background5,
+        ]}
+        duration={5000}
       >
         <Box
           display="flex"
@@ -73,7 +72,9 @@ function Home() {
           </Typography>
           <BotonesInicio />
         </Box>
-      </Box>
+      </BackgroundTransition>
+      {/*       </Box>
+       */}{" "}
       <Box
         padding={10}
         display="flex"

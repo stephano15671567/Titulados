@@ -40,9 +40,9 @@ const Router = [
       { path: "/Academicos", element: <Academicos/> },
       { path: "/Jefaturas", element: <Jefaturas/> },
       { path: "/SecretariasHome", element: <HomeS/> },
-      {path: "/TituladosHome", element: <Alumnos/>},
-      {path: "/JefaturasHome", element: <JefaturasH/>},
-      {path: "/AcademicosHome", element: <AcademicosH/>},
+      { path: "/TituladosHome", element: <Alumnos/>},
+      { path: "/JefaturasHome", element: <JefaturasH/>},
+      { path: "/AcademicosHome", element: <AcademicosH/>},
       
       
       

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 
-function BackgroundTransition({ images, duration }) {
+function BackgroundTransition({ images, duration, ...props }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
