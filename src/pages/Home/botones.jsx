@@ -9,10 +9,6 @@ function BotonesInicio() {
       justifyContent="center"
       alignItems="center"
       minHeight={500}
-      bgcolor="black"
-      borderRadius={10}
-      backgroundColor="rgba(0, 0, 0, 0.5)"
-      width="120%"
       sx={{
         borderRadius: "20px", // Agrega bordes curvos
         padding: "20px", // Añade espaciado interno
@@ -22,7 +18,6 @@ function BotonesInicio() {
         <Link to="/Titulados">
           <Button
             variant="contained"
-            color="primary"
             size="large"
             sx={{
               fontFamily: "monospace",
@@ -37,8 +32,8 @@ function BotonesInicio() {
             <img
               src="./Home/components/images/xd.png"
               alt="Imagen 1"
-              width={300}
-              height={300}
+              width={250}
+              height={250}
               style={{ marginBottom: "20px" }}
             />
             <Typography>Titulados</Typography>
@@ -48,7 +43,6 @@ function BotonesInicio() {
         <Link to="/Secretarias">
           <Button
             variant="contained"
-            color="primary"
             size="large"
             sx={{
               fontFamily: "monospace",
@@ -63,8 +57,8 @@ function BotonesInicio() {
             <img
               src="ruta-de-la-imagen-2.jpg"
               alt="Imagen 2"
-              width={300}
-              height={300}
+              width={250}
+              height={250}
               style={{ marginBottom: "20px" }}
             />
             <Typography>Secretarias</Typography>
@@ -74,7 +68,6 @@ function BotonesInicio() {
         <Link to="/Academicos">
           <Button
             variant="contained"
-            color="primary"
             size="large"
             sx={{
               fontFamily: "monospace",
@@ -89,8 +82,8 @@ function BotonesInicio() {
             <img
               src="ruta-de-la-imagen-3.jpg"
               alt="Imagen 3"
-              width={300}
-              height={300}
+              width={250}
+              height={250}
               style={{ marginBottom: "20px" }}
             />
             <Typography>Academicos</Typography>
@@ -100,7 +93,6 @@ function BotonesInicio() {
         <Link to="/Jefaturas">
           <Button
             variant="contained"
-            color="primary"
             size="large"
             sx={{
               fontFamily: "monospace",
@@ -115,8 +107,8 @@ function BotonesInicio() {
             <img
               src="ruta-de-la-imagen-4.jpg"
               alt="Imagen 4"
-              width={300}
-              height={300}
+              width={250}
+              height={250}
               style={{ marginBottom: "20px" }}
             />
             <Typography>Jefaturas</Typography>
