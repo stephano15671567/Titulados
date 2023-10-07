@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom"; // Importa Link
 
+
 function BotonesInicio() {
   return (
     <Box
@@ -12,6 +13,7 @@ function BotonesInicio() {
       sx={{
         borderRadius: "20px", // Agrega bordes curvos
         padding: "20px", // Añade espaciado interno
+        bottom: "10px",
       }}
     >
       <Box display="flex" justifyContent="center" gap={5}>
