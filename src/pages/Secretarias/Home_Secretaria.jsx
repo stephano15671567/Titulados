@@ -10,7 +10,7 @@ function SecretariaView() {
     justifyContent: "center",
     minHeight: "100vh",
     padding: "20px",
-    fontFamily: "Times New Roman, serif", // Cambio de fuente a Times New Roman
+    fontFamily: "Times New Roman", // Cambio de fuente a Times New Roman
   };
 
   const paperStyle = {
@@ -18,7 +18,7 @@ function SecretariaView() {
     textAlign: "center",
     marginBottom: "20px",
     width: "100%", // Ocupa todo el ancho disponible
-    maxWidth: "600px", // Ancho máximo para mantener la uniformidad
+    maxWidth: "1000px", // Ancho máximo para mantener la uniformidad
     background: "lightgray", // Fondo gris claro
     borderRadius: "10px", // Bordes redondeados
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)", // Sombra ligera
@@ -27,9 +27,7 @@ function SecretariaView() {
   return (
     <Container maxWidth="md">
       <Box style={containerStyle}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Vista de Secretaría
-        </Typography>
+        
 
         <Paper elevation={3} style={paperStyle}>
           <Typography variant="h5" gutterBottom>
@@ -43,6 +41,10 @@ function SecretariaView() {
               variant="contained"
               color="primary"
               fullWidth
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
             >
               Ver Tesis
             </Button>
@@ -59,6 +61,10 @@ function SecretariaView() {
               variant="contained"
               color="secondary"
               fullWidth
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
             >
               Asignar Profesores
             </Button>
@@ -75,6 +81,11 @@ function SecretariaView() {
               variant="contained"
               color="primary"
               fullWidth
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
+              
             >
               Ver Reporte
             </Button>
@@ -91,6 +102,10 @@ function SecretariaView() {
               variant="contained"
               color="secondary"
               fullWidth
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
             >
               Generar Acta
             </Button>
@@ -107,6 +122,10 @@ function SecretariaView() {
               variant="contained"
               color="primary"
               fullWidth
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
             >
               Generar Comisión
             </Button>

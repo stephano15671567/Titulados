@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Paper, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-
 import background1 from "../Home/components/images/imag_valparaiso.jpg";
 import background2 from "../Home/components/images/imagen_2.jpg";
 import background3 from "../Home/components/images/imagen_3.jpg";
@@ -9,10 +8,7 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 
-
-
-
-function Academicos() {
+function Titulados() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,47 +22,58 @@ function Academicos() {
     }
   };
 
-  const boxStyle = {
-    padding: "30px", // Aumenta el espacio interno
-    borderRadius: "20px", // Esquinas curvas
+  const containerStyle = {
+    display: "flex",
+    flexDirection: "column", // Apilar contenido verticalmente
+    alignItems: "center", // Centrar horizontalmente
+    justifyContent: "center", // Centrar verticalmente
+    minHeight: "100vh",
+    padding: "20px",
+    
   };
 
-  const titleStyle = {
-    fontSize: "24px", // Aumenta el tamaño de fuente
+  const formContainerStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: "20px",
+    background: "lightgray",
+    padding: "20px",
+   
+    width: "100%",
+    maxWidth: "600px",
+    
   };
 
-  const formStyle = {
-    marginTop: "20px", // Aumenta el margen superior del formulario
+  const leftTextStyle = {
+    fontSize: "15px",
+    
   };
 
-  return (
-    <BackgroundTransition
-        images={[
-          background1,
-          background2,
-          background3,
-          background4,
-          background5,
-        ]}
-        duration={5000}
-      >
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="100vh"
-    >
-      <Box mb={4} p={3} bgcolor="primary.main" color="white" style={boxStyle}>
-        <Typography variant="h4" align="center" style={titleStyle}>
-          Ingreso Titulados
+  // ... (código previo)
+
+return (
+  <BackgroundTransition
+    images={[
+      background1,
+      background2,
+      background3,
+      background4,
+      background5,
+    ]}
+    duration={5000}
+  >
+    <Box style={containerStyle}>
+      <Paper elevation={3} style={formContainerStyle}>
+        <Typography variant="body1" style={leftTextStyle}>
+          
+          <br />
         </Typography>
-      </Box>
-      <Paper elevation={3} style={{ ...boxStyle, width: "400px" }}>
         <Typography variant="h5" align="center" gutterBottom>
-          Iniciar Sesión
+          Iniciar Sesión Academicos
         </Typography>
-        <form onSubmit={handleLogin} style={formStyle}>
+        <form onSubmit={handleLogin}>
           <TextField
             label="Nombre de Usuario"
             variant="outlined"
@@ -74,7 +81,8 @@ function Academicos() {
             onChange={(e) => setUsername(e.target.value)}
             fullWidth
             margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
+            size="large"
+            
           />
           <TextField
             label="Contraseña"
@@ -84,24 +92,29 @@ function Academicos() {
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
+            size="large"
           />
           <Link to = '/AcademicosHome'>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            size="large" // Aumenta el tamaño del botón
-          >
-            Iniciar Sesión
-          </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              
+              fullWidth
+              size="large"
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
+                
+              }}
+            >
+              Iniciar Sesión
+            </Button>
           </Link>
         </form>
       </Paper>
     </Box>
-    </BackgroundTransition>
-  );
+  </BackgroundTransition>
+);
+
 }
 
-export default Academicos;
+export default Titulados;

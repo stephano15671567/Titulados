@@ -31,7 +31,7 @@ function Home() {
           alignItems="center"
           sx={{
             marginTop: "0px",
-            paddingTop: "50px",
+            paddingTop: "30px",
             borderTop: "20px solid transparent",
             position: "relative",
           }}
@@ -45,8 +45,8 @@ function Home() {
               padding: "10px",
               position: "absolute",
               top: 0,
-              left: "0", // Alineamos la caja a la izquierda
-              right: "0", // Alineamos la caja a la derecha
+              left: "-20px", // Alineamos la caja a la izquierda
+              right: "-20px", // Alineamos la caja a la derecha
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -57,8 +57,9 @@ function Home() {
               variant="h3"
               component="h1"
               sx={{
+                
                 color: "#fff",
-                fontFamily: "Times New Roman, serif",
+                fontFamily: "Times New Roman",
                 fontWeight: 700,
                 letterSpacing: ".1rem",
               }}
@@ -79,12 +80,12 @@ function Home() {
               padding: "10px",
               position: "absolute",
               bottom: "-50px", // Mueve la caja hacia abajo
-              left: "0", // Alineamos la caja a la izquierda
-              right: "0", // Alineamos la caja a la derecha
+              left: "-20px", // Alineamos la caja a la izquierda
+              right: "-20px", // Alineamos la caja a la derecha
               display: "flex",
               justifyContent: "flex-end", // Alineamos las imágenes al lado derecho
               alignItems: "center",
-              boxShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)", // Aumenta la opacidad de la sombra
+              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)", // Aumenta la opacidad de la sombra
             }}
           >
             {/* Agrega tus imágenes dentro de etiquetas <img> */}
