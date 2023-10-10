@@ -10,94 +10,113 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 
 function Jefaturas() {
-    
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado para verificar si el usuario ha iniciado sesión
 
   const handleLogin = (e) => {
     e.preventDefault();
 
     // Realiza la lógica de inicio de sesión aquí
     if (username && password) {
-      // Envía una solicitud al servidor para iniciar sesión
-      // Maneja la respuesta del servidor y redirige si es necesario
+      // Supongamos que la lógica de inicio de sesión es exitosa
+      setIsLoggedIn(true);
     }
   };
 
   const boxStyle = {
-    padding: "30px", // Aumenta el espacio interno
-    borderRadius: "20px", // Esquinas curvas
+    padding: "30px",
   };
 
   const titleStyle = {
-    fontSize: "24px", // Aumenta el tamaño de fuente
+    fontSize: "24px",
   };
 
   const formStyle = {
-    marginTop: "20px", // Aumenta el margen superior del formulario
+    marginTop: "20px",
+  };
+
+  const paperStyle = {
+    ...boxStyle,
+    width: "400px",
+    backgroundColor: "#f0f0f0", // Fondo gris claro
+  };
+
+  const buttonStyle = {
+    backgroundColor: "#333", // Botón gris oscuro
+    color: "white",
   };
 
   return (
     <BackgroundTransition
-        images={[
-          background1,
-          background2,
-          background3,
-          background4,
-          background5,
-        ]}
-        duration={5000}
-      >
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="100vh"
+      images={[
+        background1,
+        background2,
+        background3,
+        background4,
+        background5,
+      ]}
+      duration={5000}
     >
-      <Box mb={4} p={3} bgcolor="primary.main" color="white" style={boxStyle}>
-        <Typography variant="h4" align="center" style={titleStyle}>
-          Ingreso Titulados
-        </Typography>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        {isLoggedIn ? (
+          <Paper elevation={3} style={paperStyle}>
+            <Typography variant="h5" align="center" gutterBottom>
+              ¡Bienvenido de nuevo, {username}!
+            </Typography>
+            <Typography variant="body1" align="center" gutterBottom>
+              Has iniciado sesión correctamente. Si necesitas recuperar o
+              actualizar tus datos proporcionados por la universidad, por favor
+              contáctanos a través de [correo electrónico de contacto] y
+              estaremos encantados de ayudarte.
+            </Typography>
+          </Paper>
+        ) : (
+          <Paper elevation={3} style={paperStyle}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Iniciar Sesión
+            </Typography>
+            <form onSubmit={handleLogin} style={formStyle}>
+              <TextField
+                label="Nombre de Usuario"
+                variant="outlined"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                fullWidth
+                margin="normal"
+                size="large"
+              />
+              <TextField
+                label="Contraseña"
+                type="password"
+                variant="outlined"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
+                margin="normal"
+                size="large"
+              />
+              <Link to="/JefaturasHome">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  style={buttonStyle}
+                  fullWidth
+                  size="large"
+                >
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            </form>
+          </Paper>
+        )}
       </Box>
-      <Paper elevation={3} style={{ ...boxStyle, width: "400px" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Iniciar Sesión
-        </Typography>
-        <form onSubmit={handleLogin} style={formStyle}>
-          <TextField
-            label="Nombre de Usuario"
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
-          />
-          <TextField
-            label="Contraseña"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
-          />
-          <Link to="/JefaturasHome">
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            size="large" // Aumenta el tamaño del botón
-          >
-            Iniciar Sesión
-          </Button>
-          </Link>
-        </form>
-      </Paper>
-    </Box>
     </BackgroundTransition>
   );
 }

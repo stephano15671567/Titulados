@@ -31,7 +31,7 @@ function Home() {
           alignItems="center"
           sx={{
             marginTop: "0px",
-            paddingTop: "20px",
+            paddingTop: "50px",
             borderTop: "20px solid transparent",
             position: "relative",
           }}
@@ -50,7 +50,7 @@ function Home() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              boxShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)", // Aumenta la opacidad de la sombra
+              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)", // Aumenta la opacidad de la sombra
             }}
           >
             <Typography
@@ -78,7 +78,7 @@ function Home() {
               borderRadius: "20px",
               padding: "10px",
               position: "absolute",
-              bottom: 0,
+              bottom: "-50px", // Mueve la caja hacia abajo
               left: "0", // Alineamos la caja a la izquierda
               right: "0", // Alineamos la caja a la derecha
               display: "flex",
@@ -93,6 +93,7 @@ function Home() {
               alt="Descripción de la imagen"
               width="200px" // Ajusta el ancho de la imagen según tus necesidades
               height="auto" // La altura se ajustará automáticamente
+              style={{ marginRight: "20px" }} // Espacio entre las imágenes
             />
 
             <img

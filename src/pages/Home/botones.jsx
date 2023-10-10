@@ -1,7 +1,49 @@
 import React from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { Link } from "react-router-dom"; // Importa Link
+import { Box, Typography, Paper } from "@mui/material";
+import { Link } from "react-router-dom";
 
+function BotonCard({ to, image, label }) {
+  return (
+    <Link to={to} style={{ textDecoration: "none" }}>
+      <Paper
+        elevation={3}
+        sx={{
+          backgroundColor: "rgba(0, 60, 88, 1)",
+          borderRadius: "20px",
+          padding: "10px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          boxShadow: "0px 0px 15px rgba(0, 0, 0, 0.7)",
+          transition: "transform 0.3s ease-in-out",
+          "&:hover": {
+            transform: "scale(1.1)",
+          },
+        }}
+      >
+        <img
+          src={image}
+          alt={`Imagen para ${label}`}
+          width={250}
+          height={250}
+          style={{ marginBottom: "20px" }}
+        />
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{
+            color: "#fff",
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+          }}
+        >
+          {label}
+        </Typography>
+      </Paper>
+    </Link>
+  );
+}
 
 function BotonesInicio() {
   return (
@@ -10,112 +52,13 @@ function BotonesInicio() {
       justifyContent="center"
       alignItems="center"
       minHeight={500}
-      sx={{
-        borderRadius: "20px", // Agrega bordes curvos
-        padding: "20px", // Añade espaciado interno
-        bottom: "10px",
-      }}
+      sx={{ borderRadius: "20px", padding: "20px", bottom: "10px" }}
     >
       <Box display="flex" justifyContent="center" gap={5}>
-        <Link to="/Titulados">
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
-          >
-            <img
-              src="./Home/components/images/xd.png"
-              alt="Imagen 1"
-              width={250}
-              height={250}
-              style={{ marginBottom: "20px" }}
-            />
-            <Typography>Titulados</Typography>
-          </Button>
-        </Link>
-
-        <Link to="/Secretarias">
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
-          >
-            <img
-              src="ruta-de-la-imagen-2.jpg"
-              alt="Imagen 2"
-              width={250}
-              height={250}
-              style={{ marginBottom: "20px" }}
-            />
-            <Typography>Secretarias</Typography>
-          </Button>
-        </Link>
-
-        <Link to="/Academicos">
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
-          >
-            <img
-              src="ruta-de-la-imagen-3.jpg"
-              alt="Imagen 3"
-              width={250}
-              height={250}
-              style={{ marginBottom: "20px" }}
-            />
-            <Typography>Academicos</Typography>
-          </Button>
-        </Link>
-
-        <Link to="/Jefaturas">
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
-          >
-            <img
-              src="ruta-de-la-imagen-4.jpg"
-              alt="Imagen 4"
-              width={250}
-              height={250}
-              style={{ marginBottom: "20px" }}
-            />
-            <Typography>Jefaturas</Typography>
-          </Button>
-        </Link>
+        <BotonCard to="/Titulados" image="./Home/components/images/xd.png" label="Titulados" />
+        <BotonCard to="/Secretarias" image="ruta-de-la-imagen-2.jpg" label="Secretarias" />
+        <BotonCard to="/Academicos" image="ruta-de-la-imagen-3.jpg" label="Academicos" />
+        <BotonCard to="/Jefaturas" image="ruta-de-la-imagen-4.jpg" label="Jefaturas" />
       </Box>
     </Box>
   );

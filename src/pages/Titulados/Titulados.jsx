@@ -31,21 +31,17 @@ function Titulados() {
     padding: "20px",
   };
 
-  const contentContainerStyle = {
+  const formContainerStyle = {
     display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: "column",
+    alignItems: "center",
     justifyContent: "center",
-    marginTop: "20px", // Espacio entre el contenido superior y el formulario
-  };
-
-  const leftBoxStyle = {
+    marginTop: "20px",
     background: "lightgray",
     padding: "20px",
-    borderRadius: "20px",
-    marginRight: "20px", // Espacio entre la caja izquierda y la derecha
-    width: "100%", // Para que ocupe todo el ancho disponible
-    maxWidth: "400px", // Ancho máximo para la caja izquierda
+   
+    width: "100%",
+    maxWidth: "400px",
   };
 
   const leftTextStyle = {
@@ -64,56 +60,47 @@ function Titulados() {
       duration={5000}
     >
       <Box style={containerStyle}>
-        {/* Contenedor del contenido */}
-        <Box style={contentContainerStyle}>
-          {/* Caja izquierda con texto */}
-          <Box style={leftBoxStyle}>
-            <Typography variant="body1" style={leftTextStyle}>
-              Ingresa tu cuenta: rut (sin puntos, ni guión, ni dígito verificador, ej: 12345678) y contraseña personal.
-              <br />
-              
-              
-            </Typography>
-          </Box>
-          {/* Caja derecha con formulario */}
-          <Paper elevation={3} style={{ ...leftBoxStyle, marginRight: "0" }}>
-            <Typography variant="h5" align="center" gutterBottom>
-              Iniciar Sesión
-            </Typography>
-            <form onSubmit={handleLogin}>
-              <TextField
-                label="Nombre de Usuario"
-                variant="outlined"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+        <Paper elevation={3} style={formContainerStyle}>
+          <Typography variant="body1" style={leftTextStyle}>
+            
+            <br />
+          </Typography>
+          <Typography variant="h5" align="center" gutterBottom>
+            Iniciar Sesión Titulados
+          </Typography>
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="Nombre de Usuario"
+              variant="outlined"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"
+            />
+            <TextField
+              label="Contraseña"
+              type="password"
+              variant="outlined"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"
+            />
+            <Link to="/TituladosHome">
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
                 fullWidth
-                margin="normal"
                 size="large"
-              />
-              <TextField
-                label="Contraseña"
-                type="password"
-                variant="outlined"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-                margin="normal"
-                size="large"
-              />
-              <Link to="/TituladosHome">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  size="large"
-                >
-                  Iniciar Sesión
-                </Button>
-              </Link>
-            </form>
-          </Paper>
-        </Box>
+              >
+                Iniciar Sesión
+              </Button>
+            </Link>
+          </form>
+        </Paper>
       </Box>
     </BackgroundTransition>
   );

@@ -23,66 +23,72 @@ function Secretarias() {
     }
   };
 
-  const boxStyle = {
-    padding: "30px", // Aumenta el espacio interno
-    borderRadius: "20px", // Esquinas curvas
+  const containerStyle = {
+    display: "flex",
+    flexDirection: "column", // Apilar contenido verticalmente
+    alignItems: "center", // Centrar horizontalmente
+    justifyContent: "center", // Centrar verticalmente
+    minHeight: "100vh",
+    padding: "20px",
   };
 
-  const titleStyle = {
-    fontSize: "24px", // Aumenta el tamaño de fuente
+  const formContainerStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: "20px",
+    background: "lightgray",
+    padding: "20px",
+   
+    width: "100%",
+    maxWidth: "400px",
   };
 
-  const formStyle = {
-    marginTop: "20px", // Aumenta el margen superior del formulario
+  const leftTextStyle = {
+    fontSize: "14px",
   };
 
   return (
     <BackgroundTransition
-        images={[
-          background1,
-          background2,
-          background3,
-          background4,
-          background5,
-        ]}
-        duration={5000}
-      >
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="100vh"
+      images={[
+        background1,
+        background2,
+        background3,
+        background4,
+        background5,
+      ]}
+      duration={5000}
     >
-      <Box mb={4} p={3} bgcolor="primary.main" color="white" style={boxStyle}>
-        <Typography variant="h4" align="center" style={titleStyle}>
-          Ingreso Titulados
-        </Typography>
-      </Box>
-      <Paper elevation={3} style={{ ...boxStyle, width: "400px" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Iniciar Sesión
-        </Typography>
-        <form onSubmit={handleLogin} style={formStyle}>
-          <TextField
-            label="Nombre de Usuario"
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
-          />
-          <TextField
-            label="Contraseña"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large" // Aumenta el tamaño del campo de texto
-          />
+      <Box style={containerStyle}>
+        <Paper elevation={3} style={formContainerStyle}>
+          <Typography variant="body1" style={leftTextStyle}>
+            
+            <br />
+          </Typography>
+          <Typography variant="h5" align="center" gutterBottom>
+            Iniciar Sesión Secretaria
+          </Typography>
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="Nombre de Usuario"
+              variant="outlined"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"
+            />
+            <TextField
+              label="Contraseña"
+              type="password"
+              variant="outlined"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"
+            />
           <Link to="/SecretariasHome">
             <Button
                 type="submit"
