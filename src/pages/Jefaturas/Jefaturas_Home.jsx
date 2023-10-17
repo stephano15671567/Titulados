@@ -1,188 +1,106 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Container,
-  Paper,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TextField,
-} from "@mui/material";
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableRow, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem 
+} from '@mui/material';
 
-function JefaturasView() {
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "Estudiante 1",
-      carrera: "Carrera A",
-      guia: "",
-      informante: "",
-      notas: { guia: "", informante: "" },
-    },
-    {
-      id: 2,
-      name: "Estudiante 2",
-      carrera: "Carrera B",
-      guia: "",
-      informante: "",
-      notas: { guia: "", informante: "" },
-    },
-    {
-      id: 3,
-      name: "Estudiante 3",
-      carrera: "Carrera A",
-      guia: "",
-      informante: "",
-      notas: { guia: "", informante: "" },
-    },
-    // Agrega más estudiantes con sus datos aquí
-  ]);
+const Jefatura = () => {
+  const [selectedProfesor, setSelectedProfesor] = useState({});
 
-  // Función para calcular el promedio de las notas
-  const calculateAverage = (student) => {
-    const guiaNote = parseFloat(student.notas.guia) || 0;
-    const informanteNote = parseFloat(student.notas.informante) || 0;
-    return ((guiaNote + informanteNote) / 2).toFixed(2);
-  };
+  const estudiantes = [
+    { id: 1, nombre: 'Estudiante 1', rut: '11.111.111-1', añoIngreso: 2020 },
+    { id: 2, nombre: 'Estudiante 2', rut: '22.222.222-2', añoIngreso: 2021 },
+    { id: 3, nombre: 'Estudiante 3', rut: '33.333.333-3', añoIngreso: 2022 },
+    { id: 4, nombre: 'Estudiante 4', rut: '44.444.444-4', añoIngreso: 2021 },
+    { id: 5, nombre: 'Estudiante 5', rut: '55.555.555-5', añoIngreso: 2020 }
+    // Puedes agregar más estudiantes según sea necesario
+  ];
 
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const profesores = ['Profesor 1', 'Profesor 2', 'Profesor 3'];
 
-  // Función para ver la tesis del alumno
-  const handleVerTesis = () => {
-    if (selectedStudent) {
-      // Implementa la lógica para ver la tesis del alumno
-      console.log(`Ver tesis de ${selectedStudent.name}`);
-    }
-  };
-
-  // Función para generar un reporte del alumno
-  const handleGenerarReporte = () => {
-    if (selectedStudent) {
-      // Implementa la lógica para generar un reporte del alumno
-      console.log(`Generar reporte de ${selectedStudent.name}`);
-    }
+  const handleProfesorChange = (estudianteId, event) => {
+    setSelectedProfesor({ ...selectedProfesor, [estudianteId]: event.target.value });
   };
 
   return (
-    <Container maxWidth="md">
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-        padding="20px"
-      >
-        <Typography variant="h4" align="center" gutterBottom>
-          Panel de Jefaturas
-        </Typography>
+    <Box display="flex" flexDirection="column" alignItems="center" p={3}>
+      {/* Sección para Ver y Descargar Tesis */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Ver y Descargar Tesis" />
+        <CardContent>
+          <Button variant="contained" color="primary" href="/path-to-thesis" download>
+            Descargar Tesis Ejemplo
+          </Button>
+        </CardContent>
+      </Card>
 
-        <Paper elevation={3} style={{ padding: "20px", borderRadius: "20px" }}>
+      {/* Sección para Descargar Reportes */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Descargar Reportes" />
+        <CardContent>
+          <Button variant="contained" color="primary" href="/path-to-report" download>
+            Descargar Reporte Ejemplo
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Sección para Asignar Profesores */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Asignar Profesores a Estudiantes" />
+        <CardContent>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Carrera</TableCell>
-                <TableCell>Profesor Guía</TableCell>
-                <TableCell>Profesor Informante</TableCell>
-                <TableCell>Nota Guía</TableCell>
-                <TableCell>Nota Informante</TableCell>
-                <TableCell>Promedio</TableCell>
+                <TableCell>Alumno</TableCell>
+                <TableCell>RUT</TableCell>
+                <TableCell>Año Ingreso</TableCell>
+                <TableCell>Asignar Profesor</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {students.map((student) => (
-                <TableRow
-                  key={student.id}
-                  onClick={() => setSelectedStudent(student)}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor:
-                      selectedStudent && selectedStudent.id === student.id
-                        ? "#e0e0e0"
-                        : "transparent",
-                  }}
-                >
-                  <TableCell>{student.id}</TableCell>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.carrera}</TableCell>
-                  <TableCell>{student.guia}</TableCell>
-                  <TableCell>{student.informante}</TableCell>
+              {estudiantes.map((estudiante) => (
+                <TableRow key={estudiante.id}>
+                  <TableCell>{estudiante.nombre}</TableCell>
+                  <TableCell>{estudiante.rut}</TableCell>
+                  <TableCell>{estudiante.añoIngreso}</TableCell>
                   <TableCell>
-                    <TextField
-                      type="number"
-                      value={student.notas.guia}
-                      onChange={(e) =>
-                        setStudents((prevStudents) =>
-                          prevStudents.map((prevStudent) =>
-                            prevStudent.id === student.id
-                              ? {
-                                  ...prevStudent,
-                                  notas: {
-                                    ...prevStudent.notas,
-                                    guia: e.target.value,
-                                  },
-                                }
-                              : prevStudent
-                          )
-                        )
-                      }
-                    />
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesor</InputLabel>
+                      <Select
+                        labelId={`profesor-label-${estudiante.id}`}
+                        id={`profesor-select-${estudiante.id}`}
+                        value={selectedProfesor[estudiante.id] || ''}
+                        onChange={(e) => handleProfesorChange(estudiante.id, e)}
+                        label="Profesor"
+                      >
+                        {profesores.map((profesor) => (
+                          <MenuItem key={profesor} value={profesor}>
+                            {profesor}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      value={student.notas.informante}
-                      onChange={(e) =>
-                        setStudents((prevStudents) =>
-                          prevStudents.map((prevStudent) =>
-                            prevStudent.id === student.id
-                              ? {
-                                  ...prevStudent,
-                                  notas: {
-                                    ...prevStudent.notas,
-                                    informante: e.target.value,
-                                  },
-                                }
-                              : prevStudent
-                          )
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>{calculateAverage(student)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </Paper>
-
-        <Box mt={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleVerTesis}
-            disabled={!selectedStudent}
-          >
-            Ver Tesis
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleGenerarReporte}
-            disabled={!selectedStudent}
-          >
-            Generar Reporte
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+        </CardContent>
+      </Card>
+    </Box>
   );
-}
+};
 
-export default JefaturasView;
+export default Jefatura;

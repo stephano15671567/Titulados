@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+
+
+  import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -48,13 +50,17 @@ function AcademicoView() {
         minHeight="100vh"
         padding="20px"
       >
-        <Typography variant="h4" align="center" gutterBottom>
-          Vista de Académico
-        </Typography>
+        <Paper elevation={3} style={{ padding: "20px", borderRadius: "20px", width: '100%' }}>
+          <Typography 
+            variant="h4" 
+            align="center" 
+            gutterBottom 
+            style={{ color: 'white' }}>
+            Vista de Académico
+          </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Paper elevation={3} style={{ padding: "20px", textAlign: "center", borderRadius: "20px" }}>
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
               <Typography variant="h5" gutterBottom>
                 Lista de Estudiantes
               </Typography>
@@ -77,10 +83,8 @@ function AcademicoView() {
                   ))}
                 </Select>
               </FormControl>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper elevation={3} style={{ padding: "20px", textAlign: "center", borderRadius: "20px" }}>
+            </Grid>
+            <Grid item xs={6}>
               <Typography variant="h5" gutterBottom>
                 Nota de Tesis y Adjuntar Ficha (Rúbrica)
               </Typography>
@@ -120,26 +124,12 @@ function AcademicoView() {
               >
                 Guardar Nota y Adjuntar Ficha
               </Button>
-            </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-
-        {/* Contenido de texto adicional */}
-        <Typography variant="h6" align="center" gutterBottom>
-          Información Adicional
-        </Typography>
-        <Typography variant="body1">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla bibendum ex nec justo euismod, ac fringilla metus malesuada.
-          Suspendisse facilisis sem eget metus eleifend, a dignissim ex hendrerit. Maecenas vel justo at odio ullamcorper consectetur.
-        </Typography>
-        <Typography variant="body1">
-          Proin in vehicula turpis. Etiam a neque in metus dictum bibendum. Vivamus scelerisque justo ac tortor gravida, vel suscipit orci
-          aliquam. Fusce sit amet eros vitae enim blandit condimentum. Nullam laoreet libero non euismod euismod.
-        </Typography>
+        </Paper>
       </Box>
     </Container>
   );
 }
 
 export default AcademicoView;
-

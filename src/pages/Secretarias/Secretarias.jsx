@@ -1,120 +1,121 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Paper, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
-import background1 from "../Home/components/images/imag_valparaiso.jpg";
-import background2 from "../Home/components/images/imagen_2.jpg";
-import background3 from "../Home/components/images/imagen_3.jpg";
-import background4 from "../Home/components/images/imagen_4.jpg";
-import background5 from "../Home/components/images/imagen_5.jpg";
-import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import { 
+  Box, 
+  Button, 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableRow, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem 
+} from "@mui/material";
 
-function Titulados() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+function Secretarias() {
+  const [selectedProfesor, setSelectedProfesor] = useState({});
+  const [file, setFile] = useState(null);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const estudiantes = [
+    { id: 1, nombre: 'Estudiante 1', rut: '11.111.111-1', añoIngreso: 2020 },
+    { id: 2, nombre: 'Estudiante 2', rut: '22.222.222-2', añoIngreso: 2021 },
+    { id: 3, nombre: 'Estudiante 3', rut: '33.333.333-3', añoIngreso: 2022 },
+    { id: 4, nombre: 'Estudiante 4', rut: '44.444.444-4', añoIngreso: 2021 },
+    { id: 5, nombre: 'Estudiante 5', rut: '55.555.555-5', añoIngreso: 2020 }
+  ];
 
-    // Realiza la lógica de inicio de sesión aquí
-    if (username && password) {
-      // Envía una solicitud al servidor para iniciar sesión
-      // Maneja la respuesta del servidor y redirige si es necesario
-    }
+  const profesores = ['Profesor 1', 'Profesor 2', 'Profesor 3'];
+
+  const handleProfesorChange = (estudianteId, event) => {
+    setSelectedProfesor({ ...selectedProfesor, [estudianteId]: event.target.value });
   };
 
-  const containerStyle = {
-    display: "flex",
-    flexDirection: "column", // Apilar contenido verticalmente
-    alignItems: "center", // Centrar horizontalmente
-    justifyContent: "center", // Centrar verticalmente
-    minHeight: "100vh",
-    padding: "20px",
-    
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
-  const formContainerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: "20px",
-    background: "lightgray",
-    padding: "20px",
-   
-    width: "100%",
-    maxWidth: "600px",
-    
-  };
+  return (
+    <Box display="flex" flexDirection="column" alignItems="center" p={3}>
+      {/* Botón para descargar la tesis */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Descargar Tesis" />
+        <CardContent>
+          <Button variant="contained" color="primary" href="/path-to-thesis" download>
+            Descargar Tesis
+          </Button>
+        </CardContent>
+      </Card>
 
-  const leftTextStyle = {
-    fontSize: "15px",
-    
-  };
+      {/* Botón para descargar el reporte */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Descargar Reporte" />
+        <CardContent>
+          <Button variant="contained" color="primary" href="/path-to-report" download>
+            Descargar Reporte
+          </Button>
+        </CardContent>
+      </Card>
 
-  // ... (código previo)
+      {/* Input para cargar el archivo del acta y la comisión */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Cargar Acta y Comisión" />
+        <CardContent>
+          <input type="file" onChange={handleFileChange} />
+          <Button variant="contained" color="primary" onClick={() => alert(`Archivo ${file ? file.name : ''} cargado!`)}>
+            Cargar Archivo
+          </Button>
+        </CardContent>
+      </Card>
 
-return (
-  <BackgroundTransition
-    images={[
-      background1,
-      background2,
-      background3,
-      background4,
-      background5,
-    ]}
-    duration={5000}
-  >
-    <Box style={containerStyle}>
-      <Paper elevation={3} style={formContainerStyle}>
-        <Typography variant="body1" style={leftTextStyle}>
-          
-          <br />
-        </Typography>
-        <Typography variant="h5" align="center" gutterBottom>
-          Iniciar Sesión Secretaria
-        </Typography>
-        <form onSubmit={handleLogin}>
-          <TextField
-            label="Nombre de Usuario"
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large"
-            
-          />
-          <TextField
-            label="Contraseña"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="large"
-          />
-          <Link to="/SecretariasHome">
-            <Button
-              type="submit"
-              variant="contained"
-              
-              fullWidth
-              size="large"
-              style={{
-                background: "rgba(0, 60, 88, 1)", // Cambia el color de fondo del botón
-                
-              }}
-            >
-              Iniciar Sesión
-            </Button>
-          </Link>
-        </form>
-      </Paper>
+      {/* Tabla para asignar profesores a estudiantes */}
+      <Card style={{ maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Asignar Profesores" />
+        <CardContent>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Alumno</TableCell>
+                <TableCell>RUT</TableCell>
+                <TableCell>Año Ingreso</TableCell>
+                <TableCell>Asignar Profesor</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {estudiantes.map((estudiante) => (
+                <TableRow key={estudiante.id}>
+                  <TableCell>{estudiante.nombre}</TableCell>
+                  <TableCell>{estudiante.rut}</TableCell>
+                  <TableCell>{estudiante.añoIngreso}</TableCell>
+                  <TableCell>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesorr</InputLabel>
+                      <Select
+                        labelId={`profesor-label-${estudiante.id}`}
+                        id={`profesor-select-${estudiante.id}`}
+                        value={selectedProfesor[estudiante.id] || ''}
+                        onChange={(e) => handleProfesorChange(estudiante.id, e)}
+                        label="Profesor"
+                      >
+                        {profesores.map((profesor) => (
+                          <MenuItem key={profesor} value={profesor}>
+                            {profesor}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </Box>
-  </BackgroundTransition>
-);
+  );
+};
 
-}
-
-export default Titulados;
+export default Secretarias;

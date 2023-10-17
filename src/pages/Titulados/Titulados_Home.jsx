@@ -1,8 +1,11 @@
 import React from "react";
 import { Box, Typography, Button, Container, Paper } from "@mui/material";
-import { Link } from "react-router-dom";
 
 function TituladosHome() {
+  const handleFileUpload = (e) => {
+    console.log(e.target.files[0]); // Aquí puedes manejar el archivo seleccionado
+  };
+
   return (
     <Container maxWidth="md">
       <Box
@@ -18,37 +21,55 @@ function TituladosHome() {
             Bienvenido al Sistema de Titulación
           </Typography>
 
+          {/* Botón para subir tesis */}
           <Typography variant="h5" gutterBottom>
             Subir Tesis
           </Typography>
           <Typography variant="body1">
-            En el Sistema de Titulación, puedes subir tu tesis de forma sencilla. Esto te permitirá completar tu proceso de titulación de manera eficiente.
+            En el Sistema de Titulación, puedes subir tu tesis de forma sencilla.
           </Typography>
-          <Link to="/subir-tesis" style={{ textDecoration: "none", marginTop: "20px", display: "block" }}>
+          <input
+            accept="application/pdf"
+            style={{ display: "none" }}
+            id="upload-tesis"
+            type="file"
+            onChange={handleFileUpload}
+          />
+          <label htmlFor="upload-tesis" style={{ width: '100%', marginTop: "20px" }}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: 'rgba(0, 60, 88, 1)' }}
               fullWidth
+              component="span"  // Esto es clave para hacer que el botón funcione con el label
             >
               Subir Tesis
             </Button>
-          </Link>
+          </label>
 
+          {/* Botón para subir ficha de inscripción */}
           <Typography variant="h5" gutterBottom>
             Ficha de Inscripción
           </Typography>
           <Typography variant="body1">
-            Completa la ficha de inscripción para tu seminario de título. Asegúrate de proporcionar información precisa y completa.
+            Completa la ficha de inscripción para tu seminario de título.
           </Typography>
-          <Link to="/subir-ficha-inscripcion" style={{ textDecoration: "none", marginTop: "20px", display: "block" }}>
+          <input
+            accept="application/pdf"
+            style={{ display: "none" }}
+            id="upload-ficha"
+            type="file"
+            onChange={handleFileUpload}
+          />
+          <label htmlFor="upload-ficha" style={{ width: '100%', marginTop: "20px" }}>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: 'rgba(0, 60, 88, 1)' }}
               fullWidth
+              component="span"
             >
               Subir Ficha de Inscripción
             </Button>
-          </Link>
+          </label>
         </Paper>
       </Box>
     </Container>
