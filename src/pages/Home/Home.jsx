@@ -10,6 +10,7 @@ import BackgroundTransition from "../../BackgroundTransition/BackgroundTransitio
 import imagen1 from "./components/images/LOGO-UV-APU-AZUL_1.png";
 import imagen2 from "./components/images/logo1.png";
 
+
 function Home() {
   return (
     <BackgroundTransition

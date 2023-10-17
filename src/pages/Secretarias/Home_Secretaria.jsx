@@ -28,7 +28,6 @@ function SecretariaView() {
     <Container maxWidth="md">
       <Box style={containerStyle}>
         
-
         <Paper elevation={3} style={paperStyle}>
           <Typography variant="h5" gutterBottom>
             Ver Tesis
