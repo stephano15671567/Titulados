@@ -1,24 +1,25 @@
 import React, { useState } from "react";
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableRow, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem 
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 
 function Secretarias() {
   const [selectedProfesor, setSelectedProfesor] = useState({});
   const [file, setFile] = useState(null);
+  const [thesisFile, setThesisFile] = useState(null);
 
   const estudiantes = [
     { id: 1, nombre: 'Estudiante 1', rut: '11.111.111-1', añoIngreso: 2020 },
@@ -38,13 +39,37 @@ function Secretarias() {
     setFile(event.target.files[0]);
   };
 
+  const handleThesisFileChange = (event) => {
+    setThesisFile(event.target.files[0]);
+  };
+
   return (
     <Box display="flex" flexDirection="column" alignItems="center" p={3}>
+      {/* Nuevo Card para subir tesis */}
+      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
+        <CardHeader title="Subir Tesistas" />
+        <CardContent>
+          <input type="file" onChange={handleThesisFileChange} />
+          <Button 
+            variant="contained" 
+            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
+            onClick={() => alert(`Tesis ${thesisFile ? thesisFile.name : ''} subida!`)}
+          >
+            Subir Tesistas
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Botón para descargar la tesis */}
       <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
         <CardHeader title="Descargar Tesis" />
         <CardContent>
-          <Button variant="contained" color="primary" href="/path-to-thesis" download>
+          <Button 
+            variant="contained" 
+            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
+            href="/path-to-thesis" 
+            download
+          >
             Descargar Tesis
           </Button>
         </CardContent>
@@ -54,7 +79,12 @@ function Secretarias() {
       <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
         <CardHeader title="Descargar Reporte" />
         <CardContent>
-          <Button variant="contained" color="primary" href="/path-to-report" download>
+          <Button 
+            variant="contained" 
+            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
+            href="/path-to-report" 
+            download
+          >
             Descargar Reporte
           </Button>
         </CardContent>
@@ -65,7 +95,11 @@ function Secretarias() {
         <CardHeader title="Cargar Acta y Comisión" />
         <CardContent>
           <input type="file" onChange={handleFileChange} />
-          <Button variant="contained" color="primary" onClick={() => alert(`Archivo ${file ? file.name : ''} cargado!`)}>
+          <Button 
+            variant="contained" 
+            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
+            onClick={() => alert(`Archivo ${file ? file.name : ''} cargado!`)}
+          >
             Cargar Archivo
           </Button>
         </CardContent>
@@ -92,7 +126,7 @@ function Secretarias() {
                   <TableCell>{estudiante.añoIngreso}</TableCell>
                   <TableCell>
                     <FormControl fullWidth variant="outlined">
-                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesorr</InputLabel>
+                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesor</InputLabel>
                       <Select
                         labelId={`profesor-label-${estudiante.id}`}
                         id={`profesor-select-${estudiante.id}`}
