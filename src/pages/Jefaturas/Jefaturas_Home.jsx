@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import background1 from "../Home/components/images/imag_valparaiso.jpg";
+import background2 from "../Home/components/images/imagen_2.jpg";
+import background3 from "../Home/components/images/imagen_3.jpg";
+import background4 from "../Home/components/images/imagen_4.jpg";
+import background5 from "../Home/components/images/imagen_5.jpg";
 import { 
   Box, 
   Card, 
@@ -35,6 +41,18 @@ const Jefatura = () => {
   };
 
   return (
+    <BackgroundTransition
+        images={[
+          background1,
+          background2,
+          background3,
+          background4,
+          background5,
+        ]}
+        duration={5000}
+    >
+      
+    
     <Box display="flex" flexDirection="column" alignItems="center" p={3}>
       {/* Sección para Ver y Descargar Tesis */}
       <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
@@ -100,6 +118,7 @@ const Jefatura = () => {
         </CardContent>
       </Card>
     </Box>
+    </BackgroundTransition>
   );
 };
 
