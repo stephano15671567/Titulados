@@ -8,8 +8,33 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 
 function TituladosHome() {
-  const handleFileUpload = (e) => {
-    console.log(e.target.files[0]); // Aquí puedes manejar el archivo seleccionado
+  const idUsuario = "id"; // Reemplaza esto con el método que uses para obtener el ID del usuario
+
+  const handleFileUpload = async (e, endpoint) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('idUsuario', idUsuario);
+
+    try {
+      const response = await fetch(`http://localhost:4000/${endpoint}`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        console.log('Archivo subido con éxito');
+      } else {
+        console.log('Error al subir el archivo');
+      }
+    } catch (err) {
+      console.error('Error al subir el archivo:', err);
+    }
   };
 
   return (
@@ -29,7 +54,7 @@ function TituladosHome() {
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          height="100vh"  // Cambiado de minHeight a height
+          minHeight="100vh"
           padding="20px"
         >
           <Paper elevation={3} style={{ padding: "20px", textAlign: "center", background: "lightgray", marginBottom: "20px" }}>
@@ -49,14 +74,14 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-tesis"
               type="file"
-              onChange={handleFileUpload}
+              onChange={(e) => handleFileUpload(e, 'upload/tesis')}
             />
             <label htmlFor="upload-tesis" style={{ width: '100%', marginTop: "20px" }}>
               <Button
                 variant="contained"
                 style={{ backgroundColor: 'rgba(0, 60, 88, 1)' }}
                 fullWidth
-                component="span"  // Esto es clave para hacer que el botón funcione con el label
+                component="span"
               >
                 Subir Tesis
               </Button>
@@ -74,7 +99,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={handleFileUpload}
+              onChange={(e) => handleFileUpload(e, 'upload/ficha')}
             />
             <label htmlFor="upload-ficha" style={{ width: '100%', marginTop: "20px" }}>
               <Button
