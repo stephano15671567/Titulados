@@ -1,5 +1,6 @@
-import React from "react";
-import { Box, Typography, Button, Container, Paper } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Button, Container, Paper, Snackbar, CircularProgress } from "@mui/material";
+import { useDropzone } from 'react-dropzone';
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import background1 from "../Home/components/images/imag_valparaiso.jpg";
 import background2 from "../Home/components/images/imagen_2.jpg";
@@ -8,6 +9,9 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 
 function TituladosHome() {
+  const [uploading, setUploading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const idUsuario = "id"; // Reemplaza esto con el método que uses para obtener el ID del usuario
 
   const handleFileUpload = async (e, endpoint) => {
@@ -16,6 +20,7 @@ function TituladosHome() {
       return;
     }
 
+    setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('idUsuario', idUsuario);
@@ -27,14 +32,41 @@ function TituladosHome() {
         credentials: 'include',
       });
 
+      setUploading(false);
       if (response.ok) {
-        console.log('Archivo subido con éxito');
+        setSnackbarMessage('Archivo subido con éxito');
       } else {
-        console.log('Error al subir el archivo');
+        setSnackbarMessage('Error al subir el archivo');
       }
+      setSnackbarOpen(true);
     } catch (err) {
-      console.error('Error al subir el archivo:', err);
+      setUploading(false);
+      setSnackbarMessage('Error al subir el archivo');
+      setSnackbarOpen(true);
+      console.error('Error:', err);
     }
+  };
+
+  const onDrop = (acceptedFiles, endpoint) => {
+    acceptedFiles.forEach(file => {
+      handleFileUpload({ target: { files: [file] } }, endpoint);
+    });
+  };
+
+  const { getRootProps: getRootPropsTesis, getInputProps: getInputPropsTesis } = useDropzone({
+    onDrop: files => onDrop(files, 'upload/tesis'),
+    accept: 'application/pdf',
+    noClick: true,
+  });
+
+  const { getRootProps: getRootPropsFicha, getInputProps: getInputPropsFicha } = useDropzone({
+    onDrop: files => onDrop(files, 'upload/ficha'),
+    accept: 'application/pdf',
+    noClick: true,
+  });
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -62,12 +94,9 @@ function TituladosHome() {
               Bienvenido al Sistema de Titulación
             </Typography>
 
-            {/* Botón para subir tesis */}
+            {/* Botón para subir tesis y área de arrastrar y soltar */}
             <Typography variant="h5" gutterBottom>
               Subir Tesis
-            </Typography>
-            <Typography variant="body1">
-              En el Sistema de Titulación, puedes subir tu tesis de forma sencilla.
             </Typography>
             <input
               accept="application/pdf"
@@ -86,13 +115,14 @@ function TituladosHome() {
                 Subir Tesis
               </Button>
             </label>
+            <Box {...getRootPropsTesis()} style={{ border: '2px dashed black', padding: '20px', marginTop: '10px' }}>
+              <input {...getInputPropsTesis()} />
+              <Typography variant="body1">O arrastra tu tesis aquí</Typography>
+            </Box>
 
-            {/* Botón para subir ficha de inscripción */}
-            <Typography variant="h5" gutterBottom>
+            {/* Botón para subir ficha de inscripción y área de arrastrar y soltar */}
+            <Typography variant="h5" gutterBottom style={{ marginTop: '20px' }}>
               Ficha de Inscripción
-            </Typography>
-            <Typography variant="body1">
-              Completa la ficha de inscripción para tu seminario de título.
             </Typography>
             <input
               accept="application/pdf"
@@ -111,6 +141,25 @@ function TituladosHome() {
                 Subir Ficha de Inscripción
               </Button>
             </label>
+            <Box {...getRootPropsFicha()} style={{ border: '2px dashed black', padding: '20px', marginTop: '10px' }}>
+              <input {...getInputPropsFicha()} />
+              <Typography variant="body1">O arrastra tu ficha de inscripción aquí</Typography>
+            </Box>
+
+            {/* Snackbar para mensajes */}
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={handleSnackbarClose}
+              message={snackbarMessage}
+            />
+
+            {/* Spinner para mostrar durante la carga */}
+            {uploading && (
+              <Box display="flex" justifyContent="center" alignItems="center" style={{ marginTop: '20px' }}>
+                <CircularProgress />
+              </Box>
+            )}
           </Paper>
         </Box>
       </Container>
