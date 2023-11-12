@@ -1,155 +1,117 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from "@mui/material";
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Link } from 'react-router-dom';
+import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
+import background1 from '../Home/components/images/imag_valparaiso.jpg';
+import background2 from '../Home/components/images/imagen_2.jpg';
+import background3 from '../Home/components/images/imagen_3.jpg';
+import background4 from '../Home/components/images/imagen_4.jpg';
+import background5 from '../Home/components/images/imagen_5.jpg';
 
-function Secretarias() {
-  const [selectedProfesor, setSelectedProfesor] = useState({});
-  const [file, setFile] = useState(null);
-  const [thesisFile, setThesisFile] = useState(null);
+function SecretariaView() {
+  const [titulados, setTitulados] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const estudiantes = [
-    { id: 1, nombre: 'Estudiante 1', rut: '11.111.111-1', añoIngreso: 2020 },
-    { id: 2, nombre: 'Estudiante 2', rut: '22.222.222-2', añoIngreso: 2021 },
-    { id: 3, nombre: 'Estudiante 3', rut: '33.333.333-3', añoIngreso: 2022 },
-    { id: 4, nombre: 'Estudiante 4', rut: '44.444.444-4', añoIngreso: 2021 },
-    { id: 5, nombre: 'Estudiante 5', rut: '55.555.555-5', añoIngreso: 2020 }
-  ];
+  useEffect(() => {
+    fetch('http://localhost:4000/api/alumnosTitulados')
+      .then((response) => {
+        // Verifica si la respuesta es exitosa y si el contenido es tipo JSON
+        if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
+          return response.json();
+        }
+        // Si la respuesta no es exitosa, lanza un error
+        throw new Error('La respuesta no es JSON: ' + response.statusText);
+      })
+      .then((data) => {
+        setTitulados(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
 
-  const profesores = ['Profesor 1', 'Profesor 2', 'Profesor 3'];
-
-  const handleProfesorChange = (estudianteId, event) => {
-    setSelectedProfesor({ ...selectedProfesor, [estudianteId]: event.target.value });
+  const containerStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+    padding: "20px",
+    fontFamily: "Times New Roman",
   };
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const paperStyle = {
+    padding: "20px",
+    textAlign: "center",
+    marginBottom: "20px",
+    width: "100%",
+    maxWidth: "1000px",
+    background: "lightgray",
+    borderRadius: "10px",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
   };
 
-  const handleThesisFileChange = (event) => {
-    setThesisFile(event.target.files[0]);
+  const buttonStyle = {
+    background: "rgba(0, 60, 88, 1)",
+    marginTop: "20px",
+    display: "block"
   };
+
+  if (loading) {
+    return <Typography>Cargando...</Typography>;
+  }
+
+  if (error) {
+    return <Typography>Error: {error.message}</Typography>;
+  }
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" p={3}>
-      {/* Nuevo Card para subir tesis */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Subir Tesistas" />
-        <CardContent>
-          <input type="file" onChange={handleThesisFileChange} />
-          <Button 
-            variant="contained" 
-            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
-            onClick={() => alert(`Tesis ${thesisFile ? thesisFile.name : ''} subida!`)}
-          >
-            Subir Tesistas
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Botón para descargar la tesis */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Descargar Tesis" />
-        <CardContent>
-          <Button 
-            variant="contained" 
-            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
-            href="/path-to-thesis" 
-            download
-          >
-            Descargar Tesis
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Botón para descargar el reporte */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Descargar Reporte" />
-        <CardContent>
-          <Button 
-            variant="contained" 
-            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
-            href="/path-to-report" 
-            download
-          >
-            Descargar Reporte
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Input para cargar el archivo del acta y la comisión */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Cargar Acta y Comisión" />
-        <CardContent>
-          <input type="file" onChange={handleFileChange} />
-          <Button 
-            variant="contained" 
-            style={{ backgroundColor: 'rgba(0, 60, 88, 1)', color: '#fff' }} 
-            onClick={() => alert(`Archivo ${file ? file.name : ''} cargado!`)}
-          >
-            Cargar Archivo
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Tabla para asignar profesores a estudiantes */}
-      <Card style={{ maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Asignar Profesores" />
-        <CardContent>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alumno</TableCell>
-                <TableCell>RUT</TableCell>
-                <TableCell>Año Ingreso</TableCell>
-                <TableCell>Asignar Profesor</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {estudiantes.map((estudiante) => (
-                <TableRow key={estudiante.id}>
-                  <TableCell>{estudiante.nombre}</TableCell>
-                  <TableCell>{estudiante.rut}</TableCell>
-                  <TableCell>{estudiante.añoIngreso}</TableCell>
-                  <TableCell>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesor</InputLabel>
-                      <Select
-                        labelId={`profesor-label-${estudiante.id}`}
-                        id={`profesor-select-${estudiante.id}`}
-                        value={selectedProfesor[estudiante.id] || ''}
-                        onChange={(e) => handleProfesorChange(estudiante.id, e)}
-                        label="Profesor"
-                      >
-                        {profesores.map((profesor) => (
-                          <MenuItem key={profesor} value={profesor}>
-                            {profesor}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </Box>
+    <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
+      <Container maxWidth="md">
+        <Box style={containerStyle}>
+          <Paper elevation={3} style={paperStyle}>
+            <Typography variant="h5" gutterBottom>
+              Ver Tesis
+            </Typography>
+            <Typography variant="body1">
+              Ver la lista de tesis y su estado.
+            </Typography>
+            <Link to="/ver-tesis" style={{ textDecoration: "none" }}>
+              <Button variant="contained" color="primary" fullWidth style={buttonStyle}>
+                Ver Tesis
+              </Button>
+            </Link>
+            {/* ... otros botones y funcionalidades ... */}
+            <TableContainer component={Paper}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Alumno</TableCell>
+                    <TableCell>RUT</TableCell>
+                    {/* ... más celdas de encabezado ... */}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {titulados.map((titulado) => (
+                    <TableRow key={titulado.id}>
+                      <TableCell>{titulado.id}</TableCell>
+                      <TableCell>{titulado.alumno}</TableCell>
+                      <TableCell>{titulado.rut}</TableCell>
+                      {/* ... más celdas con datos ... */}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
+      </Container>
+    </BackgroundTransition>
   );
-};
+}
 
-export default Secretarias;
+export default SecretariaView;
