@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Paper, Typography, Box } from "@mui/material";
+import React, { useState } from "react";
+import { Button, Paper, Typography, TextField, Box } from "@mui/material";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import background1 from "../Home/components/images/imag_valparaiso.jpg";
 import background2 from "../Home/components/images/imagen_2.jpg";
@@ -8,6 +8,14 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 
 function Titulados() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    // Aquí puedes manejar el inicio de sesión con nombre de usuario y contraseña si lo necesitas
+  };
+
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:4000/auth/google";
   };
@@ -31,16 +39,40 @@ function Titulados() {
       >
         <Paper elevation={10} sx={{ padding: 3, width: 300 }}>
           <Typography variant="h5" gutterBottom textAlign="center">
-            Bienvenido al Portal de Titulados
+            Inicio de Sesión para Titulados
           </Typography>
-          <Typography variant="body1" gutterBottom textAlign="center" sx={{ marginTop: 2 }}>
-            Utiliza tu cuenta de Google para continuar.
-          </Typography>
+          <form onSubmit={handleLoginSubmit}>
+            <TextField
+              label="Nombre de Usuario"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <TextField
+              label="Contraseña"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ marginTop: 2 }}
+            >
+              Iniciar Sesión
+            </Button>
+          </form>
           <Button
             variant="contained"
             fullWidth
             sx={{
-              marginTop: 4,
+              marginTop: 2,
               backgroundColor: "#4285F4",
               "&:hover": {
                 backgroundColor: "#357ae8",
