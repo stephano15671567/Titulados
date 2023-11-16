@@ -18,13 +18,11 @@ function FileUpload({ buttonSx }) {
     }
   
     const formData = new FormData();
-    formData.append('myFile', selectedFile);
+    formData.append('archivo', selectedFile);
   
     try {
       await axios.post('http://localhost:4000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        
       });
       setUploadStatus('Archivo subido con éxito');
     } catch (error) {
