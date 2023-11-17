@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -15,7 +15,17 @@ import {
 function TableData({ titulados }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  // Guarda las selecciones de guía e informante por cada titulado
   const [selections, setSelections] = useState({});
+  const [profesoresGuias, setProfesoresGuias] = useState([]);
+  const [profesoresInformantes, setProfesoresInformantes] = useState([]);
+
+  // Carga inicial de datos de profesores
+  useEffect(() => {
+    // Reemplaza con tu API real para obtener profesores guías e informantes
+    fetch('/api/profesores-guias').then(response => response.json()).then(data => setProfesoresGuias(data));
+    fetch('/api/profesores-informantes').then(response => response.json()).then(data => setProfesoresInformantes(data));
+  }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -26,18 +36,17 @@ function TableData({ titulados }) {
     setPage(0);
   };
 
-  const handleSelectionChange = (event, tituladoId, tipo) => {
-    setSelections({
-      ...selections,
+  const handleSelectionChange = (tituladoId, value, type) => {
+    setSelections(prevSelections => ({
+      ...prevSelections,
       [tituladoId]: {
-        ...selections[tituladoId],
-        [tipo]: event.target.value,
+        ...prevSelections[tituladoId],
+        [type]: value,
       },
-    });
+    }));
+    
+    // Opcional: Actualizar en la base de datos aquí o mediante un botón de "Guardar"
   };
-
-  // Asume que tienes una lista de profesores para seleccionar
-  const profesores = ['Profesor 1', 'Profesor 2', 'Profesor 3'];
 
   return (
     <TableContainer component={Paper}>
@@ -52,44 +61,36 @@ function TableData({ titulados }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {titulados
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((titulado) => (
-              <TableRow key={titulado.id}>
-                <TableCell>{titulado.id}</TableCell>
-                <TableCell>{titulado.alumno}</TableCell>
-                <TableCell>{titulado.rut}</TableCell>
-                <TableCell>
-                  <Select
-                    value={selections[titulado.id]?.guia || ''}
-                    onChange={(event) => handleSelectionChange(event, titulado.id, 'guia')}
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Profesor Guía' }}
-                  >
-                    <MenuItem value="">
-                      <em>Ninguno</em>
-                    </MenuItem>
-                    {profesores.map((profesor, index) => (
-                      <MenuItem key={`guia-${index}`} value={profesor}>{profesor}</MenuItem>
-                    ))}
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={selections[titulado.id]?.informante || ''}
-                    onChange={(event) => handleSelectionChange(event, titulado.id, 'informante')}
-                    displayEmpty
-                    inputProps={{ 'aria-label': 'Profesor Informante' }}
-                  >
-                    <MenuItem value="">
-                      <em>Ninguno</em>
-                    </MenuItem>
-                    {profesores.map((profesor, index) => (
-                      <MenuItem key={`informante-${index}`} value={profesor}>{profesor}</MenuItem>
-                    ))}
-                  </Select>
-                </TableCell>
-              </TableRow>
+          {titulados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((titulado) => (
+            <TableRow key={titulado.id}>
+              <TableCell>{titulado.id}</TableCell>
+              <TableCell>{titulado.alumno}</TableCell>
+              <TableCell>{titulado.rut}</TableCell>
+              <TableCell>
+                <Select
+                  value={selections[titulado.id]?.guia || ''}
+                  onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'guia')}
+                  displayEmpty
+                >
+                  <MenuItem value=""><em>Ninguno</em></MenuItem>
+                  {profesoresGuias.map((profesor) => (
+                    <MenuItem key={profesor.id} value={profesor.id}>{profesor.nombre}</MenuItem>
+                  ))}
+                </Select>
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={selections[titulado.id]?.informante || ''}
+                  onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'informante')}
+                  displayEmpty
+                >
+                  <MenuItem value=""><em>Ninguno</em></MenuItem>
+                  {profesoresInformantes.map((profesor) => (
+                    <MenuItem key={profesor.id} value={profesor.id}>{profesor.nombre}</MenuItem>
+                  ))}
+                </Select>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
@@ -106,4 +107,3 @@ function TableData({ titulados }) {
 }
 
 export default TableData;
-
