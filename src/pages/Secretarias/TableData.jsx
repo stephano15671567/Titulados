@@ -21,19 +21,17 @@ function TableData({ titulados }) {
   const [profesoresGuias, setProfesoresGuias] = useState([]);
   const [profesoresInformantes, setProfesoresInformantes] = useState([]);
 
-
   useEffect(() => {
-    // Aquí es donde haces las llamadas a la API para cargar los datos de los profesores
+    // Fetch the data for 'profesores guías'
     axios.get('http://localhost:4000/api/profesores/guias/')
       .then(response => {
-        console.log('Profesores guías cargados:', response.data);
         setProfesoresGuias(response.data);
       })
       .catch(error => console.error('Error al cargar los profesores guías', error));
 
+    // Fetch the data for 'profesores informantes'
     axios.get('http://localhost:4000/api/profesores/informantes/')
       .then(response => {
-        console.log('Profesores informantes cargados:', response.data);
         setProfesoresInformantes(response.data);
       })
       .catch(error => console.error('Error al cargar los profesores informantes', error));
@@ -59,11 +57,11 @@ function TableData({ titulados }) {
   };
 
   const saveAssignments = async () => {
-    const updatePromises = Object.entries(selections).map(([tituladoId, { guia, informante }]) =>
-      axios.post('/api/profesores/asignacion', {
-        alumnoId: tituladoId,
-        profesorGuiaId: guia,
-        informanteId: informante,
+    const updatePromises = Object.entries(selections).map(([tituladoId, selection]) =>
+      axios.post('http://localhost:4000/api/profesores/asignacion', {
+        tituladoId,
+        profesorGuiaId: selection.guia, 
+        profesorInformanteId: selection.informante,
       })
     );
 
@@ -97,8 +95,8 @@ function TableData({ titulados }) {
                 <TableCell>{titulado.rut}</TableCell>
                 <TableCell>
                   <Select
-                    value={selections[titulado.id]?.profesorGuia || ''}
-                    onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'profesorGuia')}
+                    value={selections[titulado.id]?.guia || ''}
+                    onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'guia')}
                     displayEmpty
                   >
                     <MenuItem value=""><em>Ninguno</em></MenuItem>
