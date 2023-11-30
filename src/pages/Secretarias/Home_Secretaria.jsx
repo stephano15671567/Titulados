@@ -1,37 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Link } from 'react-router-dom';
-import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
-import background1 from '../Home/components/images/imag_valparaiso.jpg';
-import background2 from '../Home/components/images/imagen_2.jpg';
-import background3 from '../Home/components/images/imagen_3.jpg';
-import background4 from '../Home/components/images/imagen_4.jpg';
-import background5 from '../Home/components/images/imagen_5.jpg';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Changed from useHistory to useNavigate
+import { Box, TextField, Button, Paper, Typography } from '@mui/material';
+// ... other imports
 
-function SecretariaView() {
-  const [titulados, setTitulados] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+import { Link } from "react-router-dom";
 
-  useEffect(() => {
-    fetch('/api/alumnos-titulados')
-      .then((response) => {
-        // Verifica si la respuesta es exitosa y si el contenido es tipo JSON
-        if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
-          return response.json();
-        }
-        // Si la respuesta no es exitosa, lanza un error
-        throw new Error('La respuesta no es JSON: ' + response.statusText);
-      })
-      .then((data) => {
-        setTitulados(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error);
-        setLoading(false);
-      });
-  }, []);
+import background1 from "../Home/components/images/imag_valparaiso.jpg";
+import background2 from "../Home/components/images/imagen_2.jpg";
+import background3 from "../Home/components/images/imagen_3.jpg";
+import background4 from "../Home/components/images/imagen_4.jpg";
+import background5 from "../Home/components/images/imagen_5.jpg";
+import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+
+function SecretariasHome() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate(); // Now using useNavigate
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const response = await fetch('http://localhost:4000/api/secretarias/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ correo: username, contraseña: password }),
+    });
+
+    if (response.ok) {
+      const { token } = await response.json();
+      sessionStorage.setItem('token', token); // Save the token
+      navigate('/dashboard'); // Navigate to the dashboard using navigate
+    } else {
+      alert('Login Failed');
+    }
+  };
 
   const containerStyle = {
     display: "flex",
@@ -39,79 +42,83 @@ function SecretariaView() {
     alignItems: "center",
     justifyContent: "center",
     minHeight: "100vh",
-    padding: "20px",
-    fontFamily: "Times New Roman",
+    padding: "20px",  
   };
 
-  const paperStyle = {
-    padding: "20px",
-    textAlign: "center",
-    marginBottom: "20px",
-    width: "100%",
-    maxWidth: "1000px",
-    background: "lightgray",
-    borderRadius: "10px",
-    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-  };
-
-  const buttonStyle = {
-    background: "rgba(0, 60, 88, 1)",
+  const formContainerStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: "20px",
-    display: "block"
+    background: "lightgray",
+    padding: "20px",
+    width: "100%",
+    maxWidth: "600px",   
   };
 
-  if (loading) {
-    return <Typography>Cargando...</Typography>;
-  }
+  const leftTextStyle = {
+    fontSize: "15px",  
+  };
 
-  if (error) {
-    return <Typography>Error: {error.message}</Typography>;
-  }
+  // ... (rest of your code)
 
   return (
-    <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
-      <Container maxWidth="md">
-        <Box style={containerStyle}>
-          <Paper elevation={3} style={paperStyle}>
-            <Typography variant="h5" gutterBottom>
-              Ver Tesis
-            </Typography>
-            <Typography variant="body1">
-              Ver la lista de tesis y su estado.
-            </Typography>
-            <Link to="/ver-tesis" style={{ textDecoration: "none" }}>
-              <Button variant="contained" color="primary" fullWidth style={buttonStyle}>
-                Ver Tesis
-              </Button>
-            </Link>
-            {/* ... otros botones y funcionalidades ... */}
-            <TableContainer component={Paper}>
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Alumno</TableCell>
-                    <TableCell>RUT</TableCell>
-                    {/* ... más celdas de encabezado ... */}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {titulados.map((titulado) => (
-                    <TableRow key={titulado.id}>
-                      <TableCell>{titulado.id}</TableCell>
-                      <TableCell>{titulado.alumno}</TableCell>
-                      <TableCell>{titulado.rut}</TableCell>
-                      {/* ... más celdas con datos ... */}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Box>
-      </Container>
+    <BackgroundTransition
+      images={[
+        background1,
+        background2,
+        background3,
+        background4,
+        background5,
+      ]}
+      duration={5000}
+    >
+      <Box style={containerStyle}>
+        <Paper elevation={3} style={formContainerStyle}>
+          <Typography variant="body1" style={leftTextStyle}>
+            <br />
+          </Typography>
+          <Typography variant="h5" align="center" gutterBottom>
+            Iniciar Sesión Academicos
+          </Typography>
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="Nombre de Usuario"
+              variant="outlined"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"        
+            />
+            <TextField
+              label="Contraseña"
+              type="password"
+              variant="outlined"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="large"
+            />
+            {/* Remove Link component as it's not needed with useNavigate */}
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              size="large"
+              style={{
+                background: "rgba(0, 60, 88, 1)", // Background color of the button
+              }}
+            >
+              Iniciar Sesión
+            </Button>
+          </form>
+        </Paper>
+      </Box>
     </BackgroundTransition>
   );
 }
 
-export default SecretariaView;
+export default SecretariasHome;
