@@ -30,7 +30,7 @@ function SecretariasHome() {
     if (response.ok) {
       const { token } = await response.json();
       sessionStorage.setItem('token', token); // Save the token
-      navigate('/dashboard'); // Navigate to the dashboard using navigate
+      navigate('/Secretarias'); // Navigate to the dashboard using navigate
     } else {
       alert('Login Failed');
     }
@@ -80,7 +80,7 @@ function SecretariasHome() {
             <br />
           </Typography>
           <Typography variant="h5" align="center" gutterBottom>
-            Iniciar Sesión Academicos
+            Iniciar Sesión 
           </Typography>
           <form onSubmit={handleLogin}>
             <TextField
