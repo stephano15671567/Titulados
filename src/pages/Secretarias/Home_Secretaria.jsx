@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Changed from useHistory to useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { Box, TextField, Button, Paper, Typography } from '@mui/material';
-// ... other imports
-
-import { Link } from "react-router-dom";
 
 import background1 from "../Home/components/images/imag_valparaiso.jpg";
 import background2 from "../Home/components/images/imagen_2.jpg";
@@ -15,7 +12,7 @@ import BackgroundTransition from "../../BackgroundTransition/BackgroundTransitio
 function SecretariasHome() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Now using useNavigate
+  const navigate = useNavigate(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -61,8 +58,6 @@ function SecretariasHome() {
     fontSize: "15px",  
   };
 
-  // ... (rest of your code)
-
   return (
     <BackgroundTransition
       images={[
@@ -102,14 +97,14 @@ function SecretariasHome() {
               margin="normal"
               size="large"
             />
-            {/* Remove Link component as it's not needed with useNavigate */}
+            
             <Button
               type="submit"
               variant="contained"
               fullWidth
               size="large"
               style={{
-                background: "rgba(0, 60, 88, 1)", // Background color of the button
+                background: "rgba(0, 60, 88, 1)", 
               }}
             >
               Iniciar Sesión
