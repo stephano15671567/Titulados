@@ -1,125 +1,125 @@
-import React, { useState } from 'react';
-import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
-import background1 from "../Home/components/images/imag_valparaiso.jpg";
-import background2 from "../Home/components/images/imagen_2.jpg";
-import background3 from "../Home/components/images/imagen_3.jpg";
-import background4 from "../Home/components/images/imagen_4.jpg";
-import background5 from "../Home/components/images/imagen_5.jpg";
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  Button, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableRow, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem 
-} from '@mui/material';
+
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Paper, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
+import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
+import background1 from '../Home/components/images/imag_valparaiso.jpg';
+import background2 from '../Home/components/images/imagen_2.jpg';
+import background3 from '../Home/components/images/imagen_3.jpg';
+import background4 from '../Home/components/images/imagen_4.jpg';
+import background5 from '../Home/components/images/imagen_5.jpg';
+import FileUploads from './FileUploads'; // Asegúrate de que la ruta sea correcta
+import TableData from './TableDatass'; // Importa el componente TableData
+
 
 const Jefatura = () => {
-  const [selectedProfesor, setSelectedProfesor] = useState({});
+  const [titulados, setTitulados] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const estudiantes = [
-    { id: 1, nombre: 'Estudiante 1', rut: '11.111.111-1', añoIngreso: 2020 },
-    { id: 2, nombre: 'Estudiante 2', rut: '22.222.222-2', añoIngreso: 2021 },
-    { id: 3, nombre: 'Estudiante 3', rut: '33.333.333-3', añoIngreso: 2022 },
-    { id: 4, nombre: 'Estudiante 4', rut: '44.444.444-4', añoIngreso: 2021 },
-    { id: 5, nombre: 'Estudiante 5', rut: '55.555.555-5', añoIngreso: 2020 }
-    // Puedes agregar más estudiantes según sea necesario
-  ];
+  useEffect(() => {
+    fetch('http://localhost:4000/api/titulados/alumnosTitulados')
+      .then((response) => {
+        if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
+          return response.json();
+        }
+        throw new Error('La respuesta no es JSON: ' + response.statusText);
+      })
+      .then((data) => {
+        setTitulados(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
 
-  const profesores = ['Profesor 1', 'Profesor 2', 'Profesor 3'];
-
-  const handleProfesorChange = (estudianteId, event) => {
-    setSelectedProfesor({ ...selectedProfesor, [estudianteId]: event.target.value });
+  const buttonSx = {
+    mt: 2,
+    mb: 2,
+    bgcolor: 'rgba(0, 60, 88, 1)',
+    '&:hover': {
+      bgcolor: 'rgba(0, 70, 100, 1)',
+    },
+    color: 'white',
   };
 
+  const reportUrl = 'http://localhost:4000/path-to-report'; // Reemplazar con el enlace correcto al reporte
+
+  if (loading) {
+    return <Typography>Cargando...</Typography>;
+  }
+
+  if (error) {
+    return <Typography>Error: {error.message}</Typography>;
+  }
+
   return (
-    <BackgroundTransition
-        images={[
-          background1,
-          background2,
-          background3,
-          background4,
-          background5,
-        ]}
-        duration={5000}
-    >
-      
-    
-    <Box display="flex" flexDirection="column" alignItems="center" p={3}>
-      {/* Sección para Ver y Descargar Tesis */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Ver y Descargar Tesis" />
-        <CardContent>
-          <Button variant="contained" color="primary" href="/path-to-thesis" download>
-            Descargar Tesis Ejemplo
-          </Button>
-        </CardContent>
-      </Card>
+    <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
+      <Container maxWidth="md">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            padding: '20px',
+            fontFamily: 'Times New Roman',
+          }}
+        >
+          <Paper
+            sx={{
+              padding: '20px',
+              textAlign: 'center',
+              marginBottom: '20px',
+              width: '100%',
+              maxWidth: '1000px',
+              bgcolor: 'lightgray',
+              borderRadius: '10px',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <Typography variant="h5" gutterBottom>
+              Secretaría - Administración de Tesis y Documentos
+            </Typography>
+            <FileUploads buttonSx={buttonSx} />
 
-      {/* Sección para Descargar Reportes */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Descargar Reportes" />
-        <CardContent>
-          <Button variant="contained" color="primary" href="/path-to-report" download>
-            Descargar Reporte Ejemplo
-          </Button>
-        </CardContent>
-      </Card>
+            <Link to="/ver-tesis" style={{ textDecoration: 'none' }}>
+              <Button variant="contained" fullWidth sx={buttonSx}>
+                Ver Tesis
+              </Button>
+            </Link>
 
-      {/* Sección para Asignar Profesores */}
-      <Card style={{ marginBottom: '20px', maxWidth: '800px', width: '100%' }}>
-        <CardHeader title="Asignar Profesores a Estudiantes" />
-        <CardContent>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alumno</TableCell>
-                <TableCell>RUT</TableCell>
-                <TableCell>Año Ingreso</TableCell>
-                <TableCell>Asignar Profesor</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {estudiantes.map((estudiante) => (
-                <TableRow key={estudiante.id}>
-                  <TableCell>{estudiante.nombre}</TableCell>
-                  <TableCell>{estudiante.rut}</TableCell>
-                  <TableCell>{estudiante.añoIngreso}</TableCell>
-                  <TableCell>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel id={`profesor-label-${estudiante.id}`}>Profesor</InputLabel>
-                      <Select
-                        labelId={`profesor-label-${estudiante.id}`}
-                        id={`profesor-select-${estudiante.id}`}
-                        value={selectedProfesor[estudiante.id] || ''}
-                        onChange={(e) => handleProfesorChange(estudiante.id, e)}
-                        label="Profesor"
-                      >
-                        {profesores.map((profesor) => (
-                          <MenuItem key={profesor} value={profesor}>
-                            {profesor}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </Box>
+            <Link to="/generar-actas" style={{ textDecoration: 'none' }}>
+              <Button variant="contained" fullWidth sx={buttonSx}>
+                Generar Actas
+              </Button>
+            </Link>
+
+            <Link to="/generar-comision" style={{ textDecoration: 'none' }}>
+              <Button variant="contained" fullWidth sx={buttonSx}>
+                Generar Comisión
+              </Button>
+            </Link>
+
+            <a href={reportUrl} style={{ textDecoration: 'none' }} download>
+              <Button variant="contained" fullWidth sx={buttonSx}>
+                Ver Reporte
+              </Button>
+            </a>
+
+            {/* Utiliza el componente TableData */}
+            <TableData titulados={titulados} />
+          </Paper>
+        </Box>
+      </Container>
     </BackgroundTransition>
   );
-};
-
+}
 export default Jefatura;
+
+
+
+
