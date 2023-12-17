@@ -1,6 +1,9 @@
 import React from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { Link } from "react-router-dom";
+import imagen1 from "../Home/components/images/Titulado.png"
+import imagen2 from "../Home/components/images/Secretaria.png"
+import imagen3 from "../Home/components/images/Profesor.png"
 
 function BotonCard({ to, image, label }) {
   return (
@@ -43,7 +46,7 @@ function BotonCard({ to, image, label }) {
       </Paper>
     </Link>
   );
-}
+} 
 
 function BotonesInicio() {
   return (
@@ -55,10 +58,10 @@ function BotonesInicio() {
       sx={{ borderRadius: "20px", padding: "20px", bottom: "10px" }}
     >
       <Box display="flex" justifyContent="center" gap={5}>
-        <BotonCard to="/Titulados" image="./Home/components/images/xd.png" label="Titulados" />
-        <BotonCard to="/SecretariasHome" image="ruta-de-la-imagen-2.jpg" label="Secretarias" />
-        <BotonCard to="/Academicos" image="ruta-de-la-imagen-3.jpg" label="Academicos" />
-        <BotonCard to="/Jefaturas" image="ruta-de-la-imagen-4.jpg" label="Jefaturas" />
+        <BotonCard to="/Titulados" image= {imagen1}  label="Titulados" />
+        <BotonCard to="/SecretariasHome" image= {imagen2} label="Secretarias" />
+        <BotonCard to="/Academicos" image= {imagen3}  label="Académicos" />
+        <BotonCard to="/Jefaturas" image= {imagen3} label="Jefaturas" />
       </Box>
     </Box>
   );

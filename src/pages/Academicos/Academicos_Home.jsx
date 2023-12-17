@@ -33,18 +33,6 @@ function AcademicosView() {
       });
   }, []);
 
-  const buttonSx = {
-    mt: 2,
-    mb: 2,
-    bgcolor: 'rgba(0, 60, 88, 1)',
-    '&:hover': {
-      bgcolor: 'rgba(0, 70, 100, 1)',
-    },
-    color: 'white',
-  };
-
-  const reportUrl = 'http://localhost:4000/path-to-report'; // Reemplazar con el enlace correcto al reporte
-
   if (loading) {
     return <Typography>Cargando...</Typography>;
   }
@@ -64,25 +52,12 @@ function AcademicosView() {
             justifyContent: 'center',
             minHeight: '100vh',
             padding: '20px',
-            fontFamily: 'Times New Roman',
           }}
         >
-          <Paper
-            sx={{
-              padding: '20px',
-              textAlign: 'center',
-              marginBottom: '20px',
-              width: '100%',
-              maxWidth: '1000px',
-              bgcolor: 'lightgray',
-              borderRadius: '10px',
-              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-            }}
-          >
+          <Paper sx={{ padding: '20px', marginBottom: '20px', width: '100%' }}>
             <Typography variant="h5" gutterBottom>
               Academicos
             </Typography>
-            {/* Utiliza el componente TableData */}
             <TableData titulados={titulados} />
           </Paper>
         </Box>

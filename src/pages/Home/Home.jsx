@@ -63,7 +63,7 @@ function Home() {
               sx={{
                 
                 color: "#fff",
-                fontFamily: "Times New Roman",
+                fontFamily: "Roboto",
                 fontWeight: 700,
                 letterSpacing: ".1rem",
               }}
@@ -108,7 +108,7 @@ function Home() {
                 sx={{
                   color: "#fff",
                   textAlign: "left",
-                  marginBottom: "10px",
+                  marginBottom: "0px",
                 }}
               >
                 Escuela de Administración Pública, Casa Central - Las Heras 6, Valparaíso | +56 (32) 250 7961
@@ -118,12 +118,12 @@ function Home() {
               {/* Social Media Icons */}
               <Grid container spacing={1}>
                 <Grid item>
-                  <IconButton color="primary" component="a" href="https://instagram.com">
+                  <IconButton color="primary" component="a" href="https://www.instagram.com/administracionpublicauv/">
                     <InstagramIcon />
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton color="primary" component="a" href="https://facebook.com">
+                  <IconButton color="primary" component="a" href="https://www.facebook.com/admpublicauv">
                     <FacebookIcon />
                   </IconButton>
                 </Grid>
