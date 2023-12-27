@@ -33,17 +33,17 @@ function TableData({ titulados }) {
   };
 
   // Función para guardar la nota en el backend
-    const saveGrade = (idAlumno, nota) => {
-    const token = localStorage.getItem('token'); // Asumiendo que el token está almacenado en localStorage
+  const saveGrade = (idAlumno, nota,role) => {
+    const token = sessionStorage.getItem('token'); // Obtener el token de sessionStorage
     const url = 'http://localhost:4000/api/login/profesores/asignar-nota-guia';
     
     fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Añade el token en el encabezado
+        'Authorization': `Bearer ${token}` // Usar el token en el encabezado Authorization
       },
-      body: JSON.stringify({ idAlumno, nota }),
+      body: JSON.stringify({ idAlumno, nota, role }),
     })
     .then(response => {
       if (!response.ok) throw new Error('Error al guardar la nota');
@@ -51,7 +51,7 @@ function TableData({ titulados }) {
     })
     .then(data => {
       alert('Nota guardada con éxito');
-      // Actualizar el estado aquí si es necesario
+      
     })
     .catch(error => {
       alert(error.message);
@@ -110,3 +110,5 @@ function TableData({ titulados }) {
 }
 
 export default TableData;
+
+

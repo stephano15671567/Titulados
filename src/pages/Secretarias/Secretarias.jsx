@@ -1,37 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Container, Paper, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Box, Container, Paper, Typography, Button, Link } from '@mui/material';
 import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
 import background1 from '../Home/components/images/imag_valparaiso.jpg';
 import background2 from '../Home/components/images/imagen_2.jpg';
 import background3 from '../Home/components/images/imagen_3.jpg';
 import background4 from '../Home/components/images/imagen_4.jpg';
 import background5 from '../Home/components/images/imagen_5.jpg';
-import FileUpload from './FileUpload'; // Asegúrate de que la ruta sea correcta
-import TableData from './TableData'; // Importa el componente TableData
-
+import FileUpload from './FileUpload'; // Ensure the path is correct
+import TableData from './TableData'; 
+import TableDataProfesores from './TableDataProfesores';
 function SecretariaView() {
-  const [titulados, setTitulados] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('http://localhost:4000/api/titulados/alumnosTitulados')
-      .then((response) => {
-        if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
-          return response.json();
-        }
-        throw new Error('La respuesta no es JSON: ' + response.statusText);
-      })
-      .then((data) => {
-        setTitulados(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error);
-        setLoading(false);
-      });
-  }, []);
+  const [showTable, setShowTable] = useState(false);
+  const [showProfesoresTable, setShowProfesoresTable] = useState(false);
+  
 
   const buttonSx = {
     mt: 2,
@@ -43,15 +24,7 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const reportUrl = 'http://localhost:4000/path-to-report'; // Reemplazar con el enlace correcto al reporte
-
-  if (loading) {
-    return <Typography>Cargando...</Typography>;
-  }
-
-  if (error) {
-    return <Typography>Error: {error.message}</Typography>;
-  }
+  const reportUrl = 'http://localhost:4000/path-to-report'; // Replace with the correct link to the report
 
   return (
     <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
@@ -108,8 +81,17 @@ function SecretariaView() {
               </Button>
             </a>
 
-            {/* Utiliza el componente TableData */}
-            <TableData titulados={titulados} />
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowTable(!showTable)}>
+              Gestión Alumnos
+            </Button>
+            {showTable && <TableData />}
+            
+
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowProfesoresTable(!showProfesoresTable)}>
+              Gestión Profesores
+            </Button>
+
+            {showProfesoresTable && <TableDataProfesores />}
           </Paper>
         </Box>
       </Container>

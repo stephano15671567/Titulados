@@ -1,140 +1,174 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TablePagination,
-  Select,
-  MenuItem,
-  Button,
-} from '@mui/material';
 import axios from 'axios';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField } from '@mui/material';
 
-function TableData({ titulados }) {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selections, setSelections] = useState({});
-  const [profesoresGuias, setProfesoresGuias] = useState([]);
-  const [profesoresInformantes, setProfesoresInformantes] = useState([]);
+function TableData() {
+  const [alumnos, setAlumnos] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const [newAlumno, setNewAlumno] = useState({
+    nombre: '',
+    RUT: '',
+    CODIGO: '',
+    ANO_INGRESO: '',
+    ANO_EGRESO: '',
+    n_resolucion: '',
+    hora: '',
+    fecha_examen: '',
+    ficha_inscripcion: '',
+    tesis: '',
+    mail: '',
+    Gtoken: ''
+  });
 
   useEffect(() => {
-    // Fetch the data for 'profesores guías'
-    axios.get('http://localhost:4000/api/profesores/guias/')
-      .then(response => {
-        setProfesoresGuias(response.data);
-      })
-      .catch(error => console.error('Error al cargar los profesores guías', error));
-
-    // Fetch the data for 'profesores informantes'
-    axios.get('http://localhost:4000/api/profesores/informantes/')
-      .then(response => {
-        setProfesoresInformantes(response.data);
-      })
-      .catch(error => console.error('Error al cargar los profesores informantes', error));
+    fetchAlumnos();
   }, []);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const apiBaseUrl = 'http://localhost:4000/api/alumnos'; // Asegúrate de que esta URL sea correcta según tu servidor
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleSelectionChange = (tituladoId, value, type) => {
-    setSelections(prevSelections => ({
-      ...prevSelections,
-      [tituladoId]: {
-        ...prevSelections[tituladoId],
-        [type]: value,
-      },
-    }));
-  };
-
-  const saveAssignments = async () => {
-    const updatePromises = Object.entries(selections).map(([tituladoId, selection]) =>
-      axios.post('http://localhost:4000/api/profesores/asignacion', {
-        tituladoId,
-        profesorGuiaId: selection.guia, 
-        profesorInformanteId: selection.informante,
-      })
-    );
-
+  const fetchAlumnos = async () => {
     try {
-      await Promise.all(updatePromises);
-      alert('Asignaciones guardadas con éxito');
+      const response = await axios.get(apiBaseUrl);
+      setAlumnos(response.data || []);
     } catch (error) {
-      console.error('Error al guardar las asignaciones', error);
-      alert('Error al guardar las asignaciones');
+      console.error('Error al cargar alumnos:', error);
+      setAlumnos([]);
     }
   };
 
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...alumnos];
+    list[index][name] = value;
+    setAlumnos(list);
+  };
+
+  const handleNewInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewAlumno({ ...newAlumno, [name]: value });
+  };
+
+  const addAlumno = async () => {
+    try {
+      const response = await axios.post(apiBaseUrl, newAlumno);
+      if (response.data) {
+        fetchAlumnos();
+        setNewAlumno({
+          nombre: '',
+          RUT: '',
+          CODIGO: '',
+          ANO_INGRESO: '',
+          ANO_EGRESO: '',
+          n_resolucion: '',
+          hora: '',
+          fecha_examen: '',
+          ficha_inscripcion: '',
+          tesis: '',
+          mail: '',
+          Gtoken: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error al agregar alumno:', error);
+    }
+  };
+
+  const updateAlumno = async (index) => {
+    const alumno = alumnos[index];
+    try {
+      const response = await axios.put(`${apiBaseUrl}/${alumno.RUT}`, alumno);
+      if (response.data) {
+        fetchAlumnos();
+        setEditingIndex(-1);
+      }
+    } catch (error) {
+      console.error('Error al actualizar alumno:', error);
+    }
+  };
+
+  const deleteAlumno = async (RUT) => {
+    try {
+      await axios.delete(`${apiBaseUrl}/${RUT}`);
+      fetchAlumnos();
+    } catch (error) {
+      console.error('Error al eliminar alumno:', error);
+    }
+  };
+
+  const renderEditableRow = (alumno, index) => (
+    <TableRow key={index}>
+      {Object.keys(newAlumno).map((key) => (
+        <TableCell key={key}>
+          <TextField
+            name={key}
+            value={alumno[key]}
+            onChange={(e) => handleInputChange(e, index)}
+          />
+        </TableCell>
+      ))}
+      <TableCell>
+        <Button onClick={() => updateAlumno(index)}>Guardar</Button>
+        <Button onClick={() => setEditingIndex(-1)}>Cancelar</Button>
+      </TableCell>
+    </TableRow>
+  );
+
+  const renderAddRow = () => (
+    <TableRow>
+      {Object.keys(newAlumno).map((key) => (
+        <TableCell key={key}>
+          <TextField
+            name={key}
+            value={newAlumno[key]}
+            onChange={handleNewInputChange}
+          />
+        </TableCell>
+      ))}
+      <TableCell>
+        <Button onClick={addAlumno}>Agregar</Button>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
-    <div>
-      <TableContainer component={Paper}>
-        <Table aria-label="lista de titulados">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Alumno</TableCell>
-              <TableCell>RUT</TableCell>
-              <TableCell>Profesor Guía</TableCell>
-              <TableCell>Profesor Informante</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {titulados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((titulado) => (
-              <TableRow key={titulado.id}>
-                <TableCell>{titulado.id}</TableCell>
-                <TableCell>{titulado.alumno}</TableCell>
-                <TableCell>{titulado.rut}</TableCell>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            {Object.keys(newAlumno).map((key) => (
+              <TableCell key={key}>{key.replace('_', ' ').toUpperCase()}</TableCell>
+            ))}
+            <TableCell>Acciones</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {alumnos.map((alumno, index) =>
+            editingIndex === index ? (
+              renderEditableRow(alumno, index)
+            ) : (
+              <TableRow key={index}>
+                {Object.keys(newAlumno).map((key) => (
+                  <TableCell key={key}>{alumno[key]}</TableCell>
+                ))}
                 <TableCell>
-                  <Select
-                    value={selections[titulado.id]?.guia || ''}
-                    onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'guia')}
-                    displayEmpty
-                  >
-                    <MenuItem value=""><em>Ninguno</em></MenuItem>
-                    {profesoresGuias.map((profesor) => (
-                      <MenuItem key={profesor.id} value={profesor.id}>{profesor.nombre}</MenuItem>
-                    ))}
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={selections[titulado.id]?.informante || ''}
-                    onChange={(event) => handleSelectionChange(titulado.id, event.target.value, 'informante')}
-                    displayEmpty
-                  >
-                    <MenuItem value=""><em>Ninguno</em></MenuItem>
-                    {profesoresInformantes.map((profesor) => (
-                      <MenuItem key={profesor.id} value={profesor.id}>{profesor.nombre}</MenuItem>
-                    ))}
-                  </Select>
+                  <Button onClick={() => setEditingIndex(index)}>Editar</Button>
+                  <Button onClick={() => deleteAlumno(alumno.RUT)}>Eliminar</Button>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          component="div"
-          count={titulados.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
-      <Button variant="contained" color="primary" onClick={saveAssignments}>
-        Guardar Asignaciones
-      </Button>
-    </div>
+            )
+          )}
+          {renderAddRow()}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }
 
 export default TableData;
+
+
+
+
+
+
+

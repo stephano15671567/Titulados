@@ -67,3 +67,5 @@ function AcademicosView() {
 }
 
 export default AcademicosView;
+
+

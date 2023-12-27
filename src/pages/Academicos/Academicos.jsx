@@ -16,20 +16,24 @@ function Titulados() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:4000/api/login/profesores/logins', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ correo: username, contraseña: password }),
-    });
+    try {
+      const response = await fetch('http://localhost:4000/api/login/profesores/logins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ correo: username, contraseña: password }),
+      });
 
-    if (response.ok) {
-      const { token } = await response.json();
-      sessionStorage.setItem('token', token); // Save the token
-      navigate('/AcademicosHome'); // Navigate to the dashboard using navigate
-    } else {
-      alert('Login Failed');
+      if (response.ok) {
+        const { token } = await response.json();
+        sessionStorage.setItem('token', token); // Almacenar el token en sessionStorage
+        navigate('/AcademicosHome'); // Navegar al dashboard
+      } else {
+        alert('Inicio de sesión fallido. Por favor, verifica tus credenciales.');
+      }
+    } catch (error) {
+      alert('Error al conectarse con el servidor.');
     }
   };
 
@@ -117,3 +121,5 @@ function Titulados() {
 }
 
 export default Titulados;
+
+
