@@ -9,9 +9,12 @@ import background5 from '../Home/components/images/imagen_5.jpg';
 import FileUpload from './FileUpload'; // Ensure the path is correct
 import TableData from './TableData'; 
 import TableDataProfesores from './TableDataProfesores';
+import Asignaciones from './Asignaciones';
+
 function SecretariaView() {
   const [showTable, setShowTable] = useState(false);
   const [showProfesoresTable, setShowProfesoresTable] = useState(false);
+  const [showAsignacionesTable, setShowAsignacionesTable] = useState(false); 
   
 
   const buttonSx = {
@@ -24,7 +27,7 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const reportUrl = 'http://localhost:4000/path-to-report'; // Replace with the correct link to the report
+  const reportUrl = 'http://localhost:4000/path-to-report'; 
 
   return (
     <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
@@ -92,6 +95,15 @@ function SecretariaView() {
             </Button>
 
             {showProfesoresTable && <TableDataProfesores />}
+
+            {/* Botón y lógica para mostrar/ocultar Asignaciones */}
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowAsignacionesTable(!showAsignacionesTable)}>
+              Gestión de Asignaciones
+            </Button>
+            {showAsignacionesTable && <Asignaciones />}
+            
+
+            
           </Paper>
         </Box>
       </Container>
