@@ -18,7 +18,7 @@ function Titulados() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/alumnos/ver/",
+        "/api/alumnos/ver/",
         {},
         {
           headers: {
@@ -75,7 +75,7 @@ function Titulados() {
  
   const handleToken = async (response) => {
     try {
-      const res = await axios.post("http://localhost:4000/api/alumnos/auth/", {
+      const res = await axios.post("/api/alumnos/auth/", {
         token: response.credential,
       });
       const usuario = jwtDecode(res.data);

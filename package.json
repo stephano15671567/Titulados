@@ -55,5 +55,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "proxy": "https://titulados-api.onrender.com"
 }
