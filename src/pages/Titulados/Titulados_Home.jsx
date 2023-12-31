@@ -110,6 +110,7 @@ function TituladosHome() {
               >
                 Subir Ficha de Inscripción
               </Button>
+
             </label>
           </Paper>
         </Box>

@@ -9,6 +9,7 @@ import HomeS from "../pages/Secretarias/Home_Secretaria";
 import Alumnos from "../pages/Titulados/Titulados_Home";
 import JefaturasH from "../pages/Jefaturas/Jefaturas_Home";
 import AcademicosH from "../pages/Academicos/Academicos_Home";
+import TituladosHome from "../pages/Titulados/Titulados_Home";
 
 /* ***Layouts**** */
 /*const FullLayout = Loadable(
@@ -22,9 +23,6 @@ const Error = Loadable(lazy(() => import("../pages/Error/404")));
 /* ****Pages***** */
 const HomePage = Loadable(lazy(() => import("../pages/Home/Home")));
 
-
-
-
 /* ****Routes***** */
 
 const Router = [
@@ -35,24 +33,25 @@ const Router = [
       { path: "", exact: true, element: <HomePage /> },
       { path: "*", element: <Navigate to="/404" /> },
       { path: "404", element: <Error /> },
-      { path: "/Titulados", element: <Titulados />},
+      {
+        path: "/Titulados",
+        element: <Titulados />,
+        children: [
+          {
+            path: "",
+            element: <TituladosHome />,
+          },
+        ],
+      }, //Login de titulados
       { path: "/Secretarias", element: <Secretarias /> },
-      { path: "/Academicos", element: <Academicos/> },
-      { path: "/Jefaturas", element: <Jefaturas/> },
-      { path: "/SecretariasHome", element: <HomeS/> },
-      { path: "/TituladosHome", element: <Alumnos/>},
-      { path: "/JefaturasHome", element: <JefaturasH/>},
-      { path: "/AcademicosHome", element: <AcademicosH/>},
-      
-      
-      
+      { path: "/Academicos", element: <Academicos /> },
+      { path: "/Jefaturas", element: <Jefaturas /> },
+      { path: "/SecretariasHome", element: <HomeS /> },
+      //Plataforma para titulados
+      { path: "/JefaturasHome", element: <JefaturasH /> },
+      { path: "/AcademicosHome", element: <AcademicosH /> },
     ],
   },
 ];
 
 export default Router;
-
-
-
-
-
