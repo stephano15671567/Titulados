@@ -8,14 +8,13 @@ function TableDataProfesores() {
   const [newProfesor, setNewProfesor] = useState({
     nombre: '',
     mail: '',
-    
   });
 
   useEffect(() => {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'http://localhost:4000/api/profesores'; 
+  const apiBaseUrl = 'http://localhost:4000/api/profesores'; // Make sure this URL is correct for your server
 
   const fetchProfesores = async () => {
     try {
@@ -47,7 +46,6 @@ function TableDataProfesores() {
         setNewProfesor({
           nombre: '',
           mail: '',
-          
         });
       }
     } catch (error) {
@@ -58,7 +56,7 @@ function TableDataProfesores() {
   const updateProfesor = async (index) => {
     const profesor = profesores[index];
     try {
-      const response = await axios.put(`${apiBaseUrl}/${profesor.id}`, profesor);
+      const response = await axios.put(`${apiBaseUrl}/${profesor.profesor_id}`, profesor);
       if (response.data) {
         setEditingIndex(-1);
         fetchProfesores();
@@ -68,19 +66,23 @@ function TableDataProfesores() {
     }
   };
 
-  const deleteProfesor = async (id) => {
-    try {
-      const response = await axios.delete(`${apiBaseUrl}/${id}`);
-      if (response.data) {
-        fetchProfesores();
+  const deleteProfesor = async (profesor_id) => {
+    if (profesor_id) { // Make sure profesor_id is not undefined
+      try {
+        const response = await axios.delete(`${apiBaseUrl}/${profesor_id}`);
+        if (response.status === 200) {
+          fetchProfesores(); // Refetch the list to update the UI
+        }
+      } catch (error) {
+        console.error('Error deleting profesor:', error);
       }
-    } catch (error) {
-      console.error('Error deleting profesor:', error);
+    } else {
+      console.error('Attempted to delete a profesor with undefined profesor_id');
     }
   };
 
   const renderEditableRow = (profesor, index) => (
-    <TableRow key={`editable-${index}`}>
+    <TableRow key={`editing-${profesor.profesor_id}`}>
       <TableCell>
         <TextField
           name="nombre"
@@ -139,12 +141,12 @@ function TableDataProfesores() {
             editingIndex === index ? (
               renderEditableRow(profesor, index)
             ) : (
-              <TableRow key={profesor.id}>
+              <TableRow key={profesor.profesor_id}>
                 <TableCell>{profesor.nombre}</TableCell>
                 <TableCell>{profesor.mail}</TableCell>
                 <TableCell>
                   <Button onClick={() => setEditingIndex(index)}>Editar</Button>
-                  <Button onClick={() => deleteProfesor(profesor.id)}>Eliminar</Button>
+                  <Button onClick={() => deleteProfesor(profesor.profesor_id)}>Eliminar</Button>
                 </TableCell>
               </TableRow>
             )
