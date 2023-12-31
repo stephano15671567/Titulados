@@ -14,7 +14,7 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'http://localhost:4000/api/profesores'; // Make sure this URL is correct for your server
+  const apiBaseUrl = '/api/profesores'; // Make sure this URL is correct for your server
 
   const fetchProfesores = async () => {
     try {
