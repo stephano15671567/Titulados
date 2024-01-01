@@ -14,7 +14,7 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = '/api/profesores'; // Make sure this URL is correct for your server
+  const apiBaseUrl = 'https://titulados-api.onrender.com/api/profesores'; // Make sure this URL is correct for your server
 
   const fetchProfesores = async () => {
     try {

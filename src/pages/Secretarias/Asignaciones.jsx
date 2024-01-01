@@ -13,12 +13,12 @@ function Asignaciones() {
     }, []);
 
     const fetchAlumnos = async () => {
-        const response = await axios.get('/api/alumnos');
+        const response = await axios.get('https://titulados-api.onrender.com/api/alumnos');
         setAlumnos(response.data);
     };
 
     const fetchProfesores = async () => {
-        const response = await axios.get('/api/profesores');
+        const response = await axios.get('https://titulados-api.onrender.com/api/profesores');
         setProfesores(response.data);
     };
 
@@ -39,7 +39,7 @@ function Asignaciones() {
     const handleAssign = async (alumnoId) => {
         const assignment = assignments[alumnoId];
         try {
-            const response = await axios.post('/api/asignaciones', {
+            const response = await axios.post('https://titulados-api.onrender.com/api/asignaciones', {
                 alumnoId,
                 profesorId: assignment.profesorId,
                 rol: assignment.rol

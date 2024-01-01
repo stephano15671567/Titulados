@@ -16,7 +16,7 @@ function SecretariasHome() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/secretarias/login', {
+    const response = await fetch('https://titulados-api.onrender.com/api/secretarias/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
