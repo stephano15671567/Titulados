@@ -32,7 +32,7 @@ function AcademicosView() {
         setLoading(false);
       });
   }, []);
-
+  /*
   if (loading) {
     return <Typography>Cargando...</Typography>;
   }
@@ -40,7 +40,7 @@ function AcademicosView() {
   if (error) {
     return <Typography>Error: {error.message}</Typography>;
   }
-
+  */
   return (
     <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
       <Container maxWidth="md">

@@ -44,7 +44,15 @@ const Router = [
         ],
       }, //Login de titulados
       { path: "/Secretarias", element: <Secretarias /> },
-      { path: "/Academicos", element: <Academicos /> },
+      { path: "/Academicos",
+        element: <Academicos />,
+        children: [
+          {
+            path: "",
+            element: <AcademicosH />,
+          },
+        ],
+      },
       { path: "/Jefaturas", element: <Jefaturas /> },
       { path: "/SecretariasHome", element: <HomeS /> },
       //Plataforma para titulados
