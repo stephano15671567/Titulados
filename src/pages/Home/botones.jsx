@@ -59,7 +59,7 @@ function BotonesInicio() {
     >
       <Box display="flex" justifyContent="center" gap={5}>
         <BotonCard to="/Titulados" image= {imagen1}  label="Titulados" />
-        <BotonCard to="/SecretariasHome" image= {imagen2} label="Secretarias" />
+        <BotonCard to="/Secretarias" image= {imagen2} label="Secretarias" />
         <BotonCard to="/Academicos" image= {imagen3}  label="Académicos" />
         <BotonCard to="/Jefaturas" image= {imagen3} label="Jefaturas" />
       </Box>
