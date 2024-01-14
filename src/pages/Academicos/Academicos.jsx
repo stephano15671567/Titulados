@@ -9,6 +9,7 @@ import background3 from "../Home/components/images/imagen_3.jpg";
 import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import { jwtDecode } from "jwt-decode";
 
 function Titulados() {
   const win = window.sessionStorage; //Variable de sesión
@@ -18,7 +19,7 @@ function Titulados() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "https://titulados-api.onrender.com/api/alumnos/ver/",
+        "http://localhost:4000/api/profesores/ver/",
         {},
         {
           headers: {
@@ -43,7 +44,7 @@ function Titulados() {
   }
 
   useEffect(() => {
-    if (win.getItem("status") === "true" && win.getItem("rol") === "alumno") {
+    if (win.getItem("status") === "true" && win.getItem("rol") === "profesor") {
       if (win.getItem("token") !== null) {
         verifyToken();
       }
@@ -75,7 +76,7 @@ function Titulados() {
  
   const handleToken = async (response) => {
     try {
-      const res = await axios.post("https://titulados-api.onrender.com/api/alumnos/auth/", {
+      const res = await axios.post("http://localhost:4000/api/profesores/auth/", {
         token: response.credential,
       });
       const usuario = jwtDecode(res.data);
