@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import { Box, TextField, Button, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import { Outlet } from "react-router";
 import axios from "axios";
 import background1 from "../Home/components/images/imag_valparaiso.jpg";
