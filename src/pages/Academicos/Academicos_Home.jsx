@@ -13,6 +13,8 @@ const win = window.sessionStorage; //Variable de sesión
 
 const alo = win.getItem("id");
 console.log(alo)
+
+
 function AcademicosView() {
   
   return (
