@@ -43,6 +43,7 @@ const ProfessorAssignmentsView = () => {
     
     //CHANGE TO FULL CRUD TABLEEEEEEEE
 
+    //RUTEAR A ENDPOINT EL QUE TRAIGA TODOS LOS GUÍAS INFORMÁNTE Y AMBOS 
     const fetchAsignaciones = async () => {
         try {
             const response = await axios.get('http://localhost:4000/api/asignaciones');
@@ -74,7 +75,7 @@ const ProfessorAssignmentsView = () => {
 
   
 
-  console.log(guiaAssignments)
+  console.log(assignments)
   console.log(informanteAssignments)
 
   return (
@@ -89,7 +90,7 @@ const ProfessorAssignmentsView = () => {
           padding: '20px',
         }}
       >
-        <GuiaTable rows={guiaAssignments} />
+        <GuiaTable rows={assignments} />
         <InformanteTable rows={informanteAssignments} />
       </Box>
     </Container>
