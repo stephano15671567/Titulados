@@ -19,6 +19,12 @@ const ProfessorAssignmentsView = ({ professorId }) => {
       .then(response => setInformanteAssignments(response.data))
       .catch(error => console.error('Error fetching informante assignments:', error));
   }, [professorId]);
+  
+const win = window.sessionStorage; //Variable de sesión
+
+const alo = win.getItem("id");
+console.log(alo)
+
 
   return (
     <Container maxWidth="md">
