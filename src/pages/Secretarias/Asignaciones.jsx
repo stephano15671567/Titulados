@@ -50,6 +50,8 @@ function Asignaciones() {
         } catch (error) {
             // Handle error
             console.error('Error al crear asignación:', error.response.data);
+            //Renderizar modal mwajaja
+            alert('Alumno ya asignado a profesor: ')
             // Aquí podrías mostrar un mensaje de error en la interfaz de usuario
         }
     };
@@ -88,6 +90,8 @@ function Asignaciones() {
                                 >
                                     <MenuItem value="guia">Guía</MenuItem>
                                     <MenuItem value="informante">Informante</MenuItem>
+                                    <MenuItem value="gyf">Guía y Informante</MenuItem>
+
                                 </Select>
                             </TableCell>
                             <TableCell>
