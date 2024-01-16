@@ -9,7 +9,10 @@ import background4 from '../Home/components/images/imagen_4.jpg';
 import background5 from '../Home/components/images/imagen_5.jpg';
 
 
+const win = window.sessionStorage; //Variable de sesión
 
+const alo = win.getItem("id");
+console.log(alo)
 function AcademicosView() {
   
   return (
