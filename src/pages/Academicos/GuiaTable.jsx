@@ -16,8 +16,11 @@ const GuiaTable = ({ rows }) => (
         </TableHead>
         <TableBody>
           {Array.isArray(rows) && rows.map((row, index) => (
+
+
+
             <TableRow key={index}>
-              <TableCell component="th" scope="row">{row.nombre}</TableCell>
+              <TableCell component="th" scope="row">{row.alumnoNombre}</TableCell>
               <TableCell align="right">{row.alumno_RUT}</TableCell>
               <TableCell align="right">{row.nota}</TableCell>
             </TableRow>
