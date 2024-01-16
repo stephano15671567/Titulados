@@ -1,43 +1,43 @@
-import React from 'react';
-import { Box, Container, Paper, Typography } from '@mui/material';
+// ProfessorAssignmentsView.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Container, Box } from '@mui/material';
+import GuiaTable from './GuiaTable';
+import InformanteTable from './InformanteTable';
 
-import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
-import background1 from '../Home/components/images/imag_valparaiso.jpg';
-import background2 from '../Home/components/images/imagen_2.jpg';
-import background3 from '../Home/components/images/imagen_3.jpg';
-import background4 from '../Home/components/images/imagen_4.jpg';
-import background5 from '../Home/components/images/imagen_5.jpg';
+const ProfessorAssignmentsView = ({ professorId }) => {
+  const [guiaAssignments, setGuiaAssignments] = useState([]);
+  const [informanteAssignments, setInformanteAssignments] = useState([]);
 
+  useEffect(() => {
+    
+    axios.get(`http://localhost:4000/api/asignaciones/guia/${professorId}`)
+      .then(response => setGuiaAssignments(response.data))
+      .catch(error => console.error('Error fetching guia assignments:', error));
 
+    axios.get(`http://localhost:4000/api/asignaciones/informante/${professorId}`)
+      .then(response => setInformanteAssignments(response.data))
+      .catch(error => console.error('Error fetching informante assignments:', error));
+  }, [professorId]);
 
-function AcademicosView() {
-  
   return (
-    <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
-      <Container maxWidth="md">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            padding: '20px',
-          }}
-        >
-          <Paper sx={{ padding: '20px', marginBottom: '20px', width: '100%' }}>
-            <Typography variant="h5" gutterBottom>
-              Nota Guia
-            </Typography>
-            
-          </Paper>
-          
-        </Box>
-      </Container>
-    </BackgroundTransition>
+    <Container maxWidth="md">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '20px',
+        }}
+      >
+        <GuiaTable rows={guiaAssignments} />
+        <InformanteTable rows={informanteAssignments} />
+      </Box>
+    </Container>
   );
-}
+};
 
-export default AcademicosView;
-
+export default ProfessorAssignmentsView;
 
