@@ -24,7 +24,7 @@ function TableData() {
     fetchAlumnos();
   }, []);
 
-  const apiBaseUrl = 'https://titulados-api.onrender.com/api/alumnos/'; // Asegúrate de que esta URL sea correcta según tu servidor
+  const apiBaseUrl = 'http://localhost:4000/api/alumnos/'; // Asegúrate de que esta URL sea correcta según tu servidor
 
   const fetchAlumnos = async () => {
     try {

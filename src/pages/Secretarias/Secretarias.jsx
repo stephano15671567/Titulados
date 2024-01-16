@@ -30,7 +30,7 @@ function SecretariaView() {
   const reportUrl = 'http://localhost:4000/path-to-report'; 
 
   return (
-    <BackgroundTransition images={[background1, background2, background3, background4, background5]} duration={5000}>
+    
       <Container maxWidth="md">
         <Box
           sx={{
@@ -107,7 +107,7 @@ function SecretariaView() {
           </Paper>
         </Box>
       </Container>
-    </BackgroundTransition>
+    
   );
 }
 

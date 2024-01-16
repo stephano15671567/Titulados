@@ -12,7 +12,7 @@ import {
   Button,
 } from '@mui/material';
 
-function TableData({ titulados }) {
+function TableGuias({ titulados }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [grades, setGrades] = useState({}); // Estado para las notas
@@ -63,17 +63,17 @@ function TableData({ titulados }) {
       <Table aria-label="lista de titulados">
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
+            
             <TableCell>Alumno</TableCell>
             <TableCell>RUT</TableCell>
             <TableCell>Nota</TableCell>
-            <TableCell>Acción</TableCell>
+            
           </TableRow>
         </TableHead>
         <TableBody>
           {titulados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((titulado) => (
             <TableRow key={titulado.id}>
-              <TableCell>{titulado.id}</TableCell>
+              
               <TableCell>{titulado.alumno}</TableCell>
               <TableCell>{titulado.rut}</TableCell>
               <TableCell>
@@ -109,6 +109,4 @@ function TableData({ titulados }) {
   );
 }
 
-export default TableData;
-
-
+export default TableGuias;
