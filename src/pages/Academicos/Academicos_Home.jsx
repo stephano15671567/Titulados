@@ -5,26 +5,27 @@ import { Container, Box } from '@mui/material';
 import GuiaTable from './GuiaTable';
 import InformanteTable from './InformanteTable';
 
-const ProfessorAssignmentsView = ({ professorId }) => {
+const ProfessorAssignmentsView = () => {
   const [guiaAssignments, setGuiaAssignments] = useState([]);
   const [informanteAssignments, setInformanteAssignments] = useState([]);
 
+  const win = window.sessionStorage; 
+  const professorId = win.getItem("id"); 
+
   useEffect(() => {
-    
-    axios.get(`http://localhost:4000/api/asignaciones/guia/${professorId}`)
-      .then(response => setGuiaAssignments(response.data))
-      .catch(error => console.error('Error fetching guia assignments:', error));
+    if (professorId) {
+      axios.get(`http://localhost:4000/api/asignaciones/guia/${professorId}`)
+        .then(response => setGuiaAssignments(response.data))
+        .catch(error => console.error('Error fetching guia assignments:', error));
 
-    axios.get(`http://localhost:4000/api/asignaciones/informante/${professorId}`)
-      .then(response => setInformanteAssignments(response.data))
-      .catch(error => console.error('Error fetching informante assignments:', error));
+      axios.get(`http://localhost:4000/api/asignaciones/informante/${professorId}`)
+        .then(response => setInformanteAssignments(response.data))
+        .catch(error => console.error('Error fetching informante assignments:', error));
+    }
   }, [professorId]);
-  
-const win = window.sessionStorage; //Variable de sesión
 
-const alo = win.getItem("id");
-console.log(alo)
-
+  console.log(guiaAssignments)
+  console.log(informanteAssignments)
 
   return (
     <Container maxWidth="md">

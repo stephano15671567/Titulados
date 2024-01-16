@@ -1,4 +1,4 @@
-// GuiaTable.js
+
 import React from 'react';
 import { Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
@@ -15,10 +15,10 @@ const GuiaTable = ({ rows }) => (
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, index) => (
+          {Array.isArray(rows) && rows.map((row, index) => (
             <TableRow key={index}>
               <TableCell component="th" scope="row">{row.nombre}</TableCell>
-              <TableCell align="right">{row.rut}</TableCell>
+              <TableCell align="right">{row.alumno_RUT}</TableCell>
               <TableCell align="right">{row.nota}</TableCell>
             </TableRow>
           ))}
