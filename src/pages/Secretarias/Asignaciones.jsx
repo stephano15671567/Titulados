@@ -137,6 +137,7 @@ export default function Asignaciones() {
           alumnoId: currentAssignment.alumno_RUT,
           profesorId: formDataEdit.profesor,
           rol: formDataEdit.rol,
+
         }
       );
       console.log("Updated assignment data:", response.data);
@@ -572,5 +573,61 @@ function Asignaciones() {
 }
 
 export default Asignaciones;
+
+*/
+/* 
+
+TABLA DEPRECATED
+
+ <TableContainer component={Paper}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Alumno</TableCell>
+                        <TableCell>Profesor</TableCell>
+                        <TableCell>Rol</TableCell>
+                        <TableCell>Asignar</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {alumnos.map(alumno => (
+                        <TableRow key={alumno.RUT}>
+                            <TableCell>{alumno.nombre}</TableCell>
+                            <TableCell>
+                                <Select
+                                    value={assignments[alumno.RUT]?.profesorId || ''}
+                                    onChange={(e) => handleProfessorChange(alumno.RUT, e.target.value)}
+                                >
+                                    {profesores.map(profesor => (
+                                        <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
+                                            {profesor.nombre}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </TableCell>
+                            <TableCell>
+                                <Select
+                                    value={assignments[alumno.RUT]?.rol || ''}
+                                    onChange={(e) => handleRoleChange(alumno.RUT, e.target.value)}
+                                >
+                                    <MenuItem value="guia">Guía</MenuItem>
+                                    <MenuItem value="informante">Informante</MenuItem>
+                                    <MenuItem value="gyf">Guía y Informante</MenuItem>
+
+                                </Select>
+                            </TableCell>
+                            <TableCell>
+                                <Button
+                                    onClick={() => handleAssign(alumno.RUT)}
+                                    variant="contained"
+                                >
+                                    Asignar
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
 
 */
