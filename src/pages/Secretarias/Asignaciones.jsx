@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Box,
   Table,
@@ -20,13 +20,25 @@ import {
   FormControl,
   InputLabel,
   Alert,
+  Input,
 } from "@mui/material";
 
 export default function Asignaciones() {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentAssignment, setCurrentAssignment] = useState(null);
+
+  const handleModifyClick = (assignment) => {
+    setCurrentAssignment(assignment);
+    setEditModalOpen(true);
+  };
+
   const [open, setOpen] = useState(false);
   const [showAssignments, setShowAssignments] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const handleCloseedit = () => setEditModalOpen(false);
+
   const [error, setError] = useState("");
   const [alumnos, setAlumnos] = useState([]);
   const [profesores, setProfesores] = useState([]);
@@ -34,11 +46,35 @@ export default function Asignaciones() {
   const toggleAssignments = () => {
     setShowAssignments(!showAssignments); // Toggle the visibility of the assignments table
   };
+
+  const [formDataEdit, setFormDataEdit] = useState({
+    alumno: "",
+    profesor: "",
+    rol: "",
+  });
+
   const [formData, setFormData] = useState({
     alumno: "",
     profesor: "",
     rol: "",
   });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setFormDataEdit((prevformDataEdit) => ({
+      ...prevformDataEdit,
+      [name]: value,
+    }));
+  };
+
   const fetchAlumnos = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/alumnos");
@@ -73,38 +109,49 @@ export default function Asignaciones() {
     fetchProfesores();
     fetchFetchedAssignments();
   }, []);
-  
 
-
-  const handleDeletedb = async (assignmentId) => { 
+  const handleDeletedb = async (assignmentId) => {
     try {
-        const response = await axios.delete(
-            `http://localhost:4000/api/asignaciones/${assignmentId}`
-        );
-        console.log("Asignación eliminada:", response.data);
-        fetchFetchedAssignments();
+      const response = await axios.delete(
+        `http://localhost:4000/api/asignaciones/${assignmentId}`
+      );
+      console.log("Asignación eliminada:", response.data);
+      fetchFetchedAssignments();
     } catch (error) {
-        console.error("Error deleting assignment:", error);
+      console.error("Error deleting assignment:", error);
     }
-};
-
-
+  };
 
   const handleDelete = (assignmentId) => {
     console.log("Deleting assignment with ID:", assignmentId);
-    handleDeletedb(assignmentId)
+    handleDeletedb(assignmentId);
   };
 
-  const handleModify = (assignmentId) => {
-    console.log("Modifying assignment with ID:", assignmentId);
+  const modifyAssignment = async (alumnoId) => {
+    setError("");
+
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+        {
+          alumnoId: currentAssignment.alumno_RUT,
+          profesorId: formDataEdit.profesor,
+          rol: formDataEdit.rol,
+        }
+      );
+      console.log("Updated assignment data:", response.data);
+      fetchFetchedAssignments();
+      setEditModalOpen(false); // Close the modal
+    } catch (error) {
+      console.log(error);
+      setError("No se puede asignar al mismo profesor");
+    }
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+  const handleModify = (alumnoId) => {
+    alumnoId.preventDefault();
+    modifyAssignment();
+    fetchFetchedAssignments();
   };
 
   const handleAssign = async (alumnoId) => {
@@ -126,7 +173,6 @@ export default function Asignaciones() {
       console.error("Error al crear asignación:", error.response.data);
       setError("Alumno ya fue previamente asignado");
     }
-
   };
 
   const modalStyle = {
@@ -223,8 +269,8 @@ export default function Asignaciones() {
                 label="Rol"
                 onChange={handleInputChange}
               >
-                <MenuItem value="Guía">Guía</MenuItem>
-                <MenuItem value="Informante">Informante</MenuItem>
+                <MenuItem value="guia">Guía</MenuItem>
+                <MenuItem value="informante">Informante</MenuItem>
                 {/* Add more role options */}
               </Select>
             </FormControl>
@@ -260,26 +306,124 @@ export default function Asignaciones() {
                   <TableCell>{assignment.nombre_profesor}</TableCell>
                   <TableCell>{assignment.rol}</TableCell>
                   <TableCell>
-              <Button
-                onClick={() => handleModify(assignment.asignacion_id)} // Replace 'id' with your unique identifier
-                startIcon={<EditIcon />}
-              >
-                Modificar
-              </Button>
-              <Button
-                onClick={() => handleDelete(assignment.asignacion_id)} // Replace 'id' with your unique identifier
-                startIcon={<DeleteIcon />}
-                color="error"
-              >
-                Eliminar
-              </Button>
-            </TableCell>
+                    <Button
+                      onClick={() => handleModifyClick(assignment)}
+                      startIcon={<EditIcon />}
+                    >
+                      Modificar
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(assignment.asignacion_id)} // Replace 'id' with your unique identifier
+                      startIcon={<DeleteIcon />}
+                      color="error"
+                    >
+                      Eliminar
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
+      <Modal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Modificar Asignación
+          </Typography>
+          {currentAssignment && (
+            <>
+              <Box sx={modalStyle}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2, // Margin bottom for spacing
+                  }}
+                >
+                  
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h6"
+                    component="h2"
+                  >
+                    Modificar asignación
+                  </Typography>
+
+                  <Button
+                    variant="outlined"
+                    onClick={handleCloseedit}
+                    startIcon={<HighlightOffIcon />}
+                  >
+                    Cerrar
+                  </Button>
+                </Box>
+                <Box component="form" onSubmit={handleModify} sx={{ mt: 2 }}>
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
+                  <InputLabel>Alumno</InputLabel>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <Input
+                      disabled
+                      defaultValue={
+                        currentAssignment.alumno_RUT +
+                        " " +
+                        currentAssignment.alumno_nombre
+                      }
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Profesor</InputLabel>
+                    <Select
+                      name="profesor"
+                      value={formDataEdit.profesor || ""}
+                      label="Profesor"
+                      onChange={handleEditChange}
+                    >
+                      {profesores.map((profesor) => (
+                        <MenuItem
+                          key={profesor.profesor_id}
+                          value={profesor.profesor_id}
+                        >
+                          {profesor.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Rol</InputLabel>
+                    <Select
+                      name="rol"
+                      value={formDataEdit.rol}
+                      label="Rol"
+                      onChange={handleEditChange}
+                    >
+                      <MenuItem value="guia">Guía</MenuItem>
+                      <MenuItem value="informante">Informante</MenuItem>
+                      {/* Add more role options */}
+                    </Select>
+                  </FormControl>
+
+                  <Button variant="contained" type="submit">
+                    Modificar Asignación
+                  </Button>
+                </Box>
+              </Box>
+            </>
+          )}
+        </Box>
+      </Modal>
     </>
   );
 }
