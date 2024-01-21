@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Box,
   Table,
@@ -22,12 +24,6 @@ import {
 
 export default function Asignaciones() {
   const [open, setOpen] = useState(false);
-
-  const [formData, setFormData] = useState({
-    alumno: "",
-    profesor: "",
-    rol: "",
-  });
   const [showAssignments, setShowAssignments] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,7 +34,11 @@ export default function Asignaciones() {
   const toggleAssignments = () => {
     setShowAssignments(!showAssignments); // Toggle the visibility of the assignments table
   };
-
+  const [formData, setFormData] = useState({
+    alumno: "",
+    profesor: "",
+    rol: "",
+  });
   const fetchAlumnos = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/alumnos");
@@ -73,16 +73,30 @@ export default function Asignaciones() {
     fetchProfesores();
     fetchFetchedAssignments();
   }, []);
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
+  
+
+
+  const handleDeletedb = async (assignmentId) => { 
+    try {
+        const response = await axios.delete(
+            `http://localhost:4000/api/asignaciones/${assignmentId}`
+        );
+        console.log("Asignación eliminada:", response.data);
+        fetchFetchedAssignments();
+    } catch (error) {
+        console.error("Error deleting assignment:", error);
+    }
+};
+
+
+
+  const handleDelete = (assignmentId) => {
+    console.log("Deleting assignment with ID:", assignmentId);
+    handleDeletedb(assignmentId)
+  };
+
+  const handleModify = (assignmentId) => {
+    console.log("Modifying assignment with ID:", assignmentId);
   };
 
   const handleInputChange = (event) => {
@@ -106,13 +120,26 @@ export default function Asignaciones() {
         }
       );
       // Handle success
+      fetchFetchedAssignments();
       console.log("Asignación creada:", response.data);
     } catch (error) {
       console.error("Error al crear asignación:", error.response.data);
       setError("Alumno ya fue previamente asignado");
     }
+
   };
 
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
   return (
     <>
       <Box mb="15px">
@@ -232,6 +259,21 @@ export default function Asignaciones() {
                   <TableCell>{assignment.alumno_nombre}</TableCell>
                   <TableCell>{assignment.nombre_profesor}</TableCell>
                   <TableCell>{assignment.rol}</TableCell>
+                  <TableCell>
+              <Button
+                onClick={() => handleModify(assignment.asignacion_id)} // Replace 'id' with your unique identifier
+                startIcon={<EditIcon />}
+              >
+                Modificar
+              </Button>
+              <Button
+                onClick={() => handleDelete(assignment.asignacion_id)} // Replace 'id' with your unique identifier
+                startIcon={<DeleteIcon />}
+                color="error"
+              >
+                Eliminar
+              </Button>
+            </TableCell>
                 </TableRow>
               ))}
             </TableBody>
