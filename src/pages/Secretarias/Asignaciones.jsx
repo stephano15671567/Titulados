@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import {
   Box,
   Table,
@@ -106,7 +107,6 @@ export default function Asignaciones() {
       );
       // Handle success
       console.log("Asignación creada:", response.data);
-      handleClose();
     } catch (error) {
       console.error("Error al crear asignación:", error.response.data);
       setError("Alumno ya fue previamente asignado");
@@ -128,9 +128,25 @@ export default function Asignaciones() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Crear Asignación
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2, // Margin bottom for spacing
+            }}
+          >
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Crear Asignación
+            </Typography>
+            <Button
+              variant="outlined"
+              onClick={handleClose}
+              startIcon={<HighlightOffIcon />}
+            >
+              Cerrar
+            </Button>
+          </Box>
           <Box component="form" onSubmit={handleAssign} sx={{ mt: 2 }}>
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
@@ -141,15 +157,12 @@ export default function Asignaciones() {
               <InputLabel>Alumno</InputLabel>
               <Select
                 name="alumno"
-                value={formData.alumno || ""} 
+                value={formData.alumno || ""}
                 label="Alumno"
                 onChange={handleInputChange}
               >
                 {alumnos.map((alumno) => (
-                  <MenuItem
-                    key={alumno.RUT} 
-                    value={alumno.RUT}
-                  >
+                  <MenuItem key={alumno.RUT} value={alumno.RUT}>
                     {alumno.nombre}
                   </MenuItem>
                 ))}
@@ -210,6 +223,7 @@ export default function Asignaciones() {
                 <TableCell>Alumno</TableCell>
                 <TableCell>Profesor</TableCell>
                 <TableCell>Rol</TableCell>
+                <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
