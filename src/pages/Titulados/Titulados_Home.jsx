@@ -10,7 +10,7 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 function TituladosHome() {
   const idUsuario = "id"; // Reemplaza esto con el método que uses para obtener el ID del usuario
 
-  const handleFileUpload = async (e, endpoint) => {
+  const handleFileUpload = async (e, id) => {
     const file = e.target.files[0];
     if (!file) {
       return;
@@ -20,8 +20,10 @@ function TituladosHome() {
     formData.append('file', file);
     formData.append('idUsuario', idUsuario);
 
+    //id luego se reemplaza por el id del usuario lo cual se sacará de la variable de contexto
+
     try {
-      const response = await fetch(`https://titulados-api.onrender.com/${endpoint}`, {
+      const response = await fetch(`http://localhost:4000/api/archivos/${id}`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -74,7 +76,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-tesis"
               type="file"
-              onChange={(e) => handleFileUpload(e, 'upload/tesis')}
+              onChange={(e) => handleFileUpload(e, '21061253')}
             />
             <label htmlFor="upload-tesis" style={{ width: '100%', marginTop: "20px" }}>
               <Button
@@ -99,7 +101,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={(e) => handleFileUpload(e, 'upload/ficha')}
+              onChange={(e) => handleFileUpload(e, '21061253')}
             />
             <label htmlFor="upload-ficha" style={{ width: '100%', marginTop: "20px" }}>
               <Button
