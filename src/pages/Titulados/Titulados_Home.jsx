@@ -95,7 +95,7 @@ function TituladosHome() {
               Completa la ficha de inscripción para tu seminario de título.
             </Typography>
             <input
-              accept="application/pdf"
+              accept="application/"
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
