@@ -93,7 +93,7 @@ function TituladosHome() {
               Ficha de Inscripción
             </Typography>
             <Typography variant="body1">
-              Completa la ficha de inscripción para tu seminario de título.
+             Sube tu ficha de inscripción para tu seminario de título.
             </Typography>
             <input
               accept="application/"
