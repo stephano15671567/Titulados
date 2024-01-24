@@ -13,26 +13,36 @@ const GuiaTable = () => {
   const [open, setOpen] = useState(false);
   const [nota, setNota] = useState('');
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
-  const [profesorId, setProfesorId] = useState(null);
+  const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
   useEffect(() => {
-    const fetchNotas = async () => {
+    const fetchAssignmentsAndNotes = async () => {
       try {
-        const notasResponse = await axios.get('http://localhost:4000/api/notas');
-        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
-        const alumnos = alumnosResponse.data;
-        const notasConNombres = notasResponse.data.map(notaItem => {
-          const alumno = alumnos.find(a => a.RUT === notaItem.alumno_RUT) || {};
-          return { ...notaItem, alumnoNombre: alumno.nombre };
-        });
-        setRows(notasConNombres);
+        if (profesorId) {
+          const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/guia/${profesorId}`);
+          const notasResponse = await axios.get('http://localhost:4000/api/notas');
+          const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
+          const alumnos = alumnosResponse.data;
+
+          const combinedData = assignmentsResponse.data.map(asignacion => {
+            const alumno = alumnos.find(a => a.RUT === asignacion.alumno_RUT);
+            const notaItem = notasResponse.data.find(n => n.alumno_RUT === asignacion.alumno_RUT);
+            return {
+              ...asignacion,
+              alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
+              nota_guia: notaItem ? notaItem.nota_guia : 'No asignada',
+            };
+          });
+
+          setRows(combinedData);
+        }
       } catch (error) {
-        console.error('Error al obtener las notas y nombres de alumnos:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchNotas();
-  }, []);
+    fetchAssignmentsAndNotes();
+  }, [profesorId]);
 
   const fetchProfesorId = async (alumnoRUT) => {
     try {
