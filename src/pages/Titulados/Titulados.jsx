@@ -30,8 +30,8 @@ function Titulados() {
         win.setItem("status", res.data.status);
         win.setItem("rol", res.data.rol);
         win.setItem("token", res.data.token);
+        win.setItem("id", res.data.id);
         setUser({ rol: win.getItem("rol") });
-        console.log(user)
         setShowSignIn(false);
         return true;
       }
@@ -83,6 +83,7 @@ function Titulados() {
       win.setItem("status", usuario.status);
       win.setItem("rol", usuario.rol);
       win.setItem("token", res.data);
+      win.setItem("id", usuario.id);
       setUser({ rol: usuario.rol });
       setShowSignIn(false); // Hide signIn button
       return true;
