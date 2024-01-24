@@ -20,7 +20,8 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import axios from "axios";
 
 function TituladosHome() {
-  const idUsuario = "21061"; // Reemplaza esto con el método que uses para obtener el ID del usuario
+  const win = window.sessionStorage; //Variable de sesión
+  const id = win.getItem("id") 
   const [open, setOpen] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
 
@@ -38,8 +39,8 @@ function TituladosHome() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("idUsuario", idUsuario);
-    endpoint = endpoint + idUsuario;
+    formData.append("idUsuario", id);
+    endpoint = endpoint + id;
     console.log(endpoint);
     try {
       const response = await axios.post(
@@ -49,6 +50,18 @@ function TituladosHome() {
           withCredentials: true, // This is equivalent to 'credentials: "include"'
         }
       );
+      try{
+        const response2 = await axios.post(
+          `http://localhost:4000/api/correo_send/${id}/`,
+          {
+            withCredentials: true, // This is equivalent to 'credentials: "include"'
+          }
+        );
+      }catch(err){
+        console.log(err)
+        setOpen2(true);
+        return;
+      }
       setOpen(true);
     } catch (err) {
       setOpen2(true);

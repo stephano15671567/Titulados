@@ -3,6 +3,8 @@ import axios from "axios";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AttachEmailIcon from '@mui/icons-material/AttachEmail';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
   Box,
   Table,
@@ -75,6 +77,17 @@ export default function Asignaciones() {
     }));
   };
 
+  const handleNotify = (assignmentId) => {
+    console.log("Notifying professor with ID:", assignmentId);
+    notificarCorreo(assignmentId);
+  };
+
+  const handleDownload = (assignment) => {
+    console.log("Downloading assignment with ID:", assignment.alumno_RUT);
+    window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
+  };
+
+
   const fetchAlumnos = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/alumnos");
@@ -83,6 +96,18 @@ export default function Asignaciones() {
       console.error("Error fetching fetched assignments:", error);
     }
   };
+
+  const notificarCorreo = async (assignmentId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/correo_send/notificar/${assignmentId}/`
+      );
+      console.log("Correo enviado:", response.data);
+    } catch (error) {
+      console.error("Error fetching fetched assignments:", error);
+    }
+  };
+
 
   const fetchProfesores = async () => {
     try {
@@ -319,6 +344,20 @@ export default function Asignaciones() {
                       color="error"
                     >
                       Eliminar
+                    </Button>
+                    <Button
+                      onClick={() => handleNotify(assignment.asignacion_id)} // Replace 'id' with your unique identifier
+                      startIcon={<AttachEmailIcon />}
+                      color="success"
+                    >
+                      Notificar profesor
+                    </Button>
+                    <Button
+                      onClick={() => handleDownload(assignment)} // Replace 'id' with your unique identifier
+                      startIcon={<RemoveRedEyeIcon />}
+                      color="success"
+                    >
+                      Ver Ficha
                     </Button>
                   </TableCell>
                 </TableRow>
