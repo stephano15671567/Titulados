@@ -4,6 +4,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AttachEmailIcon from '@mui/icons-material/AttachEmail';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
   Box,
   Table,
@@ -80,6 +81,12 @@ export default function Asignaciones() {
     console.log("Notifying professor with ID:", assignmentId);
     notificarCorreo(assignmentId);
   };
+
+  const handleDownload = (assignment) => {
+    console.log("Downloading assignment with ID:", assignment.alumno_RUT);
+    window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
+  };
+
 
   const fetchAlumnos = async () => {
     try {
@@ -344,6 +351,13 @@ export default function Asignaciones() {
                       color="success"
                     >
                       Notificar profesor
+                    </Button>
+                    <Button
+                      onClick={() => handleDownload(assignment)} // Replace 'id' with your unique identifier
+                      startIcon={<RemoveRedEyeIcon />}
+                      color="success"
+                    >
+                      Ver Ficha
                     </Button>
                   </TableCell>
                 </TableRow>
