@@ -137,35 +137,32 @@ function SecretariasHome() {
       duration={5000}
     >
       <Box style={containerStyle}>
-        <Paper elevation={3} style={formContainerStyle}>
-          {showSignIn && (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="100vh"
-            >
-              <Paper elevation={10} sx={{ padding: 3, width: 400 }}>
-                <Typography variant="h5" gutterBottom textAlign="center">
-                  Inicie sesión con su correo institucional
-                </Typography>
-                <Box
-                  fullWidth // Note: fullWidth might not have an effect on Box component
-                  sx={{
-                    marginTop: 2,
-                    backgroundColor: "#4285F4",
-                    "&:hover": {
-                      backgroundColor: "#357ae8",
-                    },
-                  }}
-                  id="signIn"
-                >
-                  Iniciar Sesión con Google
-                </Box>
-              </Paper>
-            </Box>
-          )}
-        </Paper>
+        {showSignIn && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+          >
+            <Paper elevation={10} sx={{ padding: 3, width: "400px" }}> {/* Standardized width */}
+              <Typography variant="h5" gutterBottom textAlign="center">
+                Inicie sesión con su correo institucional
+              </Typography>
+              <Box
+                sx={{
+                  marginTop: 2,
+                  backgroundColor: "#4285F4",
+                  "&:hover": {
+                    backgroundColor: "#357ae8",
+                  },
+                }}
+                id="signIn"
+              >
+                Iniciar Sesión con Google
+              </Box>
+            </Paper>
+          </Box>
+        )}
         {user.rol && (
           <div>
             <Outlet />
