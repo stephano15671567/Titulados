@@ -10,6 +10,7 @@ import background3 from "../Home/components/images/imagen_3.jpg";
 import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function SecretariasHome() {
   const win = window.sessionStorage; //Variable de sesión
@@ -164,14 +165,33 @@ function SecretariasHome() {
           </Box>
         )}
         {user.rol && (
-          <div>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start', // Asegura que el contenido se alinee al inicio del contenedor
+            }}
+          >
+            <Button
+              onClick={handleSignOut}
+              variant="contained"
+              color="secondary"
+              startIcon={<LogoutIcon />}
+              sx={{
+                marginTop: 2, // Ajusta este valor según sea necesario
+                alignSelf: 'flex-end', // Alinea el botón a la derecha
+                marginRight: 2, // Ajusta el margen derecho para posicionar correctamente el botón
+              }}
+            >
+              Salir
+            </Button>
             <Outlet />
-            <button onClick={handleSignOut}>Sign Out</button>
-          </div>
+          </Box>
         )}
       </Box>
     </BackgroundTransition>
   );
 }
-
 export default SecretariasHome;
