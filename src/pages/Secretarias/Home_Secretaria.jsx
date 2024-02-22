@@ -10,6 +10,7 @@ import background3 from "../Home/components/images/imagen_3.jpg";
 import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function SecretariasHome() {
   const win = window.sessionStorage; //Variable de sesión
@@ -137,44 +138,60 @@ function SecretariasHome() {
       duration={5000}
     >
       <Box style={containerStyle}>
-        <Paper elevation={3} style={formContainerStyle}>
-          {showSignIn && (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="100vh"
-            >
-              <Paper elevation={10} sx={{ padding: 3, width: 400 }}>
-                <Typography variant="h5" gutterBottom textAlign="center">
-                  Inicie sesión con su correo institucional
-                </Typography>
-                <Box
-                  fullWidth // Note: fullWidth might not have an effect on Box component
-                  sx={{
-                    marginTop: 2,
-                    backgroundColor: "#4285F4",
-                    "&:hover": {
-                      backgroundColor: "#357ae8",
-                    },
-                  }}
-                  id="signIn"
-                >
-                  Iniciar Sesión con Google
-                </Box>
-              </Paper>
-            </Box>
-          )}
-        </Paper>
+        {showSignIn && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+          >
+            <Paper elevation={10} sx={{ padding: 3, width: "400px" }}> {/* Standardized width */}
+              <Typography variant="h5" gutterBottom textAlign="center">
+                Inicie sesión con su correo institucional
+              </Typography>
+              <Box
+                sx={{
+                  marginTop: 2,
+                  backgroundColor: "#4285F4",
+                  "&:hover": {
+                    backgroundColor: "#357ae8",
+                  },
+                }}
+                id="signIn"
+              >
+                Iniciar Sesión con Google
+              </Box>
+            </Paper>
+          </Box>
+        )}
         {user.rol && (
-          <div>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start', // Asegura que el contenido se alinee al inicio del contenedor
+            }}
+          >
+            <Button
+              onClick={handleSignOut}
+              variant="contained"
+              color="secondary"
+              startIcon={<LogoutIcon />}
+              sx={{
+                marginTop: 2, // Ajusta este valor según sea necesario
+                alignSelf: 'flex-end', // Alinea el botón a la derecha
+                marginRight: 2, // Ajusta el margen derecho para posicionar correctamente el botón
+              }}
+            >
+              Salir
+            </Button>
             <Outlet />
-            <button onClick={handleSignOut}>Sign Out</button>
-          </div>
+          </Box>
         )}
       </Box>
     </BackgroundTransition>
   );
 }
-
 export default SecretariasHome;
