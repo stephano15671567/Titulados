@@ -4,6 +4,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AttachEmailIcon from '@mui/icons-material/AttachEmail';
+import Swal from 'sweetalert2';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
   Box,
@@ -77,11 +78,27 @@ export default function Asignaciones() {
     }));
   };
 
-  const handleNotify = (assignmentId) => {
-    console.log("Notifying professor with ID:", assignmentId);
-    notificarCorreo(assignmentId);
-  };
-
+const handleNotify = async (assignmentId) => {
+  console.log("Notifying professor with ID:", assignmentId);
+  try {
+    await notificarCorreo(assignmentId);
+    // Mostrar mensaje de éxito con Swal
+    Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: 'Se ha notificado al profesor correctamente.',
+    });
+  } catch (error) {
+    console.error("Error fetching fetched assignments:", error);
+    // Mostrar mensaje de error con Swal
+    Swal.fire({
+      icon: 'error',
+      title: '¡Error!',
+      text: 'Hubo un problema al notificar al profesor. Inténtalo de nuevo más tarde.',
+    });
+  }
+}; 
+ 
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
     window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
@@ -147,32 +164,59 @@ export default function Asignaciones() {
     }
   };
 
+  
+
   const handleDelete = (assignmentId) => {
-    console.log("Deleting assignment with ID:", assignmentId);
-    handleDeletedb(assignmentId);
-  };
+  console.log("Deleting assignment with ID:", assignmentId);
+
+  // Mostrar mensaje de confirmación utilizando Swal
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: "¡No podrás revertir esto!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, eliminarlo!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Si el usuario confirma, eliminar la asignación
+      handleDeletedb(assignmentId);
+    } else {
+      // Si el usuario cancela, no hacer nada
+      console.log("Eliminación cancelada por el usuario.");
+    }
+  });
+};
 
   const modifyAssignment = async (alumnoId) => {
-    setError("");
+  setError("");
 
-    try {
-      const response = await axios.put(
-        `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
-        {
-          alumnoId: currentAssignment.alumno_RUT,
-          profesorId: formDataEdit.profesor,
-          rol: formDataEdit.rol,
+  try {
+    const response = await axios.put(
+      `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+      {
+        alumnoId: currentAssignment.alumno_RUT,
+        profesorId: formDataEdit.profesor,
+        rol: formDataEdit.rol,
 
-        }
-      );
-      console.log("Updated assignment data:", response.data);
-      fetchFetchedAssignments();
-      setEditModalOpen(false); // Close the modal
-    } catch (error) {
-      console.log(error);
-      setError("No se puede asignar al mismo profesor");
-    }
-  };
+      }
+    );
+    console.log("Updated assignment data:", response.data);
+    fetchFetchedAssignments();
+    setEditModalOpen(false); // Close the modal
+
+    // Mostrar mensaje de éxito con Swal
+    Swal.fire(
+      'Asignación actualizada',
+      'La asignación ha sido actualizada con éxito.',
+      'success'
+    );
+  } catch (error) {
+    console.log(error);
+    setError("No se puede asignar al mismo profesor");
+  }
+};
 
   const handleModify = (alumnoId) => {
     alumnoId.preventDefault();
@@ -181,25 +225,37 @@ export default function Asignaciones() {
   };
 
   const handleAssign = async (alumnoId) => {
-    alumnoId.preventDefault();
-    setError("");
-    try {
-      const response = await axios.post(
-        "http://localhost:4000/api/asignaciones",
-        {
-          alumnoId: formData.alumno,
-          profesorId: formData.profesor,
-          rol: formData.rol,
-        }
-      );
-      // Handle success
-      fetchFetchedAssignments();
-      console.log("Asignación creada:", response.data);
-    } catch (error) {
-      console.error("Error al crear asignación:", error.response.data);
-      setError("Alumno ya fue previamente asignado");
-    }
-  };
+  alumnoId.preventDefault();
+  setError("");
+  try {
+    const response = await axios.post(
+      "http://localhost:4000/api/asignaciones",
+      {
+        alumnoId: formData.alumno,
+        profesorId: formData.profesor,
+        rol: formData.rol,
+      }
+    );
+    // Handle success
+    fetchFetchedAssignments();
+    console.log("Asignación creada:", response.data);
+
+    // Mostrar mensaje de éxito con Swal
+    Swal.fire(
+      'Asignación creada',
+      'La asignación ha sido creada con éxito.',
+      'success'
+    );
+
+    // Cerrar la ventana modal después de un breve retraso
+    setTimeout(() => {
+      handleClose();
+    }, 1000); // 1000ms = 1 segundo (puedes ajustar este valor según tu preferencia)
+  } catch (error) {
+    console.error("Error al crear asignación:", error.response.data);
+    setError("Alumno ya fue previamente asignado");
+  }
+};
 
   const modalStyle = {
     position: "absolute",
@@ -214,11 +270,16 @@ export default function Asignaciones() {
   };
   return (
     <>
-      <Box mb="15px">
-        <Button variant="contained" onClick={handleOpen}>
-          Generar Asignación
-        </Button>
-      </Box>
+     <Box sx={{ display: 'flex', justifyContent: 'center', mb: '15px' }}>
+  <Box mr={1}>
+    <Button variant="contained" onClick={handleOpen} color="primary">
+      Generar Asignación
+    </Button>
+  </Box>
+  <Button variant="contained" onClick={toggleAssignments} color="secondary">
+    Visualizar Asignaciones
+  </Button>
+</Box> 
 
       <Modal
         open={open}
@@ -307,12 +368,6 @@ export default function Asignaciones() {
           </Box>
         </Box>
       </Modal>
-
-      <Box mb="15px">
-        <Button variant="contained" onClick={toggleAssignments}>
-          Visualizar Asignaciones
-        </Button>
-      </Box>
 
       {showAssignments && (
         <TableContainer component={Paper}>
@@ -467,206 +522,3 @@ export default function Asignaciones() {
     </>
   );
 }
-
-/*
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Select,
-  MenuItem,
-} from "@mui/material";
-
-function Asignaciones() {
-  const [alumnos, setAlumnos] = useState([]);
-  const [profesores, setProfesores] = useState([]);
-  const [assignments, setAssignments] = useState({}); // { [alumnoId]: { profesorId, rol } }
-  const [fetchedAssignments, setFetchedAssignments] = useState([]); // Array to store fetched assignments
-
-  useEffect(() => {
-    fetchAlumnos();
-    fetchProfesores();
-    fetchFetchedAssignments();
-  }, []);
-  const fetchAlumnos = async () => {
-    const response = await axios.get("http://localhost:4000/api/alumnos");
-    setAlumnos(response.data);
-  };
-
-  const fetchProfesores = async () => {
-    const response = await axios.get("http://localhost:4000/api/profesores");
-    setProfesores(response.data);
-  };
-
-  const fetchFetchedAssignments = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:4000/api/asignaciones"
-      );
-      setFetchedAssignments(response.data);
-    } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
-    }
-  };
-
-  const handleProfessorChange = (alumnoId, profesorId) => {
-    setAssignments((prev) => ({
-      ...prev,
-      [alumnoId]: { ...prev[alumnoId], profesorId },
-    }));
-  };
-
-  const handleRoleChange = (alumnoId, rol) => {
-    setAssignments((prev) => ({
-      ...prev,
-      [alumnoId]: { ...prev[alumnoId], rol },
-    }));
-  };
-
-  const handleAssign = async (alumnoId) => {
-    const assignment = assignments[alumnoId];
-    try {
-      const response = await axios.post(
-        "http://localhost:4000/api/asignaciones",
-        {
-          alumnoId,
-          profesorId: assignment.profesorId,
-          rol: assignment.rol,
-        }
-      );
-      // Handle success
-      console.log("Asignación creada:", response.data);
-      // Aquí podrías actualizar el estado o la interfaz de usuario según la respuesta
-    } catch (error) {
-      // Handle error
-      console.error("Error al crear asignación:", error.response.data);
-      //Renderizar modal mwajaja
-      alert("Alumno ya asignado a profesor: ");
-      // Aquí podrías mostrar un mensaje de error en la interfaz de usuario
-    }
-  };
-
-  return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Alumno</TableCell>
-            <TableCell>Profesor</TableCell>
-            <TableCell>Rol</TableCell>
-            <TableCell>Asignar</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {alumnos.map((alumno) => (
-            <TableRow key={alumno.RUT}>
-              <TableCell>{alumno.nombre}</TableCell>
-              <TableCell>
-                
-                <Select
-                  value={assignments[alumno.RUT]?.profesorId || ""}
-                  onChange={(e) =>
-                    handleProfessorChange(alumno.RUT, e.target.value)
-                  }
-                >
-                  {profesores.map((profesor) => (
-                    <MenuItem
-                      key={profesor.profesor_id}
-                      value={profesor.profesor_id}
-                    >
-                      {profesor.nombre}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={assignments[alumno.RUT]?.rol || ""}
-                  onChange={(e) => handleRoleChange(alumno.RUT, e.target.value)}
-                >
-                  <MenuItem value="guia">Guía</MenuItem>
-                  <MenuItem value="informante">Informante</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => handleAssign(alumno.RUT)}
-                  variant="contained"
-                >
-                  Asignar
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
-export default Asignaciones;
-
-*/
-/* 
-
-TABLA DEPRECATED
-
- <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Alumno</TableCell>
-                        <TableCell>Profesor</TableCell>
-                        <TableCell>Rol</TableCell>
-                        <TableCell>Asignar</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {alumnos.map(alumno => (
-                        <TableRow key={alumno.RUT}>
-                            <TableCell>{alumno.nombre}</TableCell>
-                            <TableCell>
-                                <Select
-                                    value={assignments[alumno.RUT]?.profesorId || ''}
-                                    onChange={(e) => handleProfessorChange(alumno.RUT, e.target.value)}
-                                >
-                                    {profesores.map(profesor => (
-                                        <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
-                                            {profesor.nombre}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </TableCell>
-                            <TableCell>
-                                <Select
-                                    value={assignments[alumno.RUT]?.rol || ''}
-                                    onChange={(e) => handleRoleChange(alumno.RUT, e.target.value)}
-                                >
-                                    <MenuItem value="guia">Guía</MenuItem>
-                                    <MenuItem value="informante">Informante</MenuItem>
-                                    <MenuItem value="gyf">Guía y Informante</MenuItem>
-
-                                </Select>
-                            </TableCell>
-                            <TableCell>
-                                <Button
-                                    onClick={() => handleAssign(alumno.RUT)}
-                                    variant="contained"
-                                >
-                                    Asignar
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-
-*/
