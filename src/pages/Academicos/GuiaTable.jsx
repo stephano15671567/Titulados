@@ -5,6 +5,8 @@ import {
   DialogTitle, TextField
 } from '@mui/material';
 import axios from 'axios';
+import Swal from 'sweetalert2';
+import '../../App.css'; 
 
 const GuiaTable = () => {
   const [rows, setRows] = useState([]);
@@ -44,16 +46,6 @@ const GuiaTable = () => {
     fetchAssignmentsAndNotes();
   }, [profesorId]);
 
-  const fetchProfesorId = async (alumnoRUT) => {
-    try {
-      const response = await axios.get(`http://localhost:4000/api/asignaciones/${alumnoRUT}`);
-      const assignment = response.data[0]; // Adjust according to your API's response structure
-      setProfesorId(assignment.profesor_id);
-    } catch (error) {
-      console.error('Error al obtener el profesorId:', error);
-    }
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -66,7 +58,6 @@ const GuiaTable = () => {
   const handleClickOpen = (row) => {
     setSelectedAlumno(row);
     setNota(row.nota_guia);
-    fetchProfesorId(row.alumno_RUT);
     setOpen(true);
   };
 
@@ -75,32 +66,51 @@ const GuiaTable = () => {
   };
 
   const handleSave = () => {
+    const notaNum = parseFloat(nota);
     if (!profesorId) {
       console.error('No profesorId provided');
       return;
     }
-    const url = `http://localhost:4000/api/notas/upsert`;
-    const payload = {
-      alumno_RUT: selectedAlumno.alumno_RUT,
-      nota: nota,
-      profesor_id: profesorId,
-      rol: 'guia'
-    };
+    if (isNaN(notaNum) || notaNum < 1 || notaNum > 7) {
+      Swal.fire('Error', 'La nota debe estar en el rango de 1 a 7 con un máximo de un decimal.', 'error');
+      return;
+    }
 
-    axios.post(url, payload)
-      .then(response => {
-        const updatedRows = rows.map(row => {
-          if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
-            return { ...row, nota_guia: nota };
-          }
-          return row;
-        });
-        setRows(updatedRows);
-        handleClose();
-      })
-      .catch(error => {
-        console.error('Error al actualizar la nota:', error);
+    // Cierra el diálogo de MUI antes de mostrar el SweetAlert
+    setOpen(false);
+
+    // Espera a que la animación de cierre del diálogo termine antes de mostrar SweetAlert
+    setTimeout(() => {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Vas a guardar esta nota",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, guardar!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const url = `http://localhost:4000/api/notas/upsert`;
+          const payload = {
+            alumno_RUT: selectedAlumno.alumno_RUT,
+            nota: notaNum,
+            profesor_id: profesorId,
+            rol: 'guia'
+          };
+
+          axios.post(url, payload)
+            .then(response => {
+              // Actualiza las filas aquí
+              Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
+            })
+            .catch(error => {
+              console.error('Error al actualizar la nota:', error);
+              Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
+            });
+        }
       });
+    }, 300); // El tiempo de espera debe ser mayor que la duración de la animación del diálogo de MUI
   };
 
   return (
@@ -120,7 +130,7 @@ const GuiaTable = () => {
           </TableHead>
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.nota_id}>
+              <TableRow key={row.alumno_RUT}>
                 <TableCell component="th" scope="row">
                   {row.alumnoNombre}
                 </TableCell>
@@ -153,11 +163,22 @@ const GuiaTable = () => {
             margin="dense"
             id="nota"
             label="Nota del Guía"
-            type="number"
+            type="text" // Se usa text para manejar la entrada manualmente
             fullWidth
             variant="outlined"
             value={nota}
-            onChange={(e) => setNota(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '' || /^(\d{1,2}(\.\d{0,1})?)?$/.test(val)) {
+                setNota(val);
+              }
+            }}
+            inputProps={{
+              step: "0.1",
+              min: "1",
+              max: "7",
+              pattern: "^\\d{1,2}(\\.\\d{1})?$"
+            }}
           />
         </DialogContent>
         <DialogActions>
@@ -170,6 +191,3 @@ const GuiaTable = () => {
 };
 
 export default GuiaTable;
-
-
-
