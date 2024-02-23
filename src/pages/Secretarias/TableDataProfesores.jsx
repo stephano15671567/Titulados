@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography } from '@mui/material';
+import Swal from 'sweetalert2';
 
 function TableDataProfesores() {
   const [profesores, setProfesores] = useState([]);
@@ -9,12 +10,14 @@ function TableDataProfesores() {
     nombre: '',
     mail: '',
   });
+  const [openModal, setOpenModal] = useState(false);
+  const [showProfesores, setShowProfesores] = useState(false);
 
   useEffect(() => {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'http://localhost:4000/api/profesores'; // Make sure this URL is correct for your server
+  const apiBaseUrl = 'http://localhost:4000/api/profesores';
 
   const fetchProfesores = async () => {
     try {
@@ -47,6 +50,8 @@ function TableDataProfesores() {
           nombre: '',
           mail: '',
         });
+        setOpenModal(false);
+        Swal.fire('Agregado', 'El profesor ha sido agregado con éxito', 'success');
       }
     } catch (error) {
       console.error('Error adding profesor:', error);
@@ -60,6 +65,7 @@ function TableDataProfesores() {
       if (response.data) {
         setEditingIndex(-1);
         fetchProfesores();
+        Swal.fire('Actualizado', 'El profesor ha sido actualizado con éxito', 'success');
       }
     } catch (error) {
       console.error('Error updating profesor:', error);
@@ -67,11 +73,24 @@ function TableDataProfesores() {
   };
 
   const deleteProfesor = async (profesor_id) => {
-    if (profesor_id) { // Make sure profesor_id is not undefined
+    if (profesor_id) {
       try {
-        const response = await axios.delete(`${apiBaseUrl}/${profesor_id}`);
-        if (response.status === 200) {
-          fetchProfesores(); // Refetch the list to update the UI
+        const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'No podrás revertir esto.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, eliminarlo'
+        });
+
+        if (result.isConfirmed) {
+          const response = await axios.delete(`${apiBaseUrl}/${profesor_id}`);
+          if (response.status === 200) {
+            fetchProfesores();
+            Swal.fire('Eliminado', 'El profesor ha sido eliminado con éxito', 'success');
+          }
         }
       } catch (error) {
         console.error('Error deleting profesor:', error);
@@ -81,80 +100,128 @@ function TableDataProfesores() {
     }
   };
 
-  const renderEditableRow = (profesor, index) => (
-    <TableRow key={`editing-${profesor.profesor_id}`}>
-      <TableCell>
-        <TextField
-          name="nombre"
-          value={profesor.nombre}
-          onChange={(e) => handleInputChange(e, index)}
-        />
-      </TableCell>
-      <TableCell>
-        <TextField
-          name="mail"
-          value={profesor.mail}
-          onChange={(e) => handleInputChange(e, index)}
-        />
-      </TableCell>
-      <TableCell>
-        <Button onClick={() => updateProfesor(index)}>Guardar</Button>
-        <Button onClick={() => setEditingIndex(-1)}>Cancelar</Button>
-      </TableCell>
-    </TableRow>
-  );
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setNewProfesor({
+      nombre: '',
+      mail: '',
+    });
+  };
 
-  const renderAddRow = () => (
-    <TableRow key="new-profesor">
-      <TableCell>
-        <TextField
-          name="nombre"
-          value={newProfesor.nombre}
-          onChange={handleNewInputChange}
-        />
-      </TableCell>
-      <TableCell>
-        <TextField
-          name="mail"
-          value={newProfesor.mail}
-          onChange={handleNewInputChange}
-        />
-      </TableCell>
-      <TableCell>
-        <Button onClick={addProfesor}>Agregar</Button>
-      </TableCell>
-    </TableRow>
-  );
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
+
+  const toggleShowProfesores = () => {
+    setShowProfesores(!showProfesores);
+    if (!showProfesores) fetchProfesores();
+  };
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {profesores.map((profesor, index) =>
-            editingIndex === index ? (
-              renderEditableRow(profesor, index)
-            ) : (
-              <TableRow key={profesor.profesor_id}>
-                <TableCell>{profesor.nombre}</TableCell>
-                <TableCell>{profesor.mail}</TableCell>
-                <TableCell>
-                  <Button onClick={() => setEditingIndex(index)}>Editar</Button>
-                  <Button onClick={() => deleteProfesor(profesor.profesor_id)}>Eliminar</Button>
-                </TableCell>
+    <>
+      <Button onClick={handleOpenModal} color="primary" variant="contained" style={{ marginBottom: '20px' }}>Agregar Profesor</Button>
+      <Button onClick={toggleShowProfesores} color="secondary" variant="contained" style={{ marginBottom: '20px', marginLeft: '20px' }}>
+        {showProfesores ? 'Ocultar Profesores' : 'Visualizar Profesores'}
+      </Button>
+
+      {showProfesores && (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Acciones</TableCell>
               </TableRow>
-            )
-          )}
-          {renderAddRow()}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            </TableHead>
+            <TableBody>
+              {profesores.map((profesor, index) =>
+                editingIndex === index ? (
+                  <TableRow key={`editing-${profesor.profesor_id}`}>
+                    <TableCell>
+                      <TextField
+                        name="nombre"
+                        value={profesor.nombre}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        name="mail"
+                        value={profesor.mail}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button onClick={() => updateProfesor(index)}>Guardar</Button>
+                      <Button onClick={() => setEditingIndex(-1)}>Cancelar</Button>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow key={profesor.profesor_id}>
+                    <TableCell>{profesor.nombre}</TableCell>
+                    <TableCell>{profesor.mail}</TableCell>
+                    <TableCell>
+                      <Button onClick={() => setEditingIndex(index)}>Editar</Button>
+                      <Button onClick={() => deleteProfesor(profesor.profesor_id)}>Eliminar</Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-title" variant="h6" component="h2" marginBottom={2}>
+            Agregar Nuevo Profesor
+          </Typography>
+          <Box
+            component="form"
+            sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' }, mt: 2 }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              name="nombre"
+              label="Nombre"
+              value={newProfesor.nombre}
+              onChange={handleNewInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="mail"
+              label="Email"
+              value={newProfesor.mail}
+              onChange={handleNewInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button onClick={addProfesor} color="primary" variant="contained">
+                Agregar
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
+    </>
   );
 }
 
