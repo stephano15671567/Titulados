@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid } from '@mui/material';
+import { Edit, Delete, Description, Group, Visibility } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 
 function TableData() {
@@ -91,12 +92,26 @@ function TableData() {
     });
   };
 
+  const verTesis = (alumno) => {
+    // Lógica para ver la tesis del alumno
+    console.log("Viendo tesis de:", alumno.nombre);
+  };
+
+  const verComision = (alumno) => {
+    // Lógica para ver la comisión del alumno
+    console.log("Viendo comisión de:", alumno.nombre);
+  };
+
+  const verActa = (alumno) => {
+    // Lógica para ver el acta del alumno
+    console.log("Viendo acta de:", alumno.nombre);
+  };
+
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
     if (!showAlumnos) fetchAlumnos(); // Carga los alumnos solo cuando se decide mostrarlos
   };
 
-  // Estilos para el modal
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -144,10 +159,40 @@ function TableData() {
                   <TableCell>{alumno.hora}</TableCell>
                   <TableCell>{alumno.fecha_examen}</TableCell>
                   <TableCell>{alumno.mail}</TableCell>
-                  <TableCell>
-                    <Button onClick={() => editAlumno(alumno)} color="primary" style={{ marginRight: '10px' }}>Editar</Button>
-                    <Button onClick={() => deleteAlumno(alumno.RUT)} color="secondary">Eliminar</Button>
-                  </TableCell>
+                 <TableCell>
+  <Grid container spacing={1}>
+    {/* Botón para editar */}
+    <Grid item xs={6}>
+      <IconButton onClick={() => editAlumno(alumno)} color="primary">
+        <Edit />
+      </IconButton>
+    </Grid>
+    {/* Botón para eliminar */}
+    <Grid item xs={6}>
+      <IconButton onClick={() => deleteAlumno(alumno.RUT)} color="secondary">
+        <Delete />
+      </IconButton>
+    </Grid>
+    {/* Botón para ver acta */}
+    <Grid item xs={6}>
+      <IconButton onClick={() => verActa(alumno)} color="primary">
+        <Description />
+      </IconButton>
+    </Grid>
+    {/* Botón para ver comisión */}
+    <Grid item xs={6}>
+      <IconButton onClick={() => verComision(alumno)} color="primary">
+        <Group />
+      </IconButton>
+    </Grid>
+    {/* Botón para ver tesis */}
+    <Grid item xs={6}>
+      <IconButton onClick={() => verTesis(alumno)} color="primary">
+        <Visibility />
+      </IconButton>
+    </Grid>
+  </Grid>
+</TableCell> 
                 </TableRow>
               ))}
             </TableBody>

@@ -60,23 +60,7 @@ function SecretariaView() {
             </Typography>
             <FileUpload buttonSx={buttonSx} />
 
-            <Link to="/ver-tesis" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" fullWidth sx={buttonSx}>
-                Ver Tesis
-              </Button>
-            </Link>
-
-            <Link to="/generar-actas" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" fullWidth sx={buttonSx}>
-                Generar Actas
-              </Button>
-            </Link>
-
-            <Link to="/generar-comision" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" fullWidth sx={buttonSx}>
-                Generar Comisión
-              </Button>
-            </Link>
+            
 
             <a href={reportUrl} style={{ textDecoration: 'none' }} download>
               <Button variant="contained" fullWidth sx={buttonSx}>
