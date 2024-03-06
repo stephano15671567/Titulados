@@ -10,31 +10,19 @@ import Alumnos from "../pages/Titulados/Titulados_Home";
 import JefaturasH from "../pages/Jefaturas/Jefaturas_Home";
 import AcademicosH from "../pages/Academicos/Academicos_Home";
 import TituladosHome from "../pages/Titulados/Titulados_Home";
-
-/* ***Layouts**** */
-/*const FullLayout = Loadable(
-  lazy(() => import("../layouts/full-layout/MainLayout"))
-);*/
-
-/* ***End Layouts**** */
+import Reporte from "../pages/Secretarias/Reporte"; 
 
 const Error = Loadable(lazy(() => import("../pages/Error/404")));
-
-/* ****Pages***** */
 const HomePage = Loadable(lazy(() => import("../pages/Home/Home")));
-
-/* ****Routes***** */
 
 const Router = [
   {
-    /*path: "/",
-    element: <FullLayout />,*/
     children: [
       { path: "", exact: true, element: <HomePage /> },
       { path: "*", element: <Navigate to="/404" /> },
       { path: "404", element: <Error /> },
       {
-        path: "/Titulados",
+        path: "Titulados",
         element: <Titulados />,
         children: [
           {
@@ -42,17 +30,22 @@ const Router = [
             element: <TituladosHome />,
           },
         ],
-      }, //Login de titulados
-      { path: "/Secretarias",
-        element: <HomeS />,
+      },
+      { 
+        path: "Secretarias",
+        element: <Secretarias />,
         children: [
           {
             path: "",
-            element: <Secretarias />,
+            element: <HomeS />,
+            children: [
+              { path: "reporte", element: <Reporte /> }, // Ajuste aquí
+            ],
           },
         ],
       },
-      { path: "/Academicos",
+      { 
+        path: "Academicos",
         element: <Academicos />,
         children: [
           {
@@ -61,10 +54,16 @@ const Router = [
           },
         ],
       },
-      { path: "/Jefaturas", element: <Jefaturas /> },
-      //Plataforma para titulados
-      { path: "/JefaturasHome", element: <JefaturasH /> },
-      { path: "/AcademicosHome", element: <AcademicosH /> },
+      { 
+        path: "Jefaturas",
+        element: <Jefaturas />,
+        children: [
+          {
+            path: "",
+            element: <JefaturasH />,
+          },
+        ],
+      },
     ],
   },
 ];
