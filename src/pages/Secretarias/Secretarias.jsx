@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Container, Paper, Typography, Button } from '@mui/material';
-import { Link, Outlet } from 'react-router-dom'; 
-import FileUpload from './FileUpload'; 
+import { Box, Container, Paper, Typography, Button, Link } from '@mui/material';
+import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
+import background1 from '../Home/components/images/imag_valparaiso.jpg';
+import background2 from '../Home/components/images/imagen_2.jpg';
+import background3 from '../Home/components/images/imagen_3.jpg';
+import background4 from '../Home/components/images/imagen_4.jpg';
+import background5 from '../Home/components/images/imagen_5.jpg';
+import FileUpload from './FileUpload'; // Ensure the path is correct
 import TableData from './TableData'; 
 import TableDataProfesores from './TableDataProfesores';
 import Asignaciones from './Asignaciones';
@@ -10,7 +15,7 @@ function SecretariaView() {
   const [showTable, setShowTable] = useState(false);
   const [showProfesoresTable, setShowProfesoresTable] = useState(false);
   const [showAsignacionesTable, setShowAsignacionesTable] = useState(false); 
-  const [showReporte, setReporte] = useState(false)
+  
 
   const buttonSx = {
     mt: 2,
@@ -22,72 +27,71 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const handleClick=()=>{
-    setReporte(true)
-  }
-  
-  const reportUrl = '/Secretarias/Reporte'; 
+  const reportUrl = 'http://localhost:4000/api/report/download-report'; 
 
   return (
-    <>
-    {showReporte && (<Outlet/>)}
-    {!showReporte &&( <Container maxWidth="md">
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          padding: '20px',
-          fontFamily: 'Times New Roman',
-        }}
-      >
-        <Paper
+    
+      <Container maxWidth="md">
+        <Box
           sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
             padding: '20px',
-            textAlign: 'center',
-            marginBottom: '20px',
-            width: '100%',
-            maxWidth: '1000px',
-            bgcolor: 'lightgray',
-            borderRadius: '10px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            fontFamily: 'Times New Roman',
           }}
         >
-          <Typography variant="h5" gutterBottom>
-            Secretaría - Administración de Tesis y Documentos
-          </Typography>
+          <Paper
+            sx={{
+              padding: '20px',
+              textAlign: 'center',
+              marginBottom: '20px',
+              width: '100%',
+              maxWidth: '1000px',
+              bgcolor: 'lightgray',
+              borderRadius: '10px',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <Typography variant="h5" gutterBottom>
+              Secretaría - Administración de Tesis y Documentos
+            </Typography>
+            <FileUpload buttonSx={buttonSx} />
 
-          <FileUpload buttonSx={buttonSx} />
+            
 
-          {/* Botón para ver el reporte */}
-          <Link to={reportUrl} style={{ textDecoration: 'none' }}>
-            <Button variant="contained" onClick={handleClick} fullWidth sx={buttonSx}>
-              Ver Reporte
+            <a href={reportUrl} style={{ textDecoration: 'none' }} download>
+              <Button variant="contained" fullWidth sx={buttonSx}>
+                Ver Reporte
+              </Button>
+            </a>
+
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowTable(!showTable)}>
+              Gestión Alumnos
             </Button>
-          </Link>
+            {showTable && <TableData />}
+            
 
-          {/* Resto de los botones y lógica de mostrar/ocultar tablas */}
-          <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowTable(!showTable)}>
-            Gestión Alumnos
-          </Button>
-          {showTable && <TableData />}
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowProfesoresTable(!showProfesoresTable)}>
+              Gestión Profesores
+            </Button>
 
-          <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowProfesoresTable(!showProfesoresTable)}>
-            Gestión Profesores
-          </Button>
-          {showProfesoresTable && <TableDataProfesores />}
+            {showProfesoresTable && <TableDataProfesores />}
 
-          <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowAsignacionesTable(!showAsignacionesTable)}>
-            Gestión de Asignaciones
-          </Button>
-          {showAsignacionesTable && <Asignaciones />}
-        </Paper>
-      </Box>
-    </Container>)}
-   
-    </>
+            {/* Botón y lógica para mostrar/ocultar Asignaciones */}
+            <Button variant="contained" fullWidth sx={buttonSx} onClick={() => setShowAsignacionesTable(!showAsignacionesTable)}>
+              Gestión de Asignaciones
+            </Button>
+            {showAsignacionesTable && <Asignaciones />}
+            
+
+            
+          </Paper>
+        </Box>
+      </Container>
+    
   );
 }
 
