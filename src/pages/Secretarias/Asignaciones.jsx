@@ -349,18 +349,19 @@ const handleNotify = async (assignmentId) => {
             </FormControl>
 
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Rol</InputLabel>
-              <Select
-                name="rol"
-                value={formData.rol}
-                label="Rol"
-                onChange={handleInputChange}
-              >
-                <MenuItem value="guia">Guía</MenuItem>
-                <MenuItem value="informante">Informante</MenuItem>
-                {/* Add more role options */}
-              </Select>
-            </FormControl>
+  <InputLabel>Rol</InputLabel>
+  <Select
+    name="rol"
+    value={formData.rol}
+    label="Rol"
+    onChange={handleInputChange}
+  >
+    <MenuItem value="guia">Guía</MenuItem>
+    <MenuItem value="informante">Informante</MenuItem>
+    <MenuItem value="secretario">Secretario</MenuItem>
+    <MenuItem value="presidente">Presidente</MenuItem>
+  </Select>
+</FormControl>
 
             <Button variant="contained" type="submit">
               Crear Asignación
@@ -497,18 +498,19 @@ const handleNotify = async (assignmentId) => {
                   </FormControl>
 
                   <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Rol</InputLabel>
-                    <Select
-                      name="rol"
-                      value={formDataEdit.rol}
-                      label="Rol"
-                      onChange={handleEditChange}
-                    >
-                      <MenuItem value="guia">Guía</MenuItem>
-                      <MenuItem value="informante">Informante</MenuItem>
-                      {/* Add more role options */}
-                    </Select>
-                  </FormControl>
+  <InputLabel>Rol</InputLabel>
+  <Select
+    name="rol"
+    value={formData.rol}
+    label="Rol"
+    onChange={handleInputChange}
+  >
+    <MenuItem value="guia">Guía</MenuItem>
+    <MenuItem value="informante">Informante</MenuItem>
+    <MenuItem value="secretario">Secretario</MenuItem>
+    <MenuItem value="presidente">Presidente</MenuItem>
+  </Select>
+</FormControl>
 
                   <Button variant="contained" type="submit">
                     Modificar Asignación
