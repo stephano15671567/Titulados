@@ -19,7 +19,9 @@ function TableData() {
     hora: '',
     fecha_examen: '',
     tesis: '',
-    mail: ''
+    mail: '',
+    secretario: '',
+    presidente: ''
   });
 
   useEffect(() => {
@@ -52,7 +54,9 @@ function TableData() {
       hora: '',
       fecha_examen: '',
       tesis: '',
-      mail: ''
+      mail: '',
+      secretario: '',
+      presidente: ''
     });
   };
 
@@ -144,6 +148,8 @@ function TableData() {
                 <TableCell>Hora</TableCell>
                 <TableCell>Fecha Examen</TableCell>
                 <TableCell>Mail</TableCell>
+                <TableCell>secretario</TableCell>
+                <TableCell>presidente</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -159,6 +165,9 @@ function TableData() {
                   <TableCell>{alumno.hora}</TableCell>
                   <TableCell>{alumno.fecha_examen}</TableCell>
                   <TableCell>{alumno.mail}</TableCell>
+                  <TableCell>{alumno.secretario}</TableCell>
+                  <TableCell>{alumno.presidente}</TableCell>
+
                  <TableCell>
   <Grid container spacing={1}>
     {/* Botón para editar */}
