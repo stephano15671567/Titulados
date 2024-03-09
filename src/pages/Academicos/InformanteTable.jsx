@@ -13,32 +13,29 @@ const InformanteTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [nota, setNota] = useState('');
+  const [file, setFile] = useState(null);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_informante: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
-      try {
-        if (profesorId) {
-          const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/informante/${profesorId}`);
-          const notasResponse = await axios.get('http://localhost:4000/api/notas');
-          const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
-          const alumnos = alumnosResponse.data;
+      if (profesorId) {
+        const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/informante/${profesorId}`);
+        const notasResponse = await axios.get('http://localhost:4000/api/notas');
+        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
+        const alumnos = alumnosResponse.data;
 
-          const combinedData = assignmentsResponse.data.map(asignacion => {
-            const alumno = alumnos.find(a => a.RUT === asignacion.alumno_RUT);
-            const notaItem = notasResponse.data.find(n => n.alumno_RUT === asignacion.alumno_RUT);
-            return {
-              ...asignacion,
-              alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
-              nota_informante: notaItem ? notaItem.nota_informante : 'No asignada',
-            };
-          });
+        const combinedData = assignmentsResponse.data.map(asignacion => {
+          const alumno = alumnos.find(a => a.RUT === asignacion.alumno_RUT);
+          const notaItem = notasResponse.data.find(n => n.alumno_RUT === asignacion.alumno_RUT);
+          return {
+            ...asignacion,
+            alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
+            nota_informante: notaItem ? notaItem.nota_informante : 'No asignada',
+          };
+        });
 
-          setRows(combinedData);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+        setRows(combinedData);
       }
     };
 
@@ -64,59 +61,64 @@ const InformanteTable = () => {
     setOpen(false);
   };
 
-  const handleSave = () => {
-    const notaNum = parseFloat(nota);
-    if (!profesorId) {
-      console.error('No profesorId provided');
+  const handleSave = async () => {
+    if (nota < 1 || nota > 7 || isNaN(nota)) {
+      Swal.fire('Error', 'La nota debe ser un número entre 1 y 7.', 'error');
       return;
     }
 
-    if (isNaN(notaNum) || notaNum < 1 || notaNum > 7) {
-      Swal.fire('Error', 'La nota debe estar en el rango de 1 a 7 con un máximo de un decimal.', 'error');
-      return;
-    }
+    const url = `http://localhost:4000/api/notas/upsert`;
+    const payload = {
+      alumno_RUT: selectedAlumno.alumno_RUT,
+      nota: parseFloat(nota),
+      profesor_id: profesorId,
+      rol: 'informante',
+    };
 
-    setOpen(false); // Cierra el diálogo de MUI antes de mostrar el SweetAlert
-
-    // Espera a que la animación de cierre del diálogo termine antes de mostrar SweetAlert
-    setTimeout(() => {
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Vas a guardar esta nota",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, guardar!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const url = `http://localhost:4000/api/notas/upsert`;
-          const payload = {
-            alumno_RUT: selectedAlumno.alumno_RUT,
-            nota: notaNum,
-            profesor_id: profesorId,
-            rol: 'informante'
-          };
-
-          axios.post(url, payload)
-            .then(response => {
-              const updatedRows = rows.map(row => {
-                if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
-                  return { ...row, nota_informante: nota };
-                }
-                return row;
-              });
-              setRows(updatedRows);
-              handleClose();
-              Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
-            })
-            .catch(error => {
-              console.error('Error al actualizar la nota:', error);
-              Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
-            });
+    try {
+      await axios.post(url, payload);
+      const updatedRows = rows.map(row => {
+        if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
+          return { ...row, nota_informante: nota };
         }
+        return row;
       });
-    }, 300);
+      setRows(updatedRows);
+      handleClose();
+      Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
+    } catch (error) {
+      console.error('Error al guardar la nota:', error);
+      Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
+    }
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('rubrica', file);
+    const alumnoRut = selectedAlumno.alumno_RUT;
+
+    try {
+      await axios.post(`http://localhost:4000/api/rubrica/upload/${alumnoRut}`, formData);
+      Swal.fire('¡Subido!', 'La rúbrica ha sido actualizada.', 'success');
+      handleClose();
+    } catch (error) {
+      console.error('Error al subir la rúbrica:', error);
+      Swal.fire('Error', 'No se pudo subir la rúbrica.', 'error');
+    }
+  };
+
+  const handleDownload = () => {
+    const alumnoRut = selectedAlumno.alumno_RUT;
+    window.location.href = `http://localhost:4000/api/archivos/descargar-rubrica/${alumnoRut}`;
   };
 
   return (
@@ -144,7 +146,7 @@ const InformanteTable = () => {
                 <TableCell align="right">{row.nota_informante}</TableCell>
                 <TableCell align="right">
                   <Button variant="outlined" onClick={() => handleClickOpen(row)}>
-                    Editar Nota
+                    Gestionar Rúbrica y Nota
                   </Button>
                 </TableCell>
               </TableRow>
@@ -162,34 +164,33 @@ const InformanteTable = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Editar Nota del Informante</DialogTitle>
+        <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
             id="nota"
             label="Nota del Informante"
-            type="text" // Cambiado a 'text' para manejar el formato manualmente
+            type="text"
             fullWidth
             variant="outlined"
             value={nota}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === '' || /^(\d{1,2}(\.\d{0,1})?)?$/.test(val)) {
-                setNota(val);
-              }
-            }}
-            inputProps={{
-              step: "0.1",
-              min: "1",
-              max: "7",
-              pattern: "^\\d{1,2}(\\.\\d{1})?$"
-            }}
+            onChange={(e) => setNota(e.target.value)}
           />
+          <div>
+            <Button onClick={handleDownload} sx={{ mt: 2, mb: 1 }}>
+              Descargar Rúbrica
+            </Button>
+            <Button component="label" sx={{ mt: 2, mb: 1, ml: 2 }}>
+              Subir Rúbrica
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSave}>Guardar</Button>
+          <Button onClick={handleSave}>Guardar Nota</Button>
+          <Button onClick={handleUpload} disabled={!file}>Subir Rúbrica</Button>
         </DialogActions>
       </Dialog>
     </Paper>
