@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid } from '@mui/material';
-import { Edit, Delete, Description, Group, Visibility } from '@mui/icons-material';
+import { Edit, Delete, Description, Group, Visibility, NoteAdd } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 
 function TableData() {
@@ -21,19 +21,48 @@ function TableData() {
     tesis: '',
     mail: '',
     secretario: '',
-    presidente: ''
+    presidente: '',
+    nota_examen_oral: ''
   });
+  const [notaDefensa, setNotaDefensa] = useState('');
+  const [notaDefensaModalOpen, setNotaDefensaModalOpen] = useState(false);
 
   useEffect(() => {
-    // fetchAlumnos(); No cargamos los alumnos automáticamente al inicio
+    fetchAlumnos();
   }, []);
 
   const apiBaseUrl = 'http://localhost:4000/api/alumnos/';
 
   const fetchAlumnos = async () => {
-    const response = await axios.get(apiBaseUrl);
-    setAlumnos(response.data || []);
-  };
+  try {
+    // Fetch student data from the backend
+    const studentsResponse = await axios.get(`${apiBaseUrl}`);
+    const studentsData = studentsResponse.data || [];
+
+    // Fetch all grades data from the backend
+    const gradesResponse = await axios.get(`http://localhost:4000/api/notas/`);
+    const gradesData = gradesResponse.data || [];
+
+    // Map grades data to a format that's easier to search
+    const notasIndex = gradesData.reduce((acc, nota) => {
+      acc[nota.alumno_RUT] = nota.nota_examen_oral;
+      return acc;
+    }, {});
+
+    // Combine both students and grades data
+    const combinedData = studentsData.map(alumno => ({
+      ...alumno,
+      nota_examen_oral: notasIndex[alumno.RUT] || null
+    }));
+
+    // Update your state to include this combined data
+    setAlumnos(combinedData);
+  } catch (error) {
+    console.error('Error fetching combined alumnos data:', error);
+    Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
+  }
+};
+
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -56,8 +85,15 @@ function TableData() {
       tesis: '',
       mail: '',
       secretario: '',
-      presidente: ''
+      presidente: '',
+      nota_defensa: ''
     });
+  };
+
+  const handleOpenNotaDefensaModal = () => setNotaDefensaModalOpen(true);
+  const handleCloseNotaDefensaModal = () => {
+    setNotaDefensaModalOpen(false);
+    setNotaDefensa('');
   };
 
   const addOrUpdateAlumno = async () => {
@@ -70,6 +106,18 @@ function TableData() {
     }
     fetchAlumnos();
     handleCloseModal();
+  };
+
+  const addNotaDefensa = async () => {
+    try {
+      await axios.post('http://localhost:4000/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
+      handleCloseNotaDefensaModal();
+      fetchAlumnos();
+    } catch (error) {
+      Swal.fire('Error', 'Ocurrió un error al añadir la nota de defensa', 'error');
+      console.error('Error al añadir la nota de defensa:', error);
+    }
   };
 
   const editAlumno = (alumno) => {
@@ -97,23 +145,22 @@ function TableData() {
   };
 
   const verTesis = (alumno) => {
-    // Lógica para ver la tesis del alumno
     console.log("Viendo tesis de:", alumno.nombre);
   };
 
   const verComision = (alumno) => {
-    // Lógica para ver la comisión del alumno
     console.log("Viendo comisión de:", alumno.nombre);
   };
 
   const verActa = (alumno) => {
-    // Lógica para ver el acta del alumno
     console.log("Viendo acta de:", alumno.nombre);
   };
 
+  
+
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
-    if (!showAlumnos) fetchAlumnos(); // Carga los alumnos solo cuando se decide mostrarlos
+    if (!showAlumnos) fetchAlumnos();
   };
 
   const modalStyle = {
@@ -139,8 +186,8 @@ function TableData() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Nombre</TableCell>
-                <TableCell>RUT</TableCell>
+                <TableCell width="100">Nombre</TableCell>
+                <TableCell width="90">RUT</TableCell>
                 <TableCell>CODIGO</TableCell>
                 <TableCell>AÑO INGRESO</TableCell>
                 <TableCell>AÑO EGRESO</TableCell>
@@ -150,7 +197,8 @@ function TableData() {
                 <TableCell>Mail</TableCell>
                 <TableCell>secretario</TableCell>
                 <TableCell>presidente</TableCell>
-                <TableCell>Acciones</TableCell>
+                <TableCell>Nota Examen Oral</TableCell>
+                <TableCell width="250">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -167,41 +215,50 @@ function TableData() {
                   <TableCell>{alumno.mail}</TableCell>
                   <TableCell>{alumno.secretario}</TableCell>
                   <TableCell>{alumno.presidente}</TableCell>
-
-                 <TableCell>
-  <Grid container spacing={1}>
-    {/* Botón para editar */}
-    <Grid item xs={6}>
-      <IconButton onClick={() => editAlumno(alumno)} color="primary">
-        <Edit />
-      </IconButton>
-    </Grid>
-    {/* Botón para eliminar */}
-    <Grid item xs={6}>
-      <IconButton onClick={() => deleteAlumno(alumno.RUT)} color="secondary">
-        <Delete />
-      </IconButton>
-    </Grid>
-    {/* Botón para ver acta */}
-    <Grid item xs={6}>
-      <IconButton onClick={() => verActa(alumno)} color="primary">
-        <Description />
-      </IconButton>
-    </Grid>
-    {/* Botón para ver comisión */}
-    <Grid item xs={6}>
-      <IconButton onClick={() => verComision(alumno)} color="primary">
-        <Group />
-      </IconButton>
-    </Grid>
-    {/* Botón para ver tesis */}
-    <Grid item xs={6}>
-      <IconButton onClick={() => verTesis(alumno)} color="primary">
-        <Visibility />
-      </IconButton>
-    </Grid>
-  </Grid>
-</TableCell> 
+                  <TableCell>{alumno.nota_examen_oral}</TableCell>
+                  <TableCell>
+                    <Grid container spacing={1}>
+                      <Grid item>
+                        <IconButton onClick={() => editAlumno(alumno)} color="primary">
+                          <Edit />
+                          <Typography variant="caption">Editar</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => deleteAlumno(alumno.RUT)} color="secondary">
+                          <Delete />
+                          <Typography variant="caption">Eliminar</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => verActa(alumno)} color="primary">
+                          <Description />
+                          <Typography variant="caption">Acta</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => verComision(alumno)} color="primary">
+                          <Group />
+                          <Typography variant="caption">Comisión</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => verTesis(alumno)} color="primary">
+                          <Visibility />
+                          <Typography variant="caption">Tesis</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => {
+                          setNewAlumno(alumno);
+                          handleOpenNotaDefensaModal();
+                        }} color="primary">
+                          <NoteAdd />
+                          <Typography variant="caption">Añadir Nota de Defensa</Typography>
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -239,6 +296,39 @@ function TableData() {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
               <Button onClick={addOrUpdateAlumno} color="primary" variant="contained">
                 {editMode ? 'Actualizar' : 'Agregar'}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={notaDefensaModalOpen}
+        onClose={handleCloseNotaDefensaModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-title" variant="h6" component="h2" marginBottom={2}>
+            Añadir Nota de Defensa
+          </Typography>
+          <Box
+            component="form"
+            sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' }, mt: 2 }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              name="nota_defensa"
+              label="Nota de Defensa"
+              value={notaDefensa}
+              onChange={(event) => setNotaDefensa(event.target.value)}
+              fullWidth
+              margin="dense"
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button onClick={addNotaDefensa} color="primary" variant="contained">
+                Añadir Nota
               </Button>
             </Box>
           </Box>

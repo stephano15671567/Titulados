@@ -125,7 +125,7 @@ function SecretariasHome() {
     background: "lightgray",
     padding: "20px",
     width: "100%",
-    maxWidth: "600px",
+    maxWidth: "1000px",
   };
 
   const leftTextStyle = {
@@ -180,7 +180,7 @@ function SecretariasHome() {
               color="secondary"
               startIcon={<LogoutIcon />}
               sx={{
-                marginTop: 2, // Ajusta este valor según sea necesario
+                marginTop: 4, // Ajusta este valor según sea necesario
                 alignSelf: 'flex-end', // Alinea el botón a la derecha
                 marginRight: 2, // Ajusta el margen derecho para posicionar correctamente el botón
               }}
