@@ -118,7 +118,7 @@ const InformanteTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `http://localhost:4000/api/archivos/descargar-rubrica/${alumnoRut}`;
+    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/informante${alumnoRut}`;
   };
 
   return (
