@@ -118,7 +118,7 @@ const GuiaTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/guia${alumnoRut}`;
+    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/guia`;
   };
 
   return (
