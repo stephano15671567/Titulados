@@ -257,6 +257,24 @@ function TableData() {
                           <Typography variant="caption">Añadir Nota de Defensa</Typography>
                         </IconButton>
                       </Grid>
+                      <Grid item>
+                        <IconButton
+                          onClick={() => window.open(`http://localhost:4000/api/archivos/descargar/rubrica/guia/con-notas/${alumno.RUT}`, '_blank')}
+                          color="primary"
+                        >
+                          <Description />
+                          <Typography variant="caption">Descargar Rúbrica Guía</Typography>
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton
+                          onClick={() => window.open(`http://localhost:4000/api/archivos/descargar/rubrica/informante/con-notas/${alumno.RUT}`, '_blank')}
+                          color="primary"
+                        >
+                          <Description />
+                          <Typography variant="caption">Descargar Rúbrica Informante</Typography>
+                        </IconButton>
+                      </Grid>
                     </Grid>
                   </TableCell>
                 </TableRow>

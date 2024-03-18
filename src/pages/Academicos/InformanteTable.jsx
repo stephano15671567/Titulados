@@ -96,25 +96,29 @@ const InformanteTable = () => {
     setFile(event.target.files[0]);
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
-      return;
-    }
+ const handleUpload = async () => {
+  if (!file) {
+    Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append('rubrica', file);
-    const alumnoRut = selectedAlumno.alumno_RUT;
+  const formData = new FormData();
+  formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
+  const alumnoRut = selectedAlumno.alumno_RUT;
 
-    try {
-      await axios.post(`http://localhost:4000/api/rubrica/upload/${alumnoRut}`, formData);
-      Swal.fire('¡Subido!', 'La rúbrica ha sido actualizada.', 'success');
-      handleClose();
-    } catch (error) {
-      console.error('Error al subir la rúbrica:', error);
-      Swal.fire('Error', 'No se pudo subir la rúbrica.', 'error');
-    }
-  };
+  try {
+    const response = await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    Swal.fire('¡Subido!', 'La rúbrica de informante ha sido actualizada.', 'success');
+    handleClose();
+  } catch (error) {
+    console.error('Error al subir la rúbrica de informante:', error);
+    Swal.fire('Error', 'No se pudo subir la rúbrica de informante.', 'error');
+  }
+}; 
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
