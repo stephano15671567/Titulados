@@ -174,6 +174,24 @@ function TableData() {
     p: 4,
   };
 
+  const descargarActa = async (rut) => {
+  try {
+    const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+      responseType: 'blob', // Importante para la descarga de archivos!
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Acta_${rut}.docx`); // O el nombre que prefieras para el archivo descargado
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
+    console.error('Error descargando el acta:', error);
+  }
+};
+
   return (
     <>
       <Button onClick={handleOpenModal} color="primary" variant="contained" style={{ marginBottom: '20px' }}>Agregar Alumno</Button>
@@ -231,9 +249,9 @@ function TableData() {
                         </IconButton>
                       </Grid>
                       <Grid item>
-                        <IconButton onClick={() => verActa(alumno)} color="primary">
+                        <IconButton onClick={() => descargarActa(alumno.RUT)} color="primary">
                           <Description />
-                          <Typography variant="caption">Acta</Typography>
+                          <Typography variant="caption">Descargar Acta</Typography>
                         </IconButton>
                       </Grid>
                       <Grid item>

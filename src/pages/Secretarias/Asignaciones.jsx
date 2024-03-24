@@ -358,7 +358,9 @@ const handleNotify = async (assignmentId) => {
               >
                 <MenuItem value="guia">Guía</MenuItem>
                 <MenuItem value="informante">Informante</MenuItem>
-                {/* Add more role options */}
+                <MenuItem value="secretario">Secretario</MenuItem>
+                <MenuItem value="presidente">Presidente</MenuItem>
+                
               </Select>
             </FormControl>
 
@@ -506,7 +508,9 @@ const handleNotify = async (assignmentId) => {
                     >
                       <MenuItem value="guia">Guía</MenuItem>
                       <MenuItem value="informante">Informante</MenuItem>
-                      {/* Add more role options */}
+                      <MenuItem value="secretario">Secretario</MenuItem>
+                      <MenuItem value="presidente">Presidente</MenuItem>
+
                     </Select>
                   </FormControl>
 
