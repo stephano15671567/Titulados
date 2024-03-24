@@ -127,7 +127,7 @@ const handleUpload = async () => {
   return (
     <Paper sx={{ padding: '20px', marginBottom: '20px', width: '100%' }}>
       <Typography variant="h5" gutterBottom component="div">
-        Informante
+        Guía
       </Typography>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
