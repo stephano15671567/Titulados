@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid } from '@mui/material';
-import { Edit, Delete, Description, Group, Visibility, NoteAdd } from '@mui/icons-material';
+import { Edit, Delete, Description, Visibility, NoteAdd } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 
 function TableData() {
@@ -34,35 +34,29 @@ function TableData() {
   const apiBaseUrl = 'http://localhost:4000/api/alumnos/';
 
   const fetchAlumnos = async () => {
-  try {
-    // Fetch student data from the backend
-    const studentsResponse = await axios.get(`${apiBaseUrl}`);
-    const studentsData = studentsResponse.data || [];
+    try {
+      const studentsResponse = await axios.get(`${apiBaseUrl}`);
+      const studentsData = studentsResponse.data || [];
 
-    // Fetch all grades data from the backend
-    const gradesResponse = await axios.get(`http://localhost:4000/api/notas/`);
-    const gradesData = gradesResponse.data || [];
+      const gradesResponse = await axios.get(`http://localhost:4000/api/notas/`);
+      const gradesData = gradesResponse.data || [];
 
-    // Map grades data to a format that's easier to search
-    const notasIndex = gradesData.reduce((acc, nota) => {
-      acc[nota.alumno_RUT] = nota.nota_examen_oral;
-      return acc;
-    }, {});
+      const notasIndex = gradesData.reduce((acc, nota) => {
+        acc[nota.alumno_RUT] = nota.nota_examen_oral;
+        return acc;
+      }, {});
 
-    // Combine both students and grades data
-    const combinedData = studentsData.map(alumno => ({
-      ...alumno,
-      nota_examen_oral: notasIndex[alumno.RUT] || null
-    }));
+      const combinedData = studentsData.map(alumno => ({
+        ...alumno,
+        nota_examen_oral: notasIndex[alumno.RUT] || null
+      }));
 
-    // Update your state to include this combined data
-    setAlumnos(combinedData);
-  } catch (error) {
-    console.error('Error fetching combined alumnos data:', error);
-    Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
-  }
-};
-
+      setAlumnos(combinedData);
+    } catch (error) {
+      console.error('Error fetching combined alumnos data:', error);
+      Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
+    }
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -148,15 +142,9 @@ function TableData() {
     console.log("Viendo tesis de:", alumno.nombre);
   };
 
-  const verComision = (alumno) => {
-    console.log("Viendo comisión de:", alumno.nombre);
-  };
-
   const verActa = (alumno) => {
     console.log("Viendo acta de:", alumno.nombre);
   };
-
-  
 
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
@@ -175,23 +163,22 @@ function TableData() {
   };
 
   const descargarActa = async (rut) => {
-  try {
-    const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
-      responseType: 'blob', // Importante para la descarga de archivos!
-    });
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Acta_${rut}.docx`); // O el nombre que prefieras para el archivo descargado
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
-    console.error('Error descargando el acta:', error);
-  }
-};
-
+    try {
+      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+        responseType: 'blob', 
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Acta_${rut}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
+      console.error('Error descargando el acta:', error);
+    }
+  };
   return (
     <>
       <Button onClick={handleOpenModal} color="primary" variant="contained" style={{ marginBottom: '20px' }}>Agregar Alumno</Button>
@@ -252,12 +239,6 @@ function TableData() {
                         <IconButton onClick={() => descargarActa(alumno.RUT)} color="primary">
                           <Description />
                           <Typography variant="caption">Descargar Acta</Typography>
-                        </IconButton>
-                      </Grid>
-                      <Grid item>
-                        <IconButton onClick={() => verComision(alumno)} color="primary">
-                          <Group />
-                          <Typography variant="caption">Comisión</Typography>
                         </IconButton>
                       </Grid>
                       <Grid item>
