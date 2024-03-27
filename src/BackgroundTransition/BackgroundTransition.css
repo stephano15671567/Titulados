@@ -1,0 +1,16 @@
+.background-transition-container {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-y: 70%;
+    transition: background-image 1.5s ease-in-out;
+}
+
+.fade-background {
+    /* If you have additional styles for the fade, you can add them here */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.fade-background.active {
+    opacity: 1;
+}

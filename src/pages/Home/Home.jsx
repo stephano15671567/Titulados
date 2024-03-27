@@ -12,9 +12,27 @@ import background5 from "./components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import imagen1 from "./components/images/LOGO-UV-APU-AZUL_1.png";
 import imagen2 from "./components/images/logo1.png";
+import "./fonts.css";
+import { useEffect, useState } from "react";
+
 
 
 function Home() {
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  // Función para verificar si la pantalla está minimizada al cambiar el tamaño de la ventana
+  const handleResize = () => {
+    setIsMinimized(window.innerWidth < 600); // Cambia a true si el ancho de la ventana es menor que 600px
+  };
+
+  // Efecto para ejecutar la función handleResize cuando cambia el tamaño de la ventana
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <BackgroundTransition
       images={[
@@ -30,7 +48,6 @@ function Home() {
         <Box
           display="flex"
           flexDirection="column"
-          gap={2}
           justifyContent="center"
           alignItems="center"
           sx={{
@@ -44,28 +61,30 @@ function Home() {
           <Paper
             elevation={3}
             sx={{
-              backgroundColor: "rgba(0, 60, 88, 1)", // Fondo azul transparente
+              backgroundColor: "rgba(0, 60, 88, 1)",
               borderRadius: "20px",
               padding: "10px",
               position: "absolute",
               top: 0,
-              left: "-20px", // Alineamos la caja a la izquierda
-              right: "-20px", // Alineamos la caja a la derecha
+              left: 0,
+              right: 0,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)", // Aumenta la opacidad de la sombra
+              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)",
+              width: "100%", // Ajuste para hacer que la caja sea responsiva
             }}
           >
             <Typography
               variant="h3"
               component="h1"
               sx={{
-                
                 color: "#fff",
-                fontFamily: "Roboto",
+                fontFamily: "Swis721BT",
                 fontWeight: 700,
                 letterSpacing: ".1rem",
+                textAlign: "center", // Alinea el texto al centro
+                marginBottom: isMinimized ? "20px" : "0", // Ajusta el margen inferior si la pantalla está minimizada
               }}
             >
               Sistema de Titulados
@@ -84,39 +103,49 @@ function Home() {
               padding: "10px",
               position: "absolute",
               bottom: "-50px",
-              left: "-20px",
-              right: "-20px",
+              left: 0,
+              right: 0,
               display: "flex",
-              justifyContent: "space-between", // Adjust spacing between items
+              justifyContent: "space-between",
               alignItems: "center",
               boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)",
+              width: "100%", // Ajuste para hacer que la caja sea responsiva
             }}
           >
-            {/* Content Box for text and icons */}
+            {/* Contenido del texto y los iconos */}
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start", // Align items to the left
+                flexDirection: { xs: "column", md: "row" }, // Columna en dispositivos pequeños, fila en dispositivos medianos y superiores
+                alignItems: "flex-start",
                 justifyContent: "center",
-                marginRight: "auto", // Pushes everything to the left
+                flexWrap: "wrap", // Permitir que los elementos se envuelvan en dispositivos pequeños
+                marginRight: "auto",
+                marginBottom: isMinimized ? "20px" : "0", // Ajusta el margen inferior si la pantalla está minimizada
+                width: { xs: "100%", md: "auto" }, // Ancho completo en dispositivos pequeños
               }}
             >
-              {/* Text Content */}
+              {/* Contenido de texto */}
               <Typography
                 variant="body1"
                 sx={{
                   color: "#fff",
                   textAlign: "left",
-                  marginBottom: "0px",
+                  marginBottom: isMinimized ? "20px" : "0", // Ajusta el margen inferior si la pantalla está minimizada
                 }}
               >
                 Escuela de Administración Pública, Casa Central - Las Heras 6, Valparaíso | +56 (32) 250 7961
                 Campus Santiago - Gran Avenida José Miguel Carrera 4160, San Miguel | +56 (2) 2329 2149
                 Universidad de Valparaíso. Blanco 951, Valparaíso, Chile. Fono: +56 (32) 250 7000.
               </Typography>
-              {/* Social Media Icons */}
-              <Grid container spacing={1}>
+              {/* Iconos de redes sociales */}
+              <Grid
+                container
+                spacing={1}
+                sx={{
+                  marginBottom: { xs: 2, md: 0 }, // Espacio inferior en dispositivos pequeños
+                }}
+              >
                 <Grid item>
                   <IconButton color="primary" component="a" href="https://www.instagram.com/administracionpublicauv/">
                     <InstagramIcon />
@@ -135,13 +164,13 @@ function Home() {
               </Grid>
             </Box>
 
-            {/* Image Box */}
+            {/* Contenedor de imágenes */}
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "flex-end", // Keep images on the right
-                marginLeft: "auto", // Pushes images to the right
+                justifyContent: "flex-end",
+                marginLeft: "auto",
               }}
             >
               <img

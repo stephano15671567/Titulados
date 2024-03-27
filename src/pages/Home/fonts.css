@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Swis721BT';
+    src: url('../../../public/Swis721BT.ttf') format('truetype'); /* Ajusta el formato del archivo según tu fuente */
+    font-weight: 700; /* Ajusta el peso de la fuente según tu fuente */
+    font-style: normal; /* Ajusta el estilo de la fuente según tu fuente */
+  }
+
+  @font-face {
+    font-family: 'Swis721BT-bold';
+    src: url('../../../public/Swis721BT-bold.ttf') format('truetype');
+    font-weight: 400; /* Peso de la fuente */
+    font-style: bold; /* Estilo normal */
+  }
