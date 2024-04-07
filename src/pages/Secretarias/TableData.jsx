@@ -57,6 +57,9 @@ function TableData() {
       Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
     }
   };
+  const descargarTesis = (rut) => {
+    window.location.href = `http://localhost:4000/api/archivos/descargar/tesis/${rut}`;
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -274,6 +277,12 @@ function TableData() {
                           <Typography variant="caption">Descargar Rúbrica Informante</Typography>
                         </IconButton>
                       </Grid>
+                      <Grid item>
+                      <IconButton color="primary" onClick={() => descargarTesis(alumno.RUT)}>
+                        <Description />
+                        <Typography variant="caption">Tesis</Typography>
+                      </IconButton>
+                    </Grid>
                     </Grid>
                   </TableCell>
                 </TableRow>

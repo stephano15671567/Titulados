@@ -14,6 +14,7 @@ const GuiaTable = () => {
   const [open, setOpen] = useState(false);
   const [nota, setNota] = useState('');
   const [file, setFile] = useState(null);
+  const [fileTesis, setFileTesis] = useState(null);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
@@ -124,6 +125,34 @@ const handleUpload = async () => {
     window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/guia`;
   };
 
+  const handleFileChangeTesis = (event) => {
+    setFileTesis(event.target.files[0]);
+  };
+
+  const handleUploadTesis = async () => {
+    if (!fileTesis) {
+      Swal.fire('Error', 'Por favor, selecciona un archivo de tesis para subir.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('tesis', fileTesis);
+    const alumnoRut = selectedAlumno.alumno_RUT;
+
+    try {
+      await axios.post(`http://localhost:4000/api/archivos/subir/tesis/${alumnoRut}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      Swal.fire('¡Subido!', 'La tesis ha sido subida con éxito.', 'success');
+      handleClose(); // Cierra el diálogo si es necesario
+    } catch (error) {
+      console.error('Error al subir la tesis:', error);
+      Swal.fire('Error', 'No se pudo subir la tesis.', 'error');
+    }
+  };
+
   return (
     <Paper sx={{ padding: '20px', marginBottom: '20px', width: '100%' }}>
       <Typography variant="h5" gutterBottom component="div">
@@ -188,6 +217,13 @@ const handleUpload = async () => {
               Subir Rúbrica
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
+          </div>
+          <div>
+            <Button component="label" sx={{ mt: 2, mb: 1 }}>
+              Subir Tesis
+              <input type="file" hidden onChange={handleFileChangeTesis} />
+            </Button>
+            <Button onClick={handleUploadTesis} disabled={!fileTesis}>Subir Tesis</Button>
           </div>
         </DialogContent>
         <DialogActions>
