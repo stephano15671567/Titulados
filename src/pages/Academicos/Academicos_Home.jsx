@@ -98,4 +98,3 @@ const ProfessorAssignmentsView = () => {
 };
 
 export default ProfessorAssignmentsView;
-
