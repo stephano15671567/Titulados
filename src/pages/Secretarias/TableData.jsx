@@ -57,9 +57,29 @@ function TableData() {
       Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
     }
   };
-  const descargarTesis = (rut) => {
-    window.location.href = `http://localhost:4000/api/archivos/descargar/tesis/${rut}`;
-  };
+  const descargarTesis = async (rut) => {
+  try {
+    const response = await axios.get(`http://localhost:4000/api/archivos/descargar/tesis/${rut}`, {
+      responseType: 'blob',
+    });
+
+    if (response.data.size > 0) { 
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Tesis_${rut}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Si no hay archivo, muestra un mensaje de error.
+      Swal.fire('No encontrado', 'No se encontró la tesis solicitada.', 'error');
+    }
+  } catch (error) {
+    Swal.fire('Error', 'No se pudo descargar la tesis.', 'error');
+    console.error('Error descargando la tesis:', error);
+  }
+};
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -143,9 +163,7 @@ function TableData() {
 
   
 
-  const verActa = (alumno) => {
-    console.log("Viendo acta de:", alumno.nombre);
-  };
+ 
 
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
@@ -162,12 +180,13 @@ function TableData() {
     boxShadow: 24,
     p: 4,
   };
+const descargarActa = async (rut) => {
+  try {
+    const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+      responseType: 'blob',
+    });
 
-  const descargarActa = async (rut) => {
-    try {
-      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
-        responseType: 'blob', 
-      });
+    if (response.data.size > 0) {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -175,11 +194,14 @@ function TableData() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
-      console.error('Error descargando el acta:', error);
+    } else {
+      Swal.fire('No encontrado', 'No se encontró el acta solicitada.', 'error');
     }
-  };
+  } catch (error) {
+    Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
+    console.error('Error descargando el acta:', error);
+  }
+};
   return (
     <>
       <Button onClick={handleOpenModal} color="primary" variant="contained" style={{ marginBottom: '20px' }}>Agregar Alumno</Button>
