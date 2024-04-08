@@ -11,8 +11,10 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import LogoutIcon from '@mui/icons-material/Logout';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function SecretariasHome() {
+  const navigate = useNavigate();
   const win = window.sessionStorage; //Variable de sesión
   const [user, setUser] = useState({});
   const [showSignIn, setShowSignIn] = useState(!win.getItem("status")); // Show if no token
@@ -145,6 +147,17 @@ function SecretariasHome() {
             alignItems="center"
             height="100vh"
           >
+          <Button variant="contained" 
+          onClick={() => navigate('/')} // Replace '/' with your home route
+          sx={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 1000,
+          }}
+          startIcon={<ArrowBackIcon />}>
+          Atras
+          </Button>
             <Paper elevation={10} sx={{ padding: 3, width: "400px" }}> {/* Standardized width */}
               <Typography variant="h5" gutterBottom textAlign="center">
                 Inicie sesión con su correo institucional
