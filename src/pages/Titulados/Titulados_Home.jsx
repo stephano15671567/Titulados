@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Dialog,
@@ -18,6 +18,7 @@ import background3 from "../Home/components/images/imagen_3.jpg";
 import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import axios from "axios";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function TituladosHome() {
   const win = window.sessionStorage; //Variable de sesión
@@ -31,6 +32,15 @@ function TituladosHome() {
   const handleClose2 = () => {
     setOpen2(false);
   };
+  
+  // Función para cerrar sesión
+  const handleSignOut = () => {
+    // Eliminar información de sesión
+    win.clear();
+    // Redireccionar al usuario a la página de inicio de sesión (sustituir '/' por la ruta de inicio de sesión)
+    window.location.href = '/';
+  };
+
   const handleFileUpload = async (e, endpoint) => {
     const file = e.target.files[0];
     if (!file) {
@@ -81,6 +91,15 @@ function TituladosHome() {
       images={[background1, background2, background3, background4, background5]}
       duration={5000}
     >
+    <Button
+        onClick={handleSignOut}
+        variant="contained"
+        color="secondary"
+        startIcon={<LogoutIcon />}
+        style={{ position: 'absolute', top: '20px', right: '20px' }}
+    >
+      Salir
+    </Button>
       <Container maxWidth="md">
         <Box
           display="flex"
@@ -89,6 +108,7 @@ function TituladosHome() {
           justifyContent="center"
           minHeight="100vh"
           padding="20px"
+          position="relative"
         >
           <Paper
             elevation={3}
@@ -127,30 +147,31 @@ function TituladosHome() {
               >
                 Subir Ficha de Inscripción
               </Button>
-              <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Notificación</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    ¡Archivo subido con éxito!
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose}>Cerrar</Button>
-                </DialogActions>
-              </Dialog>
-              <Dialog open={open2} onClose={handleClose2}>
-                <DialogTitle>Notificación</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Hubo un error al subir el archivo, pruebe nuevamente más tarde
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose2}>Cerrar</Button>
-                </DialogActions>
-              </Dialog>
             </label>
           </Paper>
+          
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Notificación</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                ¡Archivo subido con éxito!
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cerrar</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog open={open2} onClose={handleClose2}>
+            <DialogTitle>Notificación</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Hubo un error al subir el archivo, pruebe nuevamente más tarde
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose2}>Cerrar</Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Container>
     </BackgroundTransition>
