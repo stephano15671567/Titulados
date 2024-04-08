@@ -20,8 +20,6 @@ function TableData() {
     fecha_examen: '',
     tesis: '',
     mail: '',
-    secretario: '',
-    presidente: '',
     nota_examen_oral: ''
   });
   const [notaDefensa, setNotaDefensa] = useState('');
@@ -101,8 +99,7 @@ function TableData() {
       fecha_examen: '',
       tesis: '',
       mail: '',
-      secretario: '',
-      presidente: '',
+      
       nota_defensa: ''
     });
   };
@@ -223,10 +220,8 @@ const descargarActa = async (rut) => {
                 <TableCell>Hora</TableCell>
                 <TableCell>Fecha Examen</TableCell>
                 <TableCell>Mail</TableCell>
-                <TableCell>secretario</TableCell>
-                <TableCell>presidente</TableCell>
                 <TableCell>Nota Examen Oral</TableCell>
-                <TableCell width="250">Acciones</TableCell>
+                <TableCell width="400">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -241,8 +236,6 @@ const descargarActa = async (rut) => {
                   <TableCell>{alumno.hora}</TableCell>
                   <TableCell>{alumno.fecha_examen}</TableCell>
                   <TableCell>{alumno.mail}</TableCell>
-                  <TableCell>{alumno.secretario}</TableCell>
-                  <TableCell>{alumno.presidente}</TableCell>
                   <TableCell>{alumno.nota_examen_oral}</TableCell>
                   <TableCell>
                     <Grid container spacing={1}>
