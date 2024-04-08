@@ -8,6 +8,7 @@ import background3 from "../Home/components/images/imagen_3.jpg";
 import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function Titulados() {
   const [username, setUsername] = useState('');
@@ -70,6 +71,17 @@ function Titulados() {
       duration={5000}
     >
       <Box style={containerStyle}>
+        <Button variant="contained" 
+          onClick={() => navigate('/')} // Replace '/' with your home route
+          sx={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 1000,
+          }}
+        startIcon={<ArrowBackIcon />}>
+        Atras
+        </Button>
         <Paper elevation={3} style={formContainerStyle}>
           <Typography variant="body1" style={leftTextStyle}>
             <br />
