@@ -141,9 +141,7 @@ function TableData() {
     });
   };
 
-  const verTesis = (alumno) => {
-    console.log("Viendo tesis de:", alumno.nombre);
-  };
+  
 
   const verActa = (alumno) => {
     console.log("Viendo acta de:", alumno.nombre);
@@ -244,12 +242,7 @@ function TableData() {
                           <Typography variant="caption">Descargar Acta</Typography>
                         </IconButton>
                       </Grid>
-                      <Grid item>
-                        <IconButton onClick={() => verTesis(alumno)} color="primary">
-                          <Visibility />
-                          <Typography variant="caption">Tesis</Typography>
-                        </IconButton>
-                      </Grid>
+                      
                       <Grid item>
                         <IconButton onClick={() => {
                           setNewAlumno(alumno);
