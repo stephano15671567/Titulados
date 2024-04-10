@@ -4,6 +4,7 @@ import BotonesInicio from "./botones";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import LinkedInIcon from '@mui/icons-material/LinkedIn'; // Importar el icono de LinkedIn
 import background1 from "./components/images/imag_valparaiso.jpg";
 import background2 from "./components/images/imagen_2.jpg";
 import background3 from "./components/images/imagen_3.jpg";
@@ -44,26 +45,25 @@ function Home() {
           <Paper
             elevation={3}
             sx={{
-              backgroundColor: "rgba(0, 60, 88, 1)", // Fondo azul transparente
+              backgroundColor: "rgba(0, 60, 88, 1)", 
               borderRadius: "20px",
               padding: "10px",
               position: "absolute",
               top: 0,
-              left: "-20px", // Alineamos la caja a la izquierda
-              right: "-20px", // Alineamos la caja a la derecha
+              left: "-20px", 
+              right: "-20px", 
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)", // Aumenta la opacidad de la sombra
+              boxShadow: "0px 0px 15px rgba(0, 0, 0, 1)", 
             }}
           >
             <Typography
               variant="h3"
               component="h1"
               sx={{
-                
                 color: "#fff",
-                fontFamily: "Roboto",
+                fontFamily: "swiss721bt", // Cambiar la fuente a swiss721bt
                 fontWeight: 700,
                 letterSpacing: ".1rem",
               }}
@@ -128,8 +128,8 @@ function Home() {
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton color="primary" component="a" href="https://youtube.com">
-                    <YouTubeIcon />
+                  <IconButton color="primary" component="a" href="https://www.linkedin.com/in/administraci%C3%B3n-p%C3%BAblica-universidad-de-valpara%C3%ADso-b785a4b4/"> {/* Cambiar el enlace a LinkedIn */}
+                    <LinkedInIcon /> {/* Usar el icono de LinkedIn */}
                   </IconButton>
                 </Grid>
               </Grid>
