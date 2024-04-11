@@ -58,7 +58,7 @@ function BotonesInicio() {
       sx={{ borderRadius: "20px", padding: "20px", bottom: "10px" }}
     >
       <Box display="flex" justifyContent="center" gap={5}>
-        <BotonCard to="/Titulados" image= {imagen1}  label="Titulados" />
+        <BotonCard to="/Titulados" image= {imagen1}  label="Estudiantes" />
         <BotonCard to="/Secretarias" image= {imagen2} label="Secretarias" />
         <BotonCard to="/Academicos" image= {imagen3}  label="Académicos" />
         <BotonCard to="/Jefaturas" image= {imagen3} label="Jefaturas" />
