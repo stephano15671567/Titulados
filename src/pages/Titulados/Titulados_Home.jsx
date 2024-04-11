@@ -62,7 +62,7 @@ function TituladosHome() {
       );
       try{
         const response2 = await axios.post(
-          `10.100.32.192:4000/api/correo_send/${id}/`,
+          `http://10.100.32.192:4000/api/correo_send/${id}/`,
           {
             withCredentials: true, // This is equivalent to 'credentials: "include"'
           }

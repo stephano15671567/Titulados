@@ -117,7 +117,7 @@ const handleNotify = async (assignmentId) => {
   const notificarCorreo = async (assignmentId) => {
     try {
       const response = await axios.post(
-        `10.100.32.192:4000/api/correo_send/notificar/${assignmentId}/`
+        `http://10.100.32.192:4000/api/correo_send/notificar/${assignmentId}/`
       );
       console.log("Correo enviado:", response.data);
     } catch (error) {

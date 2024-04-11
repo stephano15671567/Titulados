@@ -3,8 +3,7 @@ import { Box, Typography, Paper, Container, Grid, IconButton } from "@mui/materi
 import BotonesInicio from "./botones";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import LinkedInIcon from '@mui/icons-material/LinkedIn'; // Importar el icono de LinkedIn
+import LinkedInIcon from '@mui/icons-material/LinkedIn'; 
 import background1 from "./components/images/imag_valparaiso.jpg";
 import background2 from "./components/images/imagen_2.jpg";
 import background3 from "./components/images/imagen_3.jpg";

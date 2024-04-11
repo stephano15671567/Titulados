@@ -17,7 +17,7 @@ function Titulados() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('10.100.32.192:4000/api/jefatura/logins', {
+    const response = await fetch('http://10.100.32.192:4000/api/jefatura/logins', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
