@@ -54,7 +54,7 @@ function TituladosHome() {
     console.log(endpoint);
     try {
       const response = await axios.post(
-        `http://localhost:4000/${endpoint}`,
+        `10.100.32.192:4000/${endpoint}`,
         formData,
         {
           withCredentials: true, // This is equivalent to 'credentials: "include"'
@@ -62,7 +62,7 @@ function TituladosHome() {
       );
       try{
         const response2 = await axios.post(
-          `http://localhost:4000/api/correo_send/${id}/`,
+          `10.100.32.192:4000/api/correo_send/${id}/`,
           {
             withCredentials: true, // This is equivalent to 'credentials: "include"'
           }

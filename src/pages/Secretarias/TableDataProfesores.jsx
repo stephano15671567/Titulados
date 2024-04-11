@@ -17,7 +17,7 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'http://localhost:4000/api/profesores';
+  const apiBaseUrl = '10.100.32.192:4000/api/profesores';
 
   const fetchProfesores = async () => {
     try {
