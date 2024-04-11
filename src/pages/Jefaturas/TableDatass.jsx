@@ -23,14 +23,14 @@ function TableData({ titulados }) {
 
   useEffect(() => {
     // Fetch the data for 'profesores guías'
-    axios.get('http://localhost:4000/api/profesores/guias/')
+    axios.get('10.100.32.192:4000/api/profesores/guias/')
       .then(response => {
         setProfesoresGuias(response.data);
       })
       .catch(error => console.error('Error al cargar los profesores guías', error));
 
     // Fetch the data for 'profesores informantes'
-    axios.get('http://localhost:4000/api/profesores/informantes/')
+    axios.get('10.100.32.192:4000/api/profesores/informantes/')
       .then(response => {
         setProfesoresInformantes(response.data);
       })
@@ -58,7 +58,7 @@ function TableData({ titulados }) {
 
   const saveAssignments = async () => {
     const updatePromises = Object.entries(selections).map(([tituladoId, selection]) =>
-      axios.post('http://localhost:4000/api/profesores/asignacion', {
+      axios.post('10.100.32.192:4000/api/profesores/asignacion', {
         tituladoId,
         profesorGuiaId: selection.guia, 
         profesorInformanteId: selection.informante,

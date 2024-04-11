@@ -11,14 +11,14 @@ const ProfessorAssignmentsView = () => {
 
   const win = window.sessionStorage; 
   const professorId = win.getItem("id"); 
-
+  
   useEffect(() => {
     if (professorId) {
-      axios.get(`http://localhost:4000/api/asignaciones/guia/${professorId}`)
+      axios.get(`10.100.32.192:4000/api/asignaciones/guia/${professorId}`)
         .then(response => setGuiaAssignments(response.data))
         .catch(error => console.error('Error fetching guia assignments:', error));
 
-      axios.get(`http://localhost:4000/api/asignaciones/informante/${professorId}`)
+      axios.get(`10.100.32.192:4000/api/asignaciones/informante/${professorId}`)
         .then(response => setInformanteAssignments(response.data))
         .catch(error => console.error('Error fetching informante assignments:', error));
     }
@@ -47,7 +47,7 @@ const ProfessorAssignmentsView = () => {
 
   const fetchAsignaciones = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/asignaciones');
+      const response = await axios.get('10.100.32.192:4000/api/asignaciones');
       const enrichedAsignaciones = response.data.map(asignacion => {
         const alumno = alumnos.find(al => al.RUT === asignacion.alumno_RUT) || {};
         const profesor = profesores.find(pr => pr.profesor_id === asignacion.profesor_id) || {};
@@ -60,12 +60,12 @@ const ProfessorAssignmentsView = () => {
   };
 
   const fetchAlumnos = async () => {
-    const response = await axios.get('http://localhost:4000/api/alumnos');
+    const response = await axios.get('10.100.32.192:4000/api/alumnos');
     setAlumnos(response.data);
   };
 
   const fetchProfesores = async () => {
-    const response = await axios.get('http://localhost:4000/api/profesores');
+    const response = await axios.get('10.100.32.192:4000/api/profesores');
     setProfesores(response.data);
   };
 

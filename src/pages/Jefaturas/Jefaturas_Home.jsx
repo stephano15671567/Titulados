@@ -18,7 +18,7 @@ const Jefatura = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/titulados/alumnosTitulados')
+    fetch('10.100.32.192/api/titulados/alumnosTitulados')
       .then((response) => {
         if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
           return response.json();

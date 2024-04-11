@@ -21,9 +21,9 @@ const GuiaTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/guia/${profesorId}`);
-        const notasResponse = await axios.get('http://localhost:4000/api/notas');
-        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
+        const assignmentsResponse = await axios.get(`10.100.32.192:4000/api/asignaciones/guia/${profesorId}`);
+        const notasResponse = await axios.get('10.100.32.192:4000/api/notas');
+        const alumnosResponse = await axios.get('10.100.32.192:4000/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -68,7 +68,7 @@ const GuiaTable = () => {
       return;
     }
 
-    const url = `http://localhost:4000/api/notas/upsert`;
+    const url = `10.100.32.192:4000/api/notas/upsert`;
     const payload = {
       alumno_RUT: selectedAlumno.alumno_RUT,
       nota: parseFloat(nota),
@@ -108,7 +108,7 @@ const handleUpload = async () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
+    const response = await axios.post(`10.100.32.192:4000/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -122,7 +122,7 @@ const handleUpload = async () => {
 };
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/guia`;
+    window.location.href = `10.100.32.192:4000/api/archivos/descargar/rubrica/guia`;
   };
 
   const handleFileChangeTesis = (event) => {
@@ -140,7 +140,7 @@ const handleUpload = async () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`http://localhost:4000/api/archivos/subir/tesis/${alumnoRut}`, formData, {
+      await axios.post(`10.100.32.192:4000/api/archivos/subir/tesis/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

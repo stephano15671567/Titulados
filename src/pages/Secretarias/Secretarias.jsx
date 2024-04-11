@@ -27,7 +27,7 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const reportUrl = 'http://localhost:4000/api/report/download-report'; 
+  const reportUrl = '10.100.32.192:4000/api/report/download-report'; 
 
   return (
     

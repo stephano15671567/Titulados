@@ -21,7 +21,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('http://localhost:4000/upload', formData, {
+      await axios.post('10.100.32.192:4000/upload', formData, {
         
       });
       setUploadStatus('Archivo subido con éxito');
