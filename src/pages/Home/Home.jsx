@@ -12,6 +12,8 @@ import background5 from "./components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import imagen1 from "./components/images/LOGO-UV-APU-AZUL_1.png";
 import imagen2 from "./components/images/logo1.png";
+import axios from "axios";
+
 
 
 function Home() {

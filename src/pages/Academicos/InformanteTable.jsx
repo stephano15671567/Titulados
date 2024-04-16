@@ -20,9 +20,9 @@ const InformanteTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`http://10.100.32.192:4000/api/asignaciones/informante/${profesorId}`);
-        const notasResponse = await axios.get('http://10.100.32.192:4000/api/notas');
-        const alumnosResponse = await axios.get('http://10.100.32.192:4000/api/alumnos');
+        const assignmentsResponse = await axios.get(`/api/asignaciones/informante/${profesorId}`);
+        const notasResponse = await axios.get('/api/notas');
+        const alumnosResponse = await axios.get('/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -76,7 +76,7 @@ const InformanteTable = () => {
     };
 
     try {
-      await axios.post(url, payload);
+      await axios.post('/api/notas/upsert/', payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
           return { ...row, nota_informante: nota };
@@ -107,7 +107,7 @@ const InformanteTable = () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`http://10.100.32.192:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+    const response = await axios.post(`/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

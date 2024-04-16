@@ -23,7 +23,7 @@ function SecretariasHome() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        api + "api/secretarias/ver/",
+        "/api/secretarias/ver/",
         {},
         {
           headers: {
@@ -80,7 +80,7 @@ function SecretariasHome() {
   const handleToken = async (response) => {
     try {
       const res = await axios.post(
-        api+ "api/secretarias/auth/",
+        "/api/secretarias/auth/",
         {
           token: response.credential,
         }

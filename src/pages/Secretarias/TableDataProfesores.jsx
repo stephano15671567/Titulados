@@ -17,11 +17,10 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'https://10.100.32.192:4001/api/profesores';
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get(apiBaseUrl);
+      const response = await axios.get('/api/profesores');
       setProfesores(response.data || []);
     } catch (error) {
       console.error('Error fetching profesores:', error);
@@ -43,7 +42,7 @@ function TableDataProfesores() {
 
   const addProfesor = async () => {
     try {
-      const response = await axios.post(apiBaseUrl, newProfesor);
+      const response = await axios.post('/api/profesores', newProfesor);
       if (response.data) {
         fetchProfesores();
         setNewProfesor({
@@ -61,7 +60,7 @@ function TableDataProfesores() {
   const updateProfesor = async (index) => {
     const profesor = profesores[index];
     try {
-      const response = await axios.put(`${apiBaseUrl}/${profesor.profesor_id}`, profesor);
+      const response = await axios.put(`/api/${profesor.profesor_id}`, profesor);
       if (response.data) {
         setEditingIndex(-1);
         fetchProfesores();
@@ -86,7 +85,7 @@ function TableDataProfesores() {
         });
 
         if (result.isConfirmed) {
-          const response = await axios.delete(`${apiBaseUrl}/${profesor_id}`);
+          const response = await axios.delete(`/api/${profesor_id}`);
           if (response.status === 200) {
             fetchProfesores();
             Swal.fire('Eliminado', 'El profesor ha sido eliminado con éxito', 'success');

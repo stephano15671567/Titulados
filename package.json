@@ -1,5 +1,6 @@
 {
   "name": "my-app",
+  "proxy": "https://apisst.administracionpublica-uv.cl/",
   "homepage": "https://titulados.administracionpublica-uv.cl",
   "version": "0.1.0",
   "private": true,

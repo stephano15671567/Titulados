@@ -22,7 +22,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post(api+'upload', formData, {
+      await axios.post('/api/upload', formData, {
         
       });
       setUploadStatus('Archivo subido con éxito');

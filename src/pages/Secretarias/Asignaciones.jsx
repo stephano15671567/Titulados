@@ -102,13 +102,13 @@ const handleNotify = async (assignmentId) => {
  
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`${api}api/archivos/${assignment.alumno_RUT}`);
+    window.open(`/api/archivos/${assignment.alumno_RUT}`);
   };
 
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get(api+"api/alumnos");
+      const response = await axios.get("/api/alumnos");
       setAlumnos(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -118,7 +118,7 @@ const handleNotify = async (assignmentId) => {
   const notificarCorreo = async (assignmentId) => {
     try {
       const response = await axios.post(
-        `${api}apiapi/correo_send/notificar/${assignmentId}/`
+        `/api/correo_send/notificar/${assignmentId}/`
       );
       console.log("Correo enviado:", response.data);
     } catch (error) {
@@ -129,7 +129,7 @@ const handleNotify = async (assignmentId) => {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get(api +"api/profesores");
+      const response = await axios.get("/api/profesores");
       setProfesores(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -139,7 +139,7 @@ const handleNotify = async (assignmentId) => {
   const fetchFetchedAssignments = async () => {
     try {
       const response = await axios.get(
-        api+"api/asignaciones"
+        "/api/asignaciones"
       );
       setAssignments(response.data);
     } catch (error) {
@@ -156,7 +156,7 @@ const handleNotify = async (assignmentId) => {
   const handleDeletedb = async (assignmentId) => {
     try {
       const response = await axios.delete(
-        `${api}api/asignaciones/${assignmentId}`
+        `/api/asignaciones/${assignmentId}`
       );
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
@@ -195,7 +195,7 @@ const handleNotify = async (assignmentId) => {
 
   try {
     const response = await axios.put(
-      `${api}api/asignaciones/${currentAssignment.asignacion_id}`,
+      `/api/asignaciones/${currentAssignment.asignacion_id}`,
       {
         alumnoId: currentAssignment.alumno_RUT,
         profesorId: formDataEdit.profesor,
@@ -230,7 +230,7 @@ const handleNotify = async (assignmentId) => {
   setError("");
   try {
     const response = await axios.post(
-      api+"api/asignaciones",
+      "/api/asignaciones",
       {
         alumnoId: formData.alumno,
         profesorId: formData.profesor,

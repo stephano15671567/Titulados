@@ -35,10 +35,10 @@ function TableData() {
 
   const fetchAlumnos = async () => {
     try {
-      const studentsResponse = await axios.get(`${apiBaseUrl}`);
+      const studentsResponse = await axios.get(`/api/alumnos/`);
       const studentsData = studentsResponse.data || [];
 
-      const gradesResponse = await axios.get(`${api}api/notas/`);
+      const gradesResponse = await axios.get(`/api/notas/`);
       const gradesData = gradesResponse.data || [];
 
       const notasIndex = gradesData.reduce((acc, nota) => {
@@ -59,7 +59,7 @@ function TableData() {
   };
   const descargarTesis = async (rut) => {
   try {
-    const response = await axios.get(`${api}api/archivos/descargar/tesis/${rut}`, {
+    const response = await axios.get(`/api/archivos/descargar/tesis/${rut}`, {
       responseType: 'blob',
     });
 
@@ -114,10 +114,10 @@ function TableData() {
 
   const addOrUpdateAlumno = async () => {
     if (editMode) {
-      await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, newAlumno);
+      await axios.put(`/api/alumnos/${newAlumno.RUT}`, newAlumno);
       Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
     } else {
-      await axios.post(apiBaseUrl, newAlumno);
+      await axios.post('/api/alumnos', newAlumno);
       Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
     }
     fetchAlumnos();
@@ -126,7 +126,7 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post(api+'api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post('/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
@@ -153,7 +153,7 @@ function TableData() {
       confirmButtonText: 'Sí, eliminarlo!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`${apiBaseUrl}${RUT}`);
+        await axios.delete(`/api/alumnos/${RUT}`);
         fetchAlumnos();
         Swal.fire('Eliminado!', 'El alumno ha sido eliminado.', 'success');
       }
@@ -181,7 +181,7 @@ function TableData() {
   };
 const descargarActa = async (rut) => {
   try {
-    const response = await axios.get(`${api}api/archivos/descargar/acta/${rut}`, {
+    const response = await axios.get(`/api/archivos/descargar/acta/${rut}`, {
       responseType: 'blob',
     });
 
@@ -271,7 +271,7 @@ const descargarActa = async (rut) => {
                       </Grid>
                       <Grid item>
                         <IconButton
-                          onClick={() => window.open(`${api}api/archivos/descargar/rubrica/guia/con-notas/${alumno.RUT}`, '_blank')}
+                          onClick={() => window.open(`/api/archivos/descargar/rubrica/guia/con-notas/${alumno.RUT}`, '_blank')}
                           color="primary"
                         >
                           <Description />
@@ -280,7 +280,7 @@ const descargarActa = async (rut) => {
                       </Grid>
                       <Grid item>
                         <IconButton
-                          onClick={() => window.open(`${api}api/archivos/descargar/rubrica/informante/con-notas/${alumno.RUT}`, '_blank')}
+                          onClick={() => window.open(`/api/archivos/descargar/rubrica/informante/con-notas/${alumno.RUT}`, '_blank')}
                           color="primary"
                         >
                           <Description />

@@ -56,7 +56,7 @@ function TituladosHome() {
     console.log(endpoint);
     try {
       const response = await axios.post(
-        `${api}/${endpoint}`,
+        `/${endpoint}`,
         formData,
         {
           withCredentials: true, // This is equivalent to 'credentials: "include"'
@@ -64,7 +64,7 @@ function TituladosHome() {
       );
       try{
         const response2 = await axios.post(
-          `${api}/api/correo_send/${id}/`,
+          `/api/correo_send/${id}/`,
           {
             withCredentials: true, // This is equivalent to 'credentials: "include"'
           }
@@ -135,7 +135,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={(e) => handleFileUpload(e, "api/archivos/")}
+              onChange={(e) => handleFileUpload(e, "/api/archivos/")}
             />
             <label
               htmlFor="upload-ficha"

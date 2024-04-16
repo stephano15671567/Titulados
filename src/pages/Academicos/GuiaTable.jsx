@@ -21,9 +21,9 @@ const GuiaTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`http://10.100.32.192:4000/api/asignaciones/guia/${profesorId}`);
-        const notasResponse = await axios.get('http://10.100.32.192:4000/api/notas');
-        const alumnosResponse = await axios.get('http://10.100.32.192:4000/api/alumnos');
+        const assignmentsResponse = await axios.get(`/api/asignaciones/guia/${profesorId}`);
+        const notasResponse = await axios.get('/api/notas');
+        const alumnosResponse = await axios.get('/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -77,7 +77,7 @@ const GuiaTable = () => {
     };
 
     try {
-      await axios.post(url, payload);
+      await axios.post('/api/notas/upsert', payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
           return { ...row, nota_guia: nota };
@@ -108,7 +108,7 @@ const handleUpload = async () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`http://10.100.32.192:4000/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
+    const response = await axios.post(`/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -140,7 +140,7 @@ const handleUpload = async () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`http://10.100.32.192:4000/api/archivos/subir/tesis/${alumnoRut}`, formData, {
+      await axios.post(`/api/archivos/subir/tesis/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
