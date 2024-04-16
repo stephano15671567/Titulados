@@ -12,6 +12,8 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+const api = "https://10.100.32.192:4001/"
+
 function Titulados() {
   const navigate = useNavigate();
   const win = window.sessionStorage; //Variable de sesión
@@ -21,7 +23,7 @@ function Titulados() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "http://10.100.32.192:4000/api/alumnos/ver/",
+        api + "api/alumnos/ver/",
         {},
         {
           headers: {
@@ -78,7 +80,7 @@ function Titulados() {
  
   const handleToken = async (response) => {
     try {
-      const res = await axios.post("http://10.100.32.192:4000/api/alumnos/auth/", {
+      const res = await axios.post(api+"api/alumnos/auth/", {
         token: response.credential,
       });
       const usuario = jwtDecode(res.data);

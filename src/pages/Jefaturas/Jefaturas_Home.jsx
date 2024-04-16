@@ -10,6 +10,7 @@ import background4 from '../Home/components/images/imagen_4.jpg';
 import background5 from '../Home/components/images/imagen_5.jpg';
 import FileUploads from './FileUploads'; // Asegúrate de que la ruta sea correcta
 import TableData from './TableDatass'; // Importa el componente TableData
+const api = "https://10.100.32.192:4001/";
 
 
 const Jefatura = () => {
@@ -18,7 +19,7 @@ const Jefatura = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('10.100.32.192/api/titulados/alumnosTitulados')
+    fetch(api+'api/titulados/alumnosTitulados')
       .then((response) => {
         if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
           return response.json();
@@ -45,7 +46,7 @@ const Jefatura = () => {
     color: 'white',
   };
 
-  const reportUrl = 'http://localhost:4000/path-to-report'; // Reemplazar con el enlace correcto al reporte
+  const reportUrl = 'https://localhost:4001/path-to-report'; // Reemplazar con el enlace correcto al reporte
 
   if (loading) {
     return <Typography>Cargando...</Typography>;

@@ -25,6 +25,7 @@ import {
   Alert,
   Input,
 } from "@mui/material";
+const api = "https://10.100.32.192:4001/";
 
 export default function Asignaciones() {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -101,13 +102,13 @@ const handleNotify = async (assignmentId) => {
  
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`10.100.32.192:4000/api/archivos/${assignment.alumno_RUT}`);
+    window.open(`${api}api/archivos/${assignment.alumno_RUT}`);
   };
 
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get("10.100.32.192:4000/api/alumnos");
+      const response = await axios.get(api+"api/alumnos");
       setAlumnos(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -117,7 +118,7 @@ const handleNotify = async (assignmentId) => {
   const notificarCorreo = async (assignmentId) => {
     try {
       const response = await axios.post(
-        `http://10.100.32.192:4000/api/correo_send/notificar/${assignmentId}/`
+        `${api}apiapi/correo_send/notificar/${assignmentId}/`
       );
       console.log("Correo enviado:", response.data);
     } catch (error) {
@@ -128,7 +129,7 @@ const handleNotify = async (assignmentId) => {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get("10.100.32.192:4000/api/profesores");
+      const response = await axios.get(api +"api/profesores");
       setProfesores(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -138,7 +139,7 @@ const handleNotify = async (assignmentId) => {
   const fetchFetchedAssignments = async () => {
     try {
       const response = await axios.get(
-        "10.100.32.192:4000/api/asignaciones"
+        api+"api/asignaciones"
       );
       setAssignments(response.data);
     } catch (error) {
@@ -155,7 +156,7 @@ const handleNotify = async (assignmentId) => {
   const handleDeletedb = async (assignmentId) => {
     try {
       const response = await axios.delete(
-        `10.100.32.192:4000/api/asignaciones/${assignmentId}`
+        `${api}api/asignaciones/${assignmentId}`
       );
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
@@ -194,7 +195,7 @@ const handleNotify = async (assignmentId) => {
 
   try {
     const response = await axios.put(
-      `10.100.32.192:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+      `${api}api/asignaciones/${currentAssignment.asignacion_id}`,
       {
         alumnoId: currentAssignment.alumno_RUT,
         profesorId: formDataEdit.profesor,
@@ -229,7 +230,7 @@ const handleNotify = async (assignmentId) => {
   setError("");
   try {
     const response = await axios.post(
-      "10.100.32.192:4000/api/asignaciones",
+      api+"api/asignaciones",
       {
         alumnoId: formData.alumno,
         profesorId: formData.profesor,

@@ -20,6 +20,8 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import axios from "axios";
 import LogoutIcon from '@mui/icons-material/Logout';
 
+const api = "https://10.100.32.192:4001/"
+
 function TituladosHome() {
   const win = window.sessionStorage; //Variable de sesión
   const id = win.getItem("id") 
@@ -54,7 +56,7 @@ function TituladosHome() {
     console.log(endpoint);
     try {
       const response = await axios.post(
-        `10.100.32.192:4000/${endpoint}`,
+        `${api}/${endpoint}`,
         formData,
         {
           withCredentials: true, // This is equivalent to 'credentials: "include"'
@@ -62,7 +64,7 @@ function TituladosHome() {
       );
       try{
         const response2 = await axios.post(
-          `http://10.100.32.192:4000/api/correo_send/${id}/`,
+          `${api}/api/correo_send/${id}/`,
           {
             withCredentials: true, // This is equivalent to 'credentials: "include"'
           }

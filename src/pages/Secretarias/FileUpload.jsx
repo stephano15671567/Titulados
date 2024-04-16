@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import axios from 'axios';
+const api = "https://10.100.32.192:4001/";
 
 function FileUpload({ buttonSx }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -21,7 +22,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('http://10.100.32.192:4000/upload', formData, {
+      await axios.post(api+'upload', formData, {
         
       });
       setUploadStatus('Archivo subido con éxito');

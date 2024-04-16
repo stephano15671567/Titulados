@@ -9,6 +9,7 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+const api = "https://10.100.32.192:4001/";
 
 function Titulados() {
   const [username, setUsername] = useState('');
@@ -17,7 +18,7 @@ function Titulados() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://10.100.32.192:4000/api/jefatura/logins', {
+    const response = await fetch(api+'api/jefatura/logins', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -19,10 +19,11 @@ function SecretariasHome() {
   const [user, setUser] = useState({});
   const [showSignIn, setShowSignIn] = useState(!win.getItem("status")); // Show if no token
 
+  const api = "https://10.100.32.192:4001/";
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "http://10.100.32.192:4000/api/secretarias/ver/",
+        api + "api/secretarias/ver/",
         {},
         {
           headers: {
@@ -79,7 +80,7 @@ function SecretariasHome() {
   const handleToken = async (response) => {
     try {
       const res = await axios.post(
-        "http://10.100.32.192:4000/api/secretarias/auth/",
+        api+ "api/secretarias/auth/",
         {
           token: response.credential,
         }
