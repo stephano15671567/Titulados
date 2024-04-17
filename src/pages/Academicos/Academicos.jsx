@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Button from '@mui/material/Button'; // Importar Button de MUI
 import { useNavigate } from 'react-router-dom';
+import API from "../../config/const";
 
 function Titulados() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ function Titulados() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "/api/profesores/ver/",
+        `${API}/api/profesores/ver/`,
         {},
         {
           headers: {
@@ -81,7 +82,7 @@ function Titulados() {
  
   const handleToken = async (response) => {
     try {
-      const res = await axios.post("/api/profesores/auth/", {
+      const res = await axios.post(`${API}/api/profesores/auth/`, {
         token: response.credential,
       });
       const usuario = jwtDecode(res.data);

@@ -3,8 +3,9 @@ import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid } from '@mui/material';
 import { Edit, Delete, Description, Visibility, NoteAdd } from '@mui/icons-material';
 import Swal from 'sweetalert2';
+import API from "../../config/const";
 
-const api = "https://10.100.32.192:4001/"
+
 
 function TableData() {
   const [alumnos, setAlumnos] = useState([]);
@@ -31,14 +32,14 @@ function TableData() {
     fetchAlumnos();
   }, []);
 
-  const apiBaseUrl = 'https://10.100.32.192:4001/api/alumnos/';
+  
 
   const fetchAlumnos = async () => {
     try {
-      const studentsResponse = await axios.get(`/api/alumnos/`);
+      const studentsResponse = await axios.get(`${API}/api/alumnos/`);
       const studentsData = studentsResponse.data || [];
 
-      const gradesResponse = await axios.get(`/api/notas/`);
+      const gradesResponse = await axios.get(`${API}/api/notas/`);
       const gradesData = gradesResponse.data || [];
 
       const notasIndex = gradesData.reduce((acc, nota) => {
@@ -59,7 +60,7 @@ function TableData() {
   };
   const descargarTesis = async (rut) => {
   try {
-    const response = await axios.get(`/api/archivos/descargar/tesis/${rut}`, {
+    const response = await axios.get(`${API}/api/archivos/descargar/tesis/${rut}`, {
       responseType: 'blob',
     });
 
@@ -114,10 +115,10 @@ function TableData() {
 
   const addOrUpdateAlumno = async () => {
     if (editMode) {
-      await axios.put(`/api/alumnos/${newAlumno.RUT}`, newAlumno);
+      await axios.put(`${API}/api/alumnos/${newAlumno.RUT}`, newAlumno);
       Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
     } else {
-      await axios.post('/api/alumnos', newAlumno);
+      await axios.post(`${API}/api/alumnos', newAlumno`);
       Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
     }
     fetchAlumnos();
@@ -126,7 +127,7 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post('/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post(`${API}/api/notas/examenoral`, { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
@@ -153,7 +154,7 @@ function TableData() {
       confirmButtonText: 'Sí, eliminarlo!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`/api/alumnos/${RUT}`);
+        await axios.delete(`${API}/api/alumnos/${RUT}`);
         fetchAlumnos();
         Swal.fire('Eliminado!', 'El alumno ha sido eliminado.', 'success');
       }
@@ -181,7 +182,7 @@ function TableData() {
   };
 const descargarActa = async (rut) => {
   try {
-    const response = await axios.get(`/api/archivos/descargar/acta/${rut}`, {
+    const response = await axios.get(`${API}/api/archivos/descargar/acta/${rut}`, {
       responseType: 'blob',
     });
 
@@ -271,7 +272,7 @@ const descargarActa = async (rut) => {
                       </Grid>
                       <Grid item>
                         <IconButton
-                          onClick={() => window.open(`/api/archivos/descargar/rubrica/guia/con-notas/${alumno.RUT}`, '_blank')}
+                          onClick={() => window.open(`${API}/api/archivos/descargar/rubrica/guia/con-notas/${alumno.RUT}`, '_blank')}
                           color="primary"
                         >
                           <Description />
@@ -280,7 +281,7 @@ const descargarActa = async (rut) => {
                       </Grid>
                       <Grid item>
                         <IconButton
-                          onClick={() => window.open(`/api/archivos/descargar/rubrica/informante/con-notas/${alumno.RUT}`, '_blank')}
+                          onClick={() => window.open(`${API}/api/archivos/descargar/rubrica/informante/con-notas/${alumno.RUT}`, '_blank')}
                           color="primary"
                         >
                           <Description />

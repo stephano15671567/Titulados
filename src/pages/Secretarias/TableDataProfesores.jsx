@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography } from '@mui/material';
 import Swal from 'sweetalert2';
+import API from "../../config/const";
 
 function TableDataProfesores() {
   const [profesores, setProfesores] = useState([]);
@@ -20,7 +21,7 @@ function TableDataProfesores() {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get('/api/profesores');
+      const response = await axios.get(`${API}/api/profesores`);
       setProfesores(response.data || []);
     } catch (error) {
       console.error('Error fetching profesores:', error);
@@ -42,7 +43,7 @@ function TableDataProfesores() {
 
   const addProfesor = async () => {
     try {
-      const response = await axios.post('/api/profesores', newProfesor);
+      const response = await axios.post(`${API}/api/profesores`, newProfesor);
       if (response.data) {
         fetchProfesores();
         setNewProfesor({
@@ -60,7 +61,7 @@ function TableDataProfesores() {
   const updateProfesor = async (index) => {
     const profesor = profesores[index];
     try {
-      const response = await axios.put(`/api/${profesor.profesor_id}`, profesor);
+      const response = await axios.put(`${API}/api/${profesor.profesor_id}`, profesor);
       if (response.data) {
         setEditingIndex(-1);
         fetchProfesores();
@@ -85,7 +86,7 @@ function TableDataProfesores() {
         });
 
         if (result.isConfirmed) {
-          const response = await axios.delete(`/api/${profesor_id}`);
+          const response = await axios.delete(`${API}/api/${profesor_id}`);
           if (response.status === 200) {
             fetchProfesores();
             Swal.fire('Eliminado', 'El profesor ha sido eliminado con éxito', 'success');

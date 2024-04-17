@@ -19,8 +19,9 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import axios from "axios";
 import LogoutIcon from '@mui/icons-material/Logout';
+import API from "../../config/const";
 
-const api = "https://10.100.32.192:4001/"
+
 
 function TituladosHome() {
   const win = window.sessionStorage; //Variable de sesión
@@ -64,7 +65,7 @@ function TituladosHome() {
       );
       try{
         const response2 = await axios.post(
-          `/api/correo_send/${id}/`,
+          `${API}/api/correo_send/${id}/`,
           {
             withCredentials: true, // This is equivalent to 'credentials: "include"'
           }
@@ -135,7 +136,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={(e) => handleFileUpload(e, "/api/archivos/")}
+              onChange={(e) => handleFileUpload(e, `${API}/api/archivos/`)}
             />
             <label
               htmlFor="upload-ficha"

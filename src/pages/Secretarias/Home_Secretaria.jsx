@@ -12,6 +12,7 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import API from "../../config/const";
 
 function SecretariasHome() {
   const navigate = useNavigate();
@@ -19,11 +20,11 @@ function SecretariasHome() {
   const [user, setUser] = useState({});
   const [showSignIn, setShowSignIn] = useState(!win.getItem("status")); // Show if no token
 
-  const api = "https://10.100.32.192:4001/";
+  
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        "/api/secretarias/ver/",
+        `${API}/api/secretarias/ver/`,
         {},
         {
           headers: {
@@ -80,7 +81,7 @@ function SecretariasHome() {
   const handleToken = async (response) => {
     try {
       const res = await axios.post(
-        "/api/secretarias/auth/",
+        `/api/secretarias/auth/`,
         {
           token: response.credential,
         }

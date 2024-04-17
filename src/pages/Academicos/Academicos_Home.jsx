@@ -4,7 +4,7 @@ import { Container, Box, Button } from '@mui/material';
 import GuiaTable from './GuiaTable';
 import InformanteTable from './InformanteTable';
 import LogoutIcon from '@mui/icons-material/Logout';
-
+import API from "../../config/const";
 const ProfessorAssignmentsView = () => {
   const [guiaAssignments, setGuiaAssignments] = useState([]);
   const [informanteAssignments, setInformanteAssignments] = useState([]);
@@ -14,11 +14,11 @@ const ProfessorAssignmentsView = () => {
   
   useEffect(() => {
     if (professorId) {
-      axios.get(`/api/asignaciones/guia/${professorId}`)
+      axios.get(`${API}/api/asignaciones/guia/${professorId}`)
         .then(response => setGuiaAssignments(response.data))
         .catch(error => console.error('Error fetching guia assignments:', error));
 
-      axios.get(`/api/asignaciones/informante/${professorId}`)
+      axios.get(`${API}/api/asignaciones/informante/${professorId}`)
         .then(response => setInformanteAssignments(response.data))
         .catch(error => console.error('Error fetching informante assignments:', error));
     }
@@ -47,7 +47,8 @@ const ProfessorAssignmentsView = () => {
 
   const fetchAsignaciones = async () => {
     try {
-      const response = await axios.get('/api/asignaciones');
+      const response = await axios.get(`${API}/api/asignaciones`);
+                             
       const enrichedAsignaciones = response.data.map(asignacion => {
         const alumno = alumnos.find(al => al.RUT === asignacion.alumno_RUT) || {};
         const profesor = profesores.find(pr => pr.profesor_id === asignacion.profesor_id) || {};
@@ -60,12 +61,12 @@ const ProfessorAssignmentsView = () => {
   };
 
   const fetchAlumnos = async () => {
-    const response = await axios.get('/api/alumnos');
+    const response = await axios.get(`${API}/api/alumnos`);
     setAlumnos(response.data);
   };
 
   const fetchProfesores = async () => {
-    const response = await axios.get('/api/profesores');
+    const response = await axios.get(`${API}/api/profesores`);
     setProfesores(response.data);
   };
 

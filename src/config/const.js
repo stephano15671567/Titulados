@@ -2,7 +2,7 @@ import 'dotenv/config.js';
 
 /* These lines of code are assigning values to constants using the values of environment variables. The
 `process.env` object in Node.js provides access to environment variables. */
-const API = "https://localhost:4000"; //process.env.REACT_APP_API_ENDPOIN
+const API = "https://apisst.administracionpublica-uv.cl/"; //process.env.REACT_APP_API_ENDPOIN
 
 const object = {
     API
