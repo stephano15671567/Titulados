@@ -5,11 +5,15 @@ import Titulados from "../pages/Titulados/Titulados";
 import Secretarias from "../pages/Secretarias/Secretarias";
 import Academicos from "../pages/Academicos/Academicos";
 import Jefaturas from "../pages/Jefaturas/Jefaturas";
-import HomeS from "../pages/Secretarias/Home_Secretaria";
+import HomeS from "../pages/Secretarias/components/Home_Secretaria";
 import Alumnos from "../pages/Titulados/Titulados_Home";
 import JefaturasH from "../pages/Jefaturas/Jefaturas_Home";
 import AcademicosH from "../pages/Academicos/Academicos_Home";
 import TituladosHome from "../pages/Titulados/Titulados_Home";
+import Archivos from "../pages/Secretarias/pages/Archivos";
+import AlumnosSecretaria from "../pages/Secretarias/pages/gestionAlumnos";
+import Profesores from "../pages/Secretarias/pages/gestionProfesores";
+import Assignments from "../pages/Secretarias/pages/asignaciones";
 
 /* ***Layouts**** */
 /*const FullLayout = Loadable(
@@ -49,6 +53,22 @@ const Router = [
           {
             path: "",
             element: <Secretarias />,
+          },
+          {
+            path: "files",
+            element: <Archivos />,
+          },
+          {
+            path: "gestion-alumnos",
+            element: <AlumnosSecretaria />,
+          },
+          {
+            path: "gestion-profesores",
+            element: <Profesores />,
+          },
+          {
+            path: "asignaciones",
+            element: <Assignments />,
           },
         ],
       },

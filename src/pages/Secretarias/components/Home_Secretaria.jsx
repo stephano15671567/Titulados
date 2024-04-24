@@ -4,14 +4,15 @@ import { Box, TextField, Button, Paper, Typography } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 import { Outlet } from "react-router";
 import axios from "axios";
-import background1 from "../Home/components/images/imag_valparaiso.jpg";
-import background2 from "../Home/components/images/imagen_2.jpg";
-import background3 from "../Home/components/images/imagen_3.jpg";
-import background4 from "../Home/components/images/imagen_4.jpg";
-import background5 from "../Home/components/images/imagen_5.jpg";
-import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import background1 from "../../Home/components/images/imag_valparaiso.jpg";
+import background2 from "../../Home/components/images/imagen_2.jpg";
+import background3 from "../../Home/components/images/imagen_3.jpg";
+import background4 from "../../Home/components/images/imagen_4.jpg";
+import background5 from "../../Home/components/images/imagen_5.jpg";
+import BackgroundTransition from "../../../BackgroundTransition/BackgroundTransition";
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DashBoard from "../Dashboard/DashBoard";
 
 function SecretariasHome() {
   const navigate = useNavigate();
@@ -148,7 +149,7 @@ function SecretariasHome() {
             height="100vh"
           >
           <Button variant="contained" 
-          onClick={() => navigate('/')} // Replace '/' with your home route
+          onClick={() => navigate('/')} // Replace '/' with your ../home route
           sx={{
             position: 'absolute',
             top: '20px',
@@ -180,6 +181,7 @@ function SecretariasHome() {
         {user.rol && (
           <Box
             sx={{
+              height: '100vh',
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
@@ -202,9 +204,12 @@ function SecretariasHome() {
             </Button>
             <Outlet />
           </Box>
+          
         )}
       </Box>
     </BackgroundTransition>
   );
 }
+
 export default SecretariasHome;
+
