@@ -18,7 +18,7 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-s
+
   const fetchProfesores = async () => {
     try {
       const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/profesores`);
