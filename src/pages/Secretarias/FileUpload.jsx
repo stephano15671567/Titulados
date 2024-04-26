@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import axios from 'axios';
-import API from "../../config/const";
+
 
 function FileUpload({ buttonSx }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -22,7 +22,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post(`${API}/api/upload`, formData, {
+      await axios.post(`https://apisst.administracionpublica-uv.cl/api/upload`, formData, {
         
       });
       setUploadStatus('Archivo subido con éxito');

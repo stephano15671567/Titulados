@@ -10,7 +10,7 @@ import FileUpload from './FileUpload'; // Ensure the path is correct
 import TableData from './TableData'; 
 import TableDataProfesores from './TableDataProfesores';
 import Asignaciones from './Asignaciones';
-import API from "../../config/const";
+
 
 function SecretariaView() {
   const [showTable, setShowTable] = useState(false);
@@ -28,7 +28,7 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const reportUrl = `${API}/api/report/download-report`; 
+  const reportUrl = `https://apisst.administracionpublica-uv.cl/api/report/download-report`; 
 
   return (
     

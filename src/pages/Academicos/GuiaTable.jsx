@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import API from "../../config/const";
+
 
 const GuiaTable = () => {
   const [rows, setRows] = useState([]);
@@ -22,9 +22,9 @@ const GuiaTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`${API}/api/asignaciones/guia/${profesorId}`);
-        const notasResponse = await axios.get(`${API}/api/notas`);
-        const alumnosResponse = await axios.get(`${API}/api/alumnos`);
+        const assignmentsResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/guia/${profesorId}`);
+        const notasResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/notas`);
+        const alumnosResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/alumnos`);
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -69,7 +69,7 @@ const GuiaTable = () => {
       return;
     }
 
-    const url = `${API}/api/notas/upsert`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
     const payload = {
       alumno_RUT: selectedAlumno.alumno_RUT,
       nota: parseFloat(nota),
@@ -78,7 +78,7 @@ const GuiaTable = () => {
     };
 
     try {
-      await axios.post(`${API}/api/notas/upsert`, payload);
+      await axios.post(`https://apisst.administracionpublica-uv.cl/api/notas/upsert`, payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
           return { ...row, nota_guia: nota };
@@ -109,7 +109,7 @@ const handleUpload = async () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`${API}/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
+    const response = await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -123,7 +123,7 @@ const handleUpload = async () => {
 };
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `${API}/api/archivos/descargar/rubrica/guia`;
+    window.location.href = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia`;
   };
 
   const handleFileChangeTesis = (event) => {
@@ -141,7 +141,7 @@ const handleUpload = async () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`${API}/api/archivos/subir/tesis/${alumnoRut}`, formData, {
+      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/tesis/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

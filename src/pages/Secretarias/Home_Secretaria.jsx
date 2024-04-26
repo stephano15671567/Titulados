@@ -12,7 +12,7 @@ import background5 from "../Home/components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import API from "../../config/const";
+
 
 function SecretariasHome() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ function SecretariasHome() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        `${API}/api/secretarias/ver/`,
+        `https://apisst.administracionpublica-uv.cl/api/secretarias/ver/`,
         {},
         {
           headers: {

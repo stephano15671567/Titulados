@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import API from "../../config/const";
+
 
 const InformanteTable = () => {
   const [rows, setRows] = useState([]);
@@ -21,9 +21,9 @@ const InformanteTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`${API}/api/asignaciones/informante/${profesorId}`);
-        const notasResponse = await axios.get(`${API}/api/notas`);
-        const alumnosResponse = await axios.get(`${API}/api/alumnos`);
+        const assignmentsResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/informante/${profesorId}`);
+        const notasResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/notas`);
+        const alumnosResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/alumnos`);
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -68,7 +68,7 @@ const InformanteTable = () => {
       return;
     }
 
-    const url = `${API}/api/notas/upsert`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
     const payload = {
       alumno_RUT: selectedAlumno.alumno_RUT,
       nota: parseFloat(nota),
@@ -77,7 +77,7 @@ const InformanteTable = () => {
     };
 
     try {
-      await axios.post(`${API}/api/notas/upsert/`, payload);
+      await axios.post(`https://apisst.administracionpublica-uv.cl/api/notas/upsert/`, payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
           return { ...row, nota_informante: nota };
@@ -108,7 +108,7 @@ const InformanteTable = () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`${API}/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+    const response = await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -123,7 +123,7 @@ const InformanteTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `${API}/api/archivos/descargar/rubrica/informante`;
+    window.location.href = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/informante`;
   };
 
   return (
