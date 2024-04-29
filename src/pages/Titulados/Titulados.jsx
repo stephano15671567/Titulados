@@ -11,9 +11,6 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import API from "../../config/const";
-
-
 
 function Titulados() {
   const navigate = useNavigate();
@@ -24,7 +21,7 @@ function Titulados() {
   const verifyToken = async () => {
     try {
       const res = await axios.post(
-        `${API}/api/alumnos/ver/`,
+        "https://apisst.administracionpublica-uv.cl/api/alumnos/ver/",
         {},
         {
           headers: {
@@ -81,7 +78,7 @@ function Titulados() {
  
   const handleToken = async (response) => {
     try {
-      const res = await axios.post(`${API}/api/alumnos/auth/`, {
+      const res = await axios.post("https://apisst.administracionpublica-uv.cl/api/alumnos/auth/", {
         token: response.credential,
       });
       const usuario = jwtDecode(res.data);
