@@ -3,7 +3,7 @@ import { Box, Typography, Paper, Container, Grid, IconButton } from "@mui/materi
 import BotonesInicio from "./botones";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import LinkedinIcon from '@mui/icons-material/LinkedIn'; // Corregir la importación aquí
+import YouTubeIcon from '@mui/icons-material/YouTube';
 import background1 from "./components/images/imag_valparaiso.jpg";
 import background2 from "./components/images/imagen_2.jpg";
 import background3 from "./components/images/imagen_3.jpg";
@@ -12,6 +12,7 @@ import background5 from "./components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import imagen1 from "./components/images/LOGO-UV-APU-AZUL_1.png";
 import imagen2 from "./components/images/logo1.png";
+
 
 function Home() {
   return (
@@ -60,6 +61,7 @@ function Home() {
               variant="h3"
               component="h1"
               sx={{
+                
                 color: "#fff",
                 fontFamily: "Roboto",
                 fontWeight: 700,
@@ -126,8 +128,8 @@ function Home() {
                   </IconButton>
                 </Grid>
                 <Grid item>
-                  <IconButton color="primary" component="a" href="https://www.linkedin.com/in/administraci%C3%B3n-p%C3%BAblica-universidad-de-valpara%C3%ADso-b785a4b4/">
-                    <LinkedinIcon />
+                  <IconButton color="primary" component="a" href="https://youtube.com">
+                    <YouTubeIcon />
                   </IconButton>
                 </Grid>
               </Grid>
