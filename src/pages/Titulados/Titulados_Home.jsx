@@ -11,13 +11,7 @@ import background4 from '../Home/components/images/imagen_4.jpg';
 import background5 from '../Home/components/images/imagen_5.jpg';
 import axios from 'axios';
 import LogoutIcon from '@mui/icons-material/Logout';
-<<<<<<< HEAD
-import API from "../../config/const";
-
-
-=======
 import Swal from 'sweetalert2'; // Importa SweetAlert2
->>>>>>> merge
 
 function TituladosHome() {
   const win = window.sessionStorage;
@@ -49,31 +43,9 @@ function TituladosHome() {
     endpoint = `https://apisst.administracionpublica-uv.cl/${endpoint}${id}`;
 
     try {
-<<<<<<< HEAD
-      const response = await axios.post(
-        `/${endpoint}`,
-        formData,
-        {
-          withCredentials: true, // This is equivalent to 'credentials: "include"'
-        }
-      );
-      try{
-        const response2 = await axios.post(
-          `${API}/api/correo_send/${id}/`,
-          {
-            withCredentials: true, // This is equivalent to 'credentials: "include"'
-          }
-        );
-      }catch(err){
-        console.log(err)
-        setOpen2(true);
-        return;
-      }
-=======
       const response = await axios.post(endpoint, formData, {
         withCredentials: true,
       });
->>>>>>> merge
       setOpen(true);
     } catch (err) {
       console.log("Error al subir el archivo:", err.response?.data ?? err.message);
@@ -159,7 +131,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={(e) => handleFileUpload(e, `${API}/api/archivos/`)}
+              onChange={(e) => handleFileUpload(e, "api/archivos/")}
             />
             <label htmlFor="upload-ficha" style={{ width: "100%", marginTop: "20px" }}>
               <Button
