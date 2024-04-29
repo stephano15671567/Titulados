@@ -3,7 +3,11 @@ import { Box, Typography, Paper, Container, Grid, IconButton } from "@mui/materi
 import BotonesInicio from "./botones";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
+<<<<<<< HEAD
 import LinkedInIcon from '@mui/icons-material/LinkedIn'; 
+=======
+import LinkedinIcon from '@mui/icons-material/LinkedIn'; // Corregir la importación aquí
+>>>>>>> clarin
 import background1 from "./components/images/imag_valparaiso.jpg";
 import background2 from "./components/images/imagen_2.jpg";
 import background3 from "./components/images/imagen_3.jpg";
@@ -12,7 +16,10 @@ import background5 from "./components/images/imagen_5.jpg";
 import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
 import imagen1 from "./components/images/LOGO-UV-APU-AZUL_1.png";
 import imagen2 from "./components/images/logo1.png";
+<<<<<<< HEAD
 import axios from "axios";
+=======
+>>>>>>> clarin
 
 function Home() {
   return (
@@ -91,6 +98,7 @@ function Home() {
               marginRight: "auto", // Center the paper horizontally
             }}
           >
+<<<<<<< HEAD
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Box
@@ -129,6 +137,48 @@ function Home() {
                     </Grid>
                   </Grid>
                 </Box>
+=======
+            {/* Content Box for text and icons */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start", // Align items to the left
+                justifyContent: "center",
+                marginRight: "auto", // Pushes everything to the left
+              }}
+            >
+              {/* Text Content */}
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#fff",
+                  textAlign: "left",
+                  marginBottom: "0px",
+                }}
+              >
+                Escuela de Administración Pública, Casa Central - Las Heras 6, Valparaíso | +56 (32) 250 7961
+                Campus Santiago - Gran Avenida José Miguel Carrera 4160, San Miguel | +56 (2) 2329 2149
+                Universidad de Valparaíso. Blanco 951, Valparaíso, Chile. Fono: +56 (32) 250 7000.
+              </Typography>
+              {/* Social Media Icons */}
+              <Grid container spacing={1}>
+                <Grid item>
+                  <IconButton color="primary" component="a" href="https://www.instagram.com/administracionpublicauv/">
+                    <InstagramIcon />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton color="primary" component="a" href="https://www.facebook.com/admpublicauv">
+                    <FacebookIcon />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton color="primary" component="a" href="https://www.linkedin.com/in/administraci%C3%B3n-p%C3%BAblica-universidad-de-valpara%C3%ADso-b785a4b4/">
+                    <LinkedinIcon />
+                  </IconButton>
+                </Grid>
+>>>>>>> clarin
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Box
