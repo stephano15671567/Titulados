@@ -29,7 +29,7 @@ const RowsProvider = ({ children }) => {
   // Función para realizar la solicitud HTTP a la API y obtener los datos
   async function fetchDataFromApi() {
     try {
-      const response = await axios.get('http://localhost:4000/api/alumnos/');
+      const response = await axios.get('https://localhost:4000/api/alumnos/');
       const data = response.data; // Los datos obtenidos de la API
       // Transforma los datos en el formato necesario para las filas de la tabla
       const formattedRows = data.map(item => createData(item.RUT, item.nombre, item.CODIGO, item.ANO_INGRESO, item.ANO_EGRESO, item.n_resolucion, item.fecha_examen, item.mail));

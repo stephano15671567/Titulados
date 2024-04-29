@@ -101,13 +101,13 @@ const handleNotify = async (assignmentId) => {
  
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
+    window.open(`https://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
   };
 
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/alumnos");
+      const response = await axios.get("https://localhost:4000/api/alumnos");
       setAlumnos(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -117,7 +117,7 @@ const handleNotify = async (assignmentId) => {
   const notificarCorreo = async (assignmentId) => {
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/correo_send/notificar/${assignmentId}/`
+        `https://localhost:4000/api/correo_send/notificar/${assignmentId}/`
       );
       console.log("Correo enviado:", response.data);
     } catch (error) {
@@ -128,7 +128,7 @@ const handleNotify = async (assignmentId) => {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/profesores");
+      const response = await axios.get("https://localhost:4000/api/profesores");
       setProfesores(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -138,7 +138,7 @@ const handleNotify = async (assignmentId) => {
   const fetchFetchedAssignments = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/asignaciones"
+        "https://localhost:4000/api/asignaciones"
       );
       setAssignments(response.data);
     } catch (error) {
@@ -155,7 +155,7 @@ const handleNotify = async (assignmentId) => {
   const handleDeletedb = async (assignmentId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/api/asignaciones/${assignmentId}`
+        `https://localhost:4000/api/asignaciones/${assignmentId}`
       );
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
@@ -194,7 +194,7 @@ const handleNotify = async (assignmentId) => {
 
   try {
     const response = await axios.put(
-      `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+      `https://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
       {
         alumnoId: currentAssignment.alumno_RUT,
         profesorId: formDataEdit.profesor,
@@ -229,7 +229,7 @@ const handleNotify = async (assignmentId) => {
   setError("");
   try {
     const response = await axios.post(
-      "http://localhost:4000/api/asignaciones",
+      "https://localhost:4000/api/asignaciones",
       {
         alumnoId: formData.alumno,
         profesorId: formData.profesor,

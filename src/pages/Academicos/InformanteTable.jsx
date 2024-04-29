@@ -20,9 +20,9 @@ const InformanteTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/informante/${profesorId}`);
-        const notasResponse = await axios.get('http://localhost:4000/api/notas');
-        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
+        const assignmentsResponse = await axios.get(`https://localhost:4000/api/asignaciones/informante/${profesorId}`);
+        const notasResponse = await axios.get('https://localhost:4000/api/notas');
+        const alumnosResponse = await axios.get('https://localhost:4000/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -67,7 +67,7 @@ const InformanteTable = () => {
       return;
     }
 
-    const url = `http://localhost:4000/api/notas/upsert`;
+    const url = `https://localhost:4000/api/notas/upsert`;
     const payload = {
       alumno_RUT: selectedAlumno.alumno_RUT,
       nota: parseFloat(nota),
@@ -107,7 +107,7 @@ const InformanteTable = () => {
   const alumnoRut = selectedAlumno.alumno_RUT;
 
   try {
-    const response = await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+    const response = await axios.post(`https://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -122,7 +122,7 @@ const InformanteTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/informante`;
+    window.location.href = `https://localhost:4000/api/archivos/descargar/rubrica/informante`;
   };
 
   return (
