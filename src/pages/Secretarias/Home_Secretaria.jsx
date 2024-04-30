@@ -81,7 +81,7 @@ function SecretariasHome() {
   const handleToken = async (response) => {
     try {
       const res = await axios.post(
-        `/api/secretarias/auth/`,
+        `https://apisst.administracionpublica-uv.cl/api/secretarias/auth/`,
         {
           token: response.credential,
         }

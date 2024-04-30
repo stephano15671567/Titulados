@@ -54,7 +54,7 @@ function TituladosHome() {
   };
 
   const handleFileDownload = async () => {
-    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivos-word`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivo-word`;
 
     try {
       const response = await axios.get(url, {
