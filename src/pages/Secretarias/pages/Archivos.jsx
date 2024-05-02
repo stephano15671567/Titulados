@@ -4,6 +4,9 @@ import axios from 'axios';
 import DashBoard from '../Dashboard/DashBoard';
 import Swal from 'sweetalert2';
 
+import uploadFileIcon from '@mui/icons-material/FileUpload';
+import selectFileIcon from '@mui/icons-material/AttachFile';
+
 function FileUpload({ buttonSx }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
@@ -28,9 +31,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('http://localhost:4000/upload', formData, {
-        
-      });
+      await axios.post('https://localhost:4000/upload/', formData);
       setUploadStatus('Archivo subido con éxito');
     } catch (error) {
       setUploadStatus('Error al subir el archivo');
@@ -38,30 +39,30 @@ function FileUpload({ buttonSx }) {
     }
   };
 
-  // Añadimos un margen entre los botones
-  const spacing = { mt: 1, mb: 1 };
-   // Agregamos el componente DashBoard
   return (
-    <Box sx={{ ...spacing, width: '50%', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+    <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
       <DashBoard/>
-      <input
-        type="file"
-        onChange={handleFileChange}
-        accept=".xlsx, .xls, .csv"
-        style={{ display: 'none' }}
-        id="raised-button-file"
-      />
-      <label htmlFor="raised-button-file" style={{ width: '100%', marginBottom: '16px' }}>
-        <Button variant="contained" component="span" fullWidth sx={{ bgcolor: '#0093ff', color: 'white', mb: 2 }}>
-          Seleccionar archivo
+      <Box sx={{ bgcolor: '#f0f0f0', p: 2, mb: 2, width: '100%' }}>
+        <Typography variant="h6" mb={1}>Subir Archivo</Typography>
+        <Typography variant="body1" mb={2}>Por favor selecciona un archivo y haz clic en "Subir Archivo".</Typography>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept=".xlsx, .xls, .csv"
+          style={{ display: 'none' }}
+          id="raised-button-file"
+        />
+        <label htmlFor="raised-button-file" style={{ width: '100%', marginBottom: '16px' }}>
+          <Button variant="contained" fullWidth startIcon={<selectFileIcon />} sx={{ bgcolor: '#0093ff', color: 'white' }} component="span">
+            Seleccionar archivo
+          </Button>
+        </label>
+        <Button variant="contained" fullWidth startIcon={<uploadFileIcon />} sx={{ bgcolor: '#4CAF50', color: 'white' }} onClick={handleFileUpload}>
+          Subir Archivo
         </Button>
-      </label>
-      <Button variant="contained" fullWidth sx={{ bgcolor: '#4CAF50', color: 'white', mb: 2 }} onClick={handleFileUpload}>
-        Subir Archivo
-      </Button>
+      </Box>
       {uploadStatus && <Typography sx={{ mt: 2 }}>{uploadStatus}</Typography>}
     </Box>
-
   );
 }
 

@@ -83,7 +83,9 @@ function DashBoard(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      {isLoading && <div className="loader">Cargando...</div>} {/* Agrega la animación de carga */}
+      {isLoading && <div className="loader">
+      
+      </div>} {/* Agrega la animación de carga */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}

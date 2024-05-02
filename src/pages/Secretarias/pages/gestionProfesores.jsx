@@ -3,6 +3,14 @@ import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography } from '@mui/material';
 import Swal from 'sweetalert2';
 import DashBoard from '../Dashboard/DashBoard';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import { Edit } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { Select, MenuItem } from '@mui/material';
+import { TableFooter } from '@mui/material';
 
 function TableDataProfesores() {
   const [profesores, setProfesores] = useState([]);
@@ -12,7 +20,7 @@ function TableDataProfesores() {
     mail: '',
   });
   const [openModal, setOpenModal] = useState(false);
-  const [showProfesores, setShowProfesores] = useState(false);
+  const [showProfesores, setShowProfesores] = useState(true);
 
   useEffect(() => {
     fetchProfesores();
@@ -101,7 +109,23 @@ function TableDataProfesores() {
     }
   };
 
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    
+    // Aquí puedes mostrar la ventana emergente de carga
+    Swal.fire({
+      title: 'Cargando',
+      text: 'Espere un momento...',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+    setTimeout(() => {
+      Swal.close();
+      setOpenModal(true);
+      // Aquí puedes mostrar la ventana emergente de carga
+      
+    }, 1000);
+  };
   const handleCloseModal = () => {
     setOpenModal(false);
     setNewProfesor({
@@ -126,19 +150,29 @@ function TableDataProfesores() {
     if (!showProfesores) fetchProfesores();
   };
 
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Estado para la cantidad de filas por página
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(event.target.value);
+  };
+
   return (
     <>
-    <div style={{ display: 'flex', gap: '10px' }}>
-      <Button onClick={handleOpenModal} color="success" variant="contained" style={{ marginBottom: '20px' }}>Agregar Profesor</Button>
-      <Button onClick={toggleShowProfesores} color="error" variant="contained" style={{ marginBottom: '20px', marginLeft: '50px' }}>
-        {showProfesores ? 'Ocultar Profesores' : 'Visualizar Profesores'}
+    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px' }}>
+      <Button      
+        onClick={handleOpenModal} 
+        variant="contained"
+         style={{ marginBottom: '20px', background: '#52b202'}}>
+        <AddCircleOutlineIcon />
+        {'  '}Agregar Alumno     
       </Button>
       </div>
       <DashBoard/>
+      <>
       {showProfesores && (
         <TableContainer component={Paper} style={{ width: '50%', float: 'right', marginRight: '10px' }}>
           <Table size="small">
-            <TableHead>
+            <TableHead style={{ backgroundColor: '#cccccc', color: 'white', paddingTop: '20px', paddingBottom: '20px' }}>
               <TableRow>
                 <TableCell>Nombre</TableCell>
                 <TableCell>Email</TableCell>
@@ -146,7 +180,7 @@ function TableDataProfesores() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {profesores.map((profesor, index) =>
+              {profesores.slice(0, rowsPerPage).map((profesor, index) =>
                 editingIndex === index ? (
                   <TableRow key={`editing-${profesor.profesor_id}`}>
                     <TableCell>
@@ -166,8 +200,8 @@ function TableDataProfesores() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Button onClick={() => updateProfesor(index)}>Guardar</Button>
-                      <Button onClick={() => setEditingIndex(-1)}>Cancelar</Button>
+                      <Button onClick={() => updateProfesor(index)}><SaveIcon/></Button>
+                      <Button onClick={() => setEditingIndex(-1)}><CancelIcon/></Button>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -175,17 +209,39 @@ function TableDataProfesores() {
                     <TableCell>{profesor.nombre}</TableCell>
                     <TableCell>{profesor.mail}</TableCell>
                     <TableCell>
-                      <Button onClick={() => setEditingIndex(index)}>Editar</Button>
-                      <Button onClick={() => deleteProfesor(profesor.profesor_id)}>Eliminar</Button>
+                      <Button onClick={() => setEditingIndex(index)}>
+                        <EditIcon style={{ color: 'inherit' }}/>
+                      </Button>
+                      <Button onClick={() => deleteProfesor(profesor.profesor_id)}>
+                        <DeleteIcon style={{ color: 'red' }}/>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 )
               )}
             </TableBody>
           </Table>
+          {/* Selección de cantidad de filas */}
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3} style={{ textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <Select
+                    value={rowsPerPage}
+                    onChange={handleChangeRowsPerPage}
+                    style={{ width: '100%', marginBottom: '10px' }}
+                  >
+                    <MenuItem value={5}>5 filas</MenuItem>
+                    <MenuItem value={10}>10 filas</MenuItem>
+                    <MenuItem value={20}>20 filas</MenuItem>
+                  </Select>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </TableContainer>
-        
       )}
+    </>
 
       <Modal
         open={openModal}

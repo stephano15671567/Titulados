@@ -299,7 +299,7 @@ const descargarActa = async (rut) => {
 
       {showAlumnos && (
         <>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} >
         <Table>
           <TableHead style={{ backgroundColor: '#cccccc', color: 'white' }}>
             <TableRow>
