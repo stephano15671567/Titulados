@@ -154,7 +154,23 @@ const handleDescargarRubrica = () => {
     setNewAlumno({ ...newAlumno, [name]: value });
   };
 
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    
+    // Aquí puedes mostrar la ventana emergente de carga
+    Swal.fire({
+      title: 'Cargando',
+      text: 'Espere un momento...',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+    setTimeout(() => {
+      Swal.close();
+      setOpenModal(true);
+      // Aquí puedes mostrar la ventana emergente de carga
+      
+    }, 1000);
+  };
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditMode(false);
