@@ -1,287 +1,471 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  Checkbox,
-  Menu,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import DescriptionIcon from '@mui/icons-material/Description';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid, TablePagination, TableFooter } from '@mui/material';
+import { Edit, Delete, Description, Visibility, NoteAdd } from '@mui/icons-material';
+import Swal from 'sweetalert2';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListIcon from '@mui/icons-material/List';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import './styles.css';
 
-// Crear un contexto para el estado global
-const RowsContext = createContext();
-
-// Proveedor de contexto para envolver toda la aplicación
-const RowsProvider = ({ children }) => {
-  const [rows, setRows] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+function TableData() {
+  const [alumnos, setAlumnos] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [showAlumnos, setShowAlumnos] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null); // Estado para controlar el menú desplegable
+  const [selectedAlumno, setSelectedAlumno] = useState(null); // Alumno seleccionado para las acciones
+  //SELECTOR POR PAGINAS
   const [page, setPage] = useState(0);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [editMenuOpen, setEditMenuOpen] = useState(false);
-  const [editedData, setEditedData] = useState({});
-  const [anchorEl, setAnchorEl] = useState(null); // Nuevo estado para el elemento ancla del menú
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Función para realizar la solicitud HTTP a la API y obtener los datos
-  async function fetchDataFromApi() {
-    try {
-      const response = await axios.get('https://localhost:4000/api/alumnos/');
-      const data = response.data; // Los datos obtenidos de la API
-      // Transforma los datos en el formato necesario para las filas de la tabla
-      const formattedRows = data.map(item => createData(item.RUT, item.nombre, item.CODIGO, item.ANO_INGRESO, item.ANO_EGRESO, item.n_resolucion, item.fecha_examen, item.mail));
-      setRows(formattedRows); // Actualiza el estado 'rows' con los datos obtenidos
-    } catch (error) {
-      console.error('Error fetching data from API:', error);
-    }
-  }
+  const [newAlumno, setNewAlumno] = useState({
+    nombre: '',
+    RUT: '',
+    CODIGO: '',
+    ANO_INGRESO: '',
+    ANO_EGRESO: '',
+    n_resolucion: '',
+    hora: '',
+    fecha_examen: '',
+    tesis: '',
+    mail: '',
+    nota_examen_oral: ''
+  });
+  const [notaDefensa, setNotaDefensa] = useState('');
+  const [notaDefensaModalOpen, setNotaDefensaModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchDataFromApi();
+    fetchAlumnos();
   }, []);
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(event.target.value);
-    setPage(0); // Resetear la página cuando se cambia el número de filas por página
-  };
+  //Enumerador de paginas
 
-  const handleChangePage = (newPage) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleSelectRow = (row) => {
-    if (selectedRows.includes(row)) {
-      setSelectedRows(selectedRows.filter(selectedRow => selectedRow !== row));
-    } else {
-      setSelectedRows([...selectedRows, row]);
-    }
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const isSelected = (row) => selectedRows.includes(row);
+  //Menu desplegable
 
-  const handleEditButtonClick = (event, row) => {
-    setEditedData(row);
+  const handleMenuOpen = (event, alumno) => {
     setAnchorEl(event.currentTarget);
-    setEditMenuOpen(true);
+    setSelectedAlumno(alumno);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedAlumno(null);
   };
 
-  const handleEditSubmit = async () => {
+
+  const apiBaseUrl = 'https://localhost:4000/api/alumnos/';
+
+  const fetchAlumnos = async () => {
     try {
-      await axios.put(`https://localhost:4000/api/alumnos/${editedData.RUT}`, editedData);
-      console.log('Alumno actualizado correctamente');
-      setEditMenuOpen(false);
+      const studentsResponse = await axios.get(`${apiBaseUrl}`);
+      const studentsData = studentsResponse.data || [];
+
+      const gradesResponse = await axios.get(`https://localhost:4000/api/notas/`);
+      const gradesData = gradesResponse.data || [];
+
+      const notasIndex = gradesData.reduce((acc, nota) => {
+        acc[nota.alumno_RUT] = nota.nota_examen_oral;
+        return acc;
+      }, {});
+
+      const combinedData = studentsData.map(alumno => ({
+        ...alumno,
+        nota_examen_oral: notasIndex[alumno.RUT] || null
+      }));
+
+      setAlumnos(combinedData);
     } catch (error) {
-      console.error('Error al actualizar alumno:', error);
+      console.error('Error fetching combined alumnos data:', error);
+      Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
     }
   };
+  const descargarTesis = async (rut) => {
+  try {
+    const response = await axios.get(`https://localhost:4000/api/archivos/descargar/tesis/${rut}`, {
+      responseType: 'blob',
+    });
 
-  const handleEditCancel = () => {
-    setEditMenuOpen(false);
-  };
-
-  return (
-    <RowsContext.Provider value={{ rows: rows.slice(page * rowsPerPage, (page + 1) * rowsPerPage), rowsPerPage, handleChangeRowsPerPage, page, handleChangePage, handleSelectRow, isSelected, selectedRows, handleEditButtonClick, editMenuOpen, editedData, handleInputChange, handleEditSubmit, handleEditCancel }}>
-      {children}
-    </RowsContext.Provider>
-  );
+    if (response.data.size > 0) { 
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Tesis_${rut}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Si no hay archivo, muestra un mensaje de error.
+      Swal.fire('No encontrado', 'No se encontró la tesis solicitada.', 'error');
+    }
+  } catch (error) {
+    Swal.fire('Error', 'La tesis solicitada no existe.', 'error');
+    console.error('Error descargando la tesis:', error);
+  }
 };
 
-// Función para crear datos de fila
-function createData(RUT, nombre, CODIGO, ANO_INGRESO, ANO_EGRESO, n_resolucion, fecha_examen, mail) {
-  return { RUT, nombre, CODIGO, ANO_INGRESO, ANO_EGRESO, n_resolucion, fecha_examen, mail };
-}
+const handleDescargarRubrica = () => {
+  // Verificar si existe la rubrica
+  if (selectedAlumno && selectedAlumno.RUT) {
+    fetch(`https://localhost:4000/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
+      .then(response => {
+        if (response.ok) {
+          // Si la rubrica existe, abrir el enlace
+          window.open(`https://localhost:4000/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
+        } else {
+          // Si la rubrica no existe, mostrar un mensaje de error
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'La rúbrica no está disponible para este alumno.',
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error al verificar la existencia de la rúbrica:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema al verificar la existencia de la rúbrica.',
+        });
+      });
+  } else {
+    // Si no se ha seleccionado ningún alumno, mostrar un mensaje de error
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Por favor, selecciona un alumno.',
+    });
+  }
+};
 
-// Función MyComponent que consume el contexto
-function MyComponent() {
-  const { rows, rowsPerPage, handleChangeRowsPerPage, page, handleChangePage, handleSelectRow, isSelected, handleEditButtonClick, editMenuOpen, editedData, handleInputChange, handleEditSubmit, handleEditCancel } = useContext(RowsContext);
-  const [anchorEl, setAnchorEl] = useState(null); // Se agrega esta línea
-
-  const handleDeleteClick = (event, row) => {
-    // Aquí puedes implementar la lógica para eliminar al alumno
-    console.log('Eliminar alumno:', row);
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setNewAlumno({ ...newAlumno, [name]: value });
   };
 
-  const handleDownloadClick = (event, row) => {
-    // Aquí puedes implementar la lógica para descargar el acta
-    console.log('Descargar acta:', row);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setEditMode(false);
+    setNewAlumno({
+      nombre: '',
+      RUT: '',
+      CODIGO: '',
+      ANO_INGRESO: '',
+      ANO_EGRESO: '',
+      n_resolucion: '',
+      hora: '',
+      fecha_examen: '',
+      tesis: '',
+      mail: '',
+      
+      nota_defensa: ''
+    });
   };
 
-  const handleAddNoteClick = (event, row) => {
-    // Aquí puedes implementar la lógica para añadir una nota de defensa
-    console.log('Añadir nota de defensa:', row);
+  const handleOpenNotaDefensaModal = () => setNotaDefensaModalOpen(true);
+  const handleCloseNotaDefensaModal = () => {
+    setNotaDefensaModalOpen(false);
+    setNotaDefensa('');
   };
 
-  const handleDownloadRubricGuideClick = (event, row) => {
-    // Aquí puedes implementar la lógica para descargar la rúbrica de guía
-    console.log('Descargar rúbrica de guía:', row);
+   const addOrUpdateAlumno = async () => {
+    if (editMode) {
+      await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, newAlumno);
+      Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
+    } else {
+      await axios.post(apiBaseUrl, newAlumno);
+      Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
+    }
+    fetchAlumnos();
+    handleCloseModal();
+  };
+  
+
+  const addNotaDefensa = async () => {
+    try {
+      await axios.post('https://localhost:4000/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
+      handleCloseNotaDefensaModal();
+      fetchAlumnos();
+    } catch (error) {
+      Swal.fire('Error', 'Ocurrió un error al añadir la nota de defensa', 'error');
+      console.error('Error al añadir la nota de defensa:', error);
+    }
   };
 
-  const handleDownloadRubricInformantClick = (event, row) => {
-    // Aquí puedes implementar la lógica para descargar la rúbrica de informante
-    console.log('Descargar rúbrica de informante:', row);
+  const editAlumno = (alumno) => {
+    setNewAlumno(alumno);
+    setEditMode(true);
+    handleOpenModal();
   };
 
-  const handleThesisClick = (event, row) => {
-    // Aquí puedes implementar la lógica para abrir la tesis
-    console.log('Abrir tesis:', row);
+  const deleteAlumno = async (RUT) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esto!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminarlo!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await axios.delete(`${apiBaseUrl}${RUT}`);
+        fetchAlumnos();
+        Swal.fire('Eliminado!', 'El alumno ha sido eliminado.', 'success');
+      }
+    });
   };
 
+  
+
+ 
+
+  const toggleShowAlumnos = () => {
+    setShowAlumnos(!showAlumnos);
+    if (!showAlumnos) fetchAlumnos();
+  };
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
+const descargarActa = async (rut) => {
+  try {
+    const response = await axios.get(`https://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+      responseType: 'blob',
+    });
+
+    if (response.data.size > 0) {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Acta_${rut}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      Swal.fire('No encontrado', 'No se encontró el acta solicitada.', 'error');
+    }
+  } catch (error) {
+    Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
+    console.error('Error descargando el acta:', error);
+  }
+};
   return (
-    <div style={{ position: 'relative' }}>
-      <TableContainer component={Paper}>
+    <>
+      <Button      
+        onClick={handleOpenModal} 
+        variant="contained"
+         style={{ marginBottom: '20px', background: '#52b202'}}>
+        <AddCircleOutlineIcon />
+        {'  '}Agregar Alumno     
+      </Button>
+      
+
+      {showAlumnos && (
+        <>
+        <TableContainer component={Paper}>
         <Table>
-          <TableHead>
+          <TableHead style={{ backgroundColor: '#cccccc', color: 'white' }}>
             <TableRow>
-              <TableCell></TableCell>
-              <TableCell>RUT</TableCell>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Código</TableCell>
-              <TableCell>Año Ingreso</TableCell>
-              <TableCell>Año Egreso</TableCell>
-              <TableCell>Número Resolución</TableCell>
-              <TableCell>Fecha Examen</TableCell>
-              <TableCell>Mail</TableCell>
-              <TableCell>Acciones</TableCell>
+                <TableCell width="200">Nombre</TableCell>
+                <TableCell width="300">RUT</TableCell>
+                <TableCell>CODIGO</TableCell>
+                <TableCell>AÑO INGRESO</TableCell>
+                <TableCell>AÑO EGRESO</TableCell>
+                <TableCell>N Resolución</TableCell>
+                <TableCell>Hora</TableCell>
+                <TableCell>Fecha Examen</TableCell>
+                <TableCell>Mail</TableCell>
+                <TableCell>Nota Examen Oral</TableCell>
+                <TableCell width="700"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(row => (
-              <TableRow key={row.RUT}>
-                <TableCell>
-                  <Checkbox
-                    checked={isSelected(row)}
-                    onChange={() => handleSelectRow(row)}
-                  />
-                </TableCell>
-                <TableCell>{row.RUT}</TableCell>
-                <TableCell>{row.nombre}</TableCell>
-                <TableCell>{row.CODIGO}</TableCell>
-                <TableCell>{row.ANO_INGRESO}</TableCell>
-                <TableCell>{row.ANO_EGRESO}</TableCell>
-                <TableCell>{row.n_resolucion}</TableCell>
-                <TableCell>{new Date(row.fecha_examen).toLocaleDateString()}</TableCell>
-                <TableCell>{row.mail}</TableCell>
-                <TableCell>
-                  <Button
-                    aria-controls={`actions-menu-${row.RUT}`}
-                    aria-haspopup="true"
-                    onClick={(event) => handleEditButtonClick(event, row)}
-                    startIcon={<MenuIcon />}
+            {alumnos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((alumno) => (
+              <TableRow key={alumno.RUT}>
+                <TableCell>{alumno.nombre}</TableCell>
+                  <TableCell>{alumno.RUT}</TableCell>
+                  <TableCell>{alumno.CODIGO}</TableCell>
+                  <TableCell>{alumno.ANO_INGRESO}</TableCell>
+                  <TableCell>{alumno.ANO_EGRESO}</TableCell>
+                  <TableCell>{alumno.n_resolucion}</TableCell>
+                  <TableCell>{alumno.hora}</TableCell>
+                  <TableCell>{alumno.fecha_examen}</TableCell>
+                  <TableCell>{alumno.mail}</TableCell>
+                  <TableCell>{alumno.nota_examen_oral}</TableCell>
+                  <TableCell>
+                  <IconButton
+                    onClick={(event) => handleMenuOpen(event, alumno)}
+                    color="primary"
                   >
-                    Acciones
-                  </Button>
+                    <ListIcon />
+                    <Typography variant="caption">ACCIONES</Typography>
+                  </IconButton>
                   <Menu
-                    id={`actions-menu-${row.RUT}`}
                     anchorEl={anchorEl}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    anchorPosition={{ top: 550, left: 430 }}
-                    anchorReference='anchorPosition'
-                    open={editMenuOpen && editedData.RUT === row.RUT}
-                    onClose={handleEditCancel}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
                   >
-                    <MenuItem onClick={(event) => handleEditButtonClick(event, row)}>
-                      <ListItemIcon>
-                        <EditIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Editar" />
+                    <MenuItem onClick={() => editAlumno(selectedAlumno)}>
+                      <Edit />
+                      <Typography variant="caption">Editar</Typography>
                     </MenuItem>
-                    <MenuItem onClick={(event) => handleDeleteClick(event, row)}>
-                      <ListItemIcon>
-                        <DeleteIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Eliminar" />
+                    <MenuItem onClick={() => deleteAlumno(selectedAlumno.RUT)}>
+                      <Delete />
+                      <Typography variant="caption">Eliminar</Typography>
                     </MenuItem>
-                    <MenuItem onClick={(event) => handleDownloadClick(event, row)}>
-                      <ListItemIcon>
-                        <GetAppIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Descargar Acta" />
+                    <MenuItem onClick={() => descargarActa(selectedAlumno.RUT)}>
+                      <Description />
+                      <Typography variant="caption">Descargar Acta</Typography>
                     </MenuItem>
-                    <MenuItem onClick={(event) => handleAddNoteClick(event, row)}>
-                      <ListItemIcon>
-                        <NoteAddIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Añadir Nota Defensa" />
+                    <MenuItem onClick={() => handleOpenNotaDefensaModal(selectedAlumno)}>
+                      <NoteAdd />
+                      <Typography variant="caption">Añadir Nota de Defensa</Typography>
                     </MenuItem>
-                    <MenuItem>
-                      <ListItemIcon>
-                        <DescriptionIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Descargar Rúbrica">
-                        <Menu>
-                          <MenuItem onClick={(event) => handleDownloadRubricGuideClick(event, row)}>Guía</MenuItem>
-                          <MenuItem onClick={(event) => handleDownloadRubricInformantClick(event, row)}>Informante</MenuItem>
-                        </Menu>
-                      </ListItemText>
+                    <MenuItem onClick={() => descargarTesis(selectedAlumno.RUT)}>
+                      <Description />
+                      <Typography variant="caption">Tesis</Typography>
                     </MenuItem>
-                    <MenuItem onClick={(event) => handleThesisClick(event, row)}>
-                      <ListItemIcon>
-                        <DescriptionIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Tesis" />
+                    <MenuItem onClick={handleDescargarRubrica}>
+                      <Description />
+                      <Typography variant="caption">Descargar Rúbrica Guía</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={handleDescargarRubrica}>
+                        <Description />
+                      <Typography variant="caption">Descargar Rúbrica Informante</Typography>
                     </MenuItem>
                   </Menu>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+          <TableRow>
+            <TableCell colSpan={11}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#737373', width: '100%', margin: '1',padding: '0px' }}>
+                <TablePagination
+                  className="custom-pagination"
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={alumnos.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelRowsPerPage="Filas por página"
+                />
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
         </Table>
       </TableContainer>
-      <div style={{ position: 'absolute', bottom: '-80px', right: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '5px', borderRadius: '5px' }}>
-        <FormControl>
-          <InputLabel>Tablas por Página</InputLabel>
-          <Select
-            value={rowsPerPage}
-            onChange={handleChangeRowsPerPage}
+      
+    </>
+    )}
+
+    <Modal
+      open={openModal}
+      onClose={handleCloseModal}
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
+      <Box
+          sx={{
+            ...modalStyle,
+            width: '90%',
+            maxWidth: '400px',
+            margin: 'auto',
+            paddingBottom: '20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Fondo semitransparente
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)', // Sombra suave para efecto de capas
+          }}
+        >
+        <Typography id="modal-title" variant="h6" component="h2" marginBottom={2} sx={{ fontSize: '1.5rem' }}>
+          {editMode ? 'Editar Alumno' : 'Agregar Nuevo Alumno'}
+        </Typography>
+        <Box
+          component="form"
+          sx={{ '& .MuiTextField-root': { marginBottom: '10px', width: '100%' }, mt: 2, maxHeight: '300px', overflowY: 'auto' }}
+          noValidate
+          autoComplete="off"
+        >
+          {Object.keys(newAlumno).map((key) => (
+            <TextField
+              key={key}
+              name={key}
+              label={key.toUpperCase().replace('_', ' ')}
+              value={newAlumno[key]}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+              InputProps={{ style: { fontSize: '0.8rem' } }} // Tamaño de fuente más pequeño
+            />
+          ))}
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+          <Button onClick={addOrUpdateAlumno} color="primary" variant="contained">
+            {editMode ? 'Actualizar' : 'Agregar'}
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+
+
+      <Modal
+        open={notaDefensaModalOpen}
+        onClose={handleCloseNotaDefensaModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-title" variant="h6" component="h2" marginBottom={2}>
+            Añadir Nota de Defensa
+          </Typography>
+          <Box
+            component="form"
+            sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' }, mt: 2 }}
+            noValidate
+            autoComplete="off"
           >
-            {[5, 10, 25].map((perPage) => (
-              <MenuItem key={perPage} value={perPage}>
-                {perPage}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button disabled={page === 0} onClick={() => handleChangePage(page - 1)} style={{ marginTop: '10px' }}>
-          Previo 
-        </Button>
-        <Button disabled={rows.length < rowsPerPage || rows.length === 0} onClick={() => handleChangePage(page + 1)} style={{ marginTop: '10px' }}>
-          Siguiente
-        </Button>
-      </div>
-    </div>
+            <TextField
+              name="nota_defensa"
+              label="Nota de Defensa"
+              value={notaDefensa}
+              onChange={(event) => setNotaDefensa(event.target.value)}
+              fullWidth
+              margin="dense"
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button onClick={addNotaDefensa} color="primary" variant="contained">
+                Añadir Nota
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
+    </>
   );
 }
 
-// Ejemplo de uso
-function App() {
-  return (
-    <RowsProvider>
-      <MyComponent />
-    </RowsProvider>
-  );
-}
-
-export default App;
+export default TableData;

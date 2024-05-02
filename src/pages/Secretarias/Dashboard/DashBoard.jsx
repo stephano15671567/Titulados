@@ -26,6 +26,7 @@ function DashBoard(props) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSignIn, setShowSignIn] = useState(true); // Cambiar a false cuando inicia sesión
 
   const handleDrawerClose = () => {
@@ -44,7 +45,12 @@ function DashBoard(props) {
   };
 
   const handleNavigate = (path) => {
+    setIsLoading(true); // Inicia la animación de carga
     navigate(path);
+    // Simulando un tiempo de carga (podrías hacer una llamada a una API aquí)
+    setTimeout(() => {
+      setIsLoading(false); // Completa la animación de carga
+    }, 1000); // Simula una carga de 1 segundo
   };
 
   const drawer = (
@@ -77,7 +83,7 @@ function DashBoard(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      
+      {isLoading && <div className="loader">Cargando...</div>} {/* Agrega la animación de carga */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}

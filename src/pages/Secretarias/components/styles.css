@@ -1,0 +1,11 @@
+.sweet-alert-popup {
+    z-index: 10000 !important; /* Puedes ajustar este valor según sea necesario */
+  }
+
+
+.custom-pagination {
+    color: #ffffff; /* Cambia el color del texto */
+    font-weight: bold; /* Cambia el estilo de fuente a normal */
+
+}
+  
