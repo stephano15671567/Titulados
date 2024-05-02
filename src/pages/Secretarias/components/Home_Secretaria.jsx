@@ -13,6 +13,7 @@ import BackgroundTransition from "../../../BackgroundTransition/BackgroundTransi
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashBoard from "../Dashboard/DashBoard";
+import Swal from "sweetalert2";
 
 function SecretariasHome() {
   const navigate = useNavigate();
@@ -105,9 +106,22 @@ function SecretariasHome() {
   }
 
   function handleSignOut() {
-    setUser({});
-    win.clear();
-    setShowSignIn(true); // Show signIn button
+    Swal.fire({
+      title: "Seguro quieres cerrar sesión?",
+      text: "Tendrás que iniciar sesión de nuevo para acceder a tus archivos",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, cerrar sesión"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setUser({});
+        win.clear();
+        setShowSignIn(true); // Show signIn button
+          }
+    });
+    
   }
 
   const containerStyle = {
