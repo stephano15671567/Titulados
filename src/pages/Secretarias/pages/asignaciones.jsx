@@ -196,7 +196,7 @@ const handleNotify = async (assignmentId) => {
 
   try {
     const response = await axios.put(
-      `https://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+      `https://apisst.administracionpublica-uv.cl/api/asignaciones/${currentAssignment.asignacion_id}`,
       {
         alumnoId: currentAssignment.alumno_RUT,
         profesorId: formDataEdit.profesor,

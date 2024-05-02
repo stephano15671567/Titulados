@@ -40,7 +40,7 @@ function TituladosHome() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("idUsuario", id);
-    endpoint = `https://localhost:4000/${endpoint}${id}`;
+    endpoint = `https://apisst.administracionpublica-uv.cl/${endpoint}${id}`;
 
     try {
       const response = await axios.post(endpoint, formData, {
@@ -54,7 +54,7 @@ function TituladosHome() {
   };
 
   const handleFileDownload = async () => {
-    const url = `https://localhost:4000/api/archivos/descargar/archivos-word`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivos-word`;
 
     try {
       const response = await axios.get(url, {

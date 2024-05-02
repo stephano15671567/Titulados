@@ -26,7 +26,7 @@ function TableDataProfesores() {
     fetchProfesores();
   }, []);
 
-  const apiBaseUrl = 'https://localhost:4000/api/profesores';
+  const apiBaseUrl = 'https://apisst.administracionpublica-uv.cl/api/profesores';
 
   const fetchProfesores = async () => {
     try {

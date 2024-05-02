@@ -14,11 +14,11 @@ const ProfessorAssignmentsView = () => {
 
   useEffect(() => {
     if (professorId) {
-      axios.get(`https://localhost:4000/api/asignaciones/guia/${professorId}`)
+      axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/guia/${professorId}`)
         .then(response => setGuiaAssignments(response.data))
         .catch(error => console.error('Error fetching guia assignments:', error));
 
-      axios.get(`https://localhost:4000/api/asignaciones/informante/${professorId}`)
+      axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/informante/${professorId}`)
         .then(response => setInformanteAssignments(response.data))
         .catch(error => console.error('Error fetching informante assignments:', error));
     }
@@ -47,7 +47,7 @@ const ProfessorAssignmentsView = () => {
 
   const fetchAsignaciones = async () => {
     try {
-      const response = await axios.get('https://localhost:4000/api/asignaciones');
+      const response = await axios.get('https://apisst.administracionpublica-uv.cl/api/asignaciones');
       const enrichedAsignaciones = response.data.map(asignacion => {
         const alumno = alumnos.find(al => al.RUT === asignacion.alumno_RUT) || {};
         const profesor = profesores.find(pr => pr.profesor_id === asignacion.profesor_id) || {};
@@ -60,12 +60,12 @@ const ProfessorAssignmentsView = () => {
   };
 
   const fetchAlumnos = async () => {
-    const response = await axios.get('https://localhost:4000/api/alumnos');
+    const response = await axios.get('https://apisst.administracionpublica-uv.cl/api/alumnos');
     setAlumnos(response.data);
   };
 
   const fetchProfesores = async () => {
-    const response = await axios.get('https://localhost:4000/api/profesores');
+    const response = await axios.get('https://apisst.administracionpublica-uv.cl/api/profesores');
     setProfesores(response.data);
   };
 

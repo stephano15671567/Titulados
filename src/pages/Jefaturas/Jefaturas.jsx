@@ -17,7 +17,7 @@ function Titulados() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:4000/api/jefatura/logins', {
+    const response = await fetch('https://apisst.administracionpublica-uv.cl', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

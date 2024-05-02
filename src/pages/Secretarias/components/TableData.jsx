@@ -64,14 +64,14 @@ function TableData() {
   };
 
 
-  const apiBaseUrl = 'https://localhost:4000/api/alumnos/';
+  const apiBaseUrl = 'https://apisst.administracionpublica-uv.cl/api/alumnos/';
 
   const fetchAlumnos = async () => {
     try {
       const studentsResponse = await axios.get(`${apiBaseUrl}`);
       const studentsData = studentsResponse.data || [];
 
-      const gradesResponse = await axios.get(`https://localhost:4000/api/notas/`);
+      const gradesResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/notas/`);
       const gradesData = gradesResponse.data || [];
 
       const notasIndex = gradesData.reduce((acc, nota) => {
@@ -117,11 +117,11 @@ function TableData() {
 const handleDescargarRubrica = () => {
   // Verificar si existe la rubrica
   if (selectedAlumno && selectedAlumno.RUT) {
-    fetch(`https://localhost:4000/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
+    fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
       .then(response => {
         if (response.ok) {
           // Si la rubrica existe, abrir el enlace
-          window.open(`https://localhost:4000/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
+          window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
         } else {
           // Si la rubrica no existe, mostrar un mensaje de error
           Swal.fire({
@@ -211,7 +211,7 @@ const handleDescargarRubrica = () => {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post('https://localhost:4000/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post('https://apisst.administracionpublica-uv.cl/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
@@ -266,7 +266,7 @@ const handleDescargarRubrica = () => {
   };
 const descargarActa = async (rut) => {
   try {
-    const response = await axios.get(`https://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+    const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`, {
       responseType: 'blob',
     });
 
