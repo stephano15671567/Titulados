@@ -15,7 +15,7 @@ function TableData() {
   const [editMode, setEditMode] = useState(false);
   const [showAlumnos, setShowAlumnos] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null); // Estado para controlar el menú desplegable
-  const [selectedAlumno, setSelectedAlumno] = useState(null); // Alumno seleccionado para las acciones
+  const [selectedAlumno, setSelectedAlumno] = useState([null]); // Alumno seleccionado para las acciones
   //SELECTOR POR PAGINAS
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -52,7 +52,6 @@ function TableData() {
   };
 
   //Menu desplegable
-
   const handleMenuOpen = (event, alumno) => {
     setAnchorEl(event.currentTarget);
     setSelectedAlumno(alumno);
@@ -211,7 +210,7 @@ const handleDescargarRubrica = () => {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post('https://apisst.administracionpublica-uv.cl/api/notas/examenoral', { alumno_RUT: newAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post('https://apisst.administracionpublica-uv.cl/api/notas/examenoral', { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
