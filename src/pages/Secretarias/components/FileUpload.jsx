@@ -21,7 +21,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('https://apisst.administracionpublica-uv.cl/upload', formData, {
+      await axios.post('https://apisst.administracionpublica-uv.cl/api/upload', formData, {
         
       });
       setUploadStatus('Archivo subido con éxito');
