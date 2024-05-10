@@ -91,7 +91,7 @@ function TableData() {
   };
   const descargarTesis = async (rut) => {
   try {
-    const response = await axios.get(`https://localhost:4000/api/archivos/descargar/tesis/${rut}`, {
+    const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`, {
       responseType: 'blob',
     });
 
