@@ -15,10 +15,10 @@ import AlumnosSecretaria from "../pages/Secretarias/pages/gestionAlumnos";
 import Profesores from "../pages/Secretarias/pages/gestionProfesores";
 import Assignments from "../pages/Secretarias/pages/asignaciones";
 
-/* ***Layouts**** */
-/*const FullLayout = Loadable(
+
+const FullLayout = Loadable(
   lazy(() => import("../layouts/full-layout/MainLayout"))
-);*/
+);
 
 /* ***End Layouts**** */
 
@@ -31,8 +31,8 @@ const HomePage = Loadable(lazy(() => import("../pages/Home/Home")));
 
 const Router = [
   {
-    /*path: "/",
-    element: <FullLayout />,*/
+    //path: "/",
+    //element: <FullLayout />,
     children: [
       { path: "", exact: true, element: <HomePage /> },
       { path: "*", element: <Navigate to="/404" /> },
@@ -82,7 +82,6 @@ const Router = [
         ],
       },
       { path: "/Jefaturas", element: <Jefaturas /> },
-      //Plataforma para titulados
       { path: "/JefaturasHome", element: <JefaturasH /> },
       { path: "/AcademicosHome", element: <AcademicosH /> },
     ],

@@ -1,10 +1,8 @@
 import React from 'react';
-import Header from './Header';
 
-const MainLayout = ({ children, showHeader }) => {
+const MainLayout = ({ children }) => {
   return (
     <div>
-      {showHeader && <Header />}
       <main>
         {children}
       </main>
