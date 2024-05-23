@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField
+  DialogTitle, TextField, Box
 } from '@mui/material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -15,6 +15,7 @@ const GuiaTable = () => {
   const [nota, setNota] = useState('');
   const [file, setFile] = useState(null);
   const [fileTesis, setFileTesis] = useState(null);
+  const [rubricaSubida, setRubricaSubida] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
@@ -54,7 +55,9 @@ const GuiaTable = () => {
 
   const handleClickOpen = (row) => {
     setSelectedAlumno(row);
-    setNota(row.nota_informante);
+    setNota(row.nota_guia);
+    setRubricaSubida(false); // Reset rubrica subida status
+    setFile(null); // Reset file
     setOpen(true);
   };
 
@@ -62,21 +65,38 @@ const GuiaTable = () => {
     setOpen(false);
   };
 
-  const handleSave = async () => {
-    if (nota < 1 || nota > 7 || isNaN(nota)) {
-      Swal.fire('Error', 'La nota debe ser un número entre 1 y 7.', 'error');
+  const handleConfirm = async () => {
+    if (!nota || nota < 1 || nota > 7 || isNaN(nota)) {
+      Swal.fire('Error', 'Debe ingresar una nota válida entre 1 y 7.', 'error');
       return;
     }
 
-    const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
-    const payload = {
-      alumno_RUT: selectedAlumno.alumno_RUT,
-      nota: parseFloat(nota),
-      profesor_id: profesorId,
-      rol: 'guia',
-    };
+    if (!file) {
+      Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
+    const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
+      // Subir rúbrica
+      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Guardar nota
+      const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
+      const payload = {
+        alumno_RUT: selectedAlumno.alumno_RUT,
+        nota: parseFloat(nota),
+        profesor_id: profesorId,
+        rol: 'guia',
+      };
+
       await axios.post(url, payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
@@ -85,11 +105,11 @@ const GuiaTable = () => {
         return row;
       });
       setRows(updatedRows);
+      Swal.fire('¡Éxito!', 'La rúbrica y la nota han sido subidas y guardadas.', 'success');
       handleClose();
-      Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
     } catch (error) {
-      console.error('Error al guardar la nota:', error);
-      Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
+      console.error('Error al subir la rúbrica o guardar la nota:', error);
+      Swal.fire('Error', 'No se pudo completar la acción.', 'error');
     }
   };
 
@@ -97,29 +117,6 @@ const GuiaTable = () => {
     setFile(event.target.files[0]);
   };
 
-const handleUpload = async () => {
-  if (!file) {
-    Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
-  const alumnoRut = selectedAlumno.alumno_RUT;
-
-  try {
-    const response = await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    Swal.fire('¡Subido!', 'La rúbrica de guía ha sido actualizada.', 'success');
-    handleClose();
-  } catch (error) {
-    console.error('Error al subir la rúbrica de guía:', error);
-    Swal.fire('Error', 'No se pudo subir la rúbrica de guía.', 'error');
-  }
-};
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
     window.location.href = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia`;
@@ -164,7 +161,7 @@ const handleUpload = async () => {
             <TableRow>
               <TableCell>Nombre</TableCell>
               <TableCell align="right">RUT</TableCell>
-              <TableCell align="right">Nota Guia</TableCell>
+              <TableCell align="right">Nota Guía</TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -198,38 +195,44 @@ const handleUpload = async () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="nota"
-            label="Nota del Guia"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={nota}
-            onChange={(e) => setNota(e.target.value)}
-          />
-          <div>
-            <Button onClick={handleDownload} sx={{ mt: 2, mb: 1 }}>
+          <Box sx={{ marginBottom: '20px' }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="nota"
+              label="Nota del Guía"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <Button onClick={handleDownload}>
               Descargar Rúbrica
             </Button>
-            <Button component="label" sx={{ mt: 2, mb: 1, ml: 2 }}>
+            <Button component="label">
               Subir Rúbrica
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
-          </div>
-          <div>
-            <Button component="label" sx={{ mt: 2, mb: 1 }}>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+            <Button onClick={handleUploadTesis} component="label">
               Subir Tesis
               <input type="file" hidden onChange={handleFileChangeTesis} />
             </Button>
-            <Button onClick={handleUploadTesis} disabled={!fileTesis}>Subir Tesis</Button>
-          </div>
+          </Box>
+          {file && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <Button onClick={handleConfirm} variant="contained" color="primary">
+                Confirmar Subida y Guardar Nota
+              </Button>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSave}>Guardar Nota</Button>
-          <Button onClick={handleUpload} disabled={!file}>Subir Rúbrica</Button>
         </DialogActions>
       </Dialog>
     </Paper>

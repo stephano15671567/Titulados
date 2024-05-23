@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField
+  DialogTitle, TextField, Box
 } from '@mui/material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -14,6 +14,7 @@ const InformanteTable = () => {
   const [open, setOpen] = useState(false);
   const [nota, setNota] = useState('');
   const [file, setFile] = useState(null);
+  const [rubricaSubida, setRubricaSubida] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_informante: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
@@ -54,6 +55,8 @@ const InformanteTable = () => {
   const handleClickOpen = (row) => {
     setSelectedAlumno(row);
     setNota(row.nota_informante);
+    setRubricaSubida(false); // Reset rubrica subida status
+    setFile(null); // Reset file
     setOpen(true);
   };
 
@@ -61,64 +64,74 @@ const InformanteTable = () => {
     setOpen(false);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (withFileUpload = false) => {
     if (nota < 1 || nota > 7 || isNaN(nota)) {
       Swal.fire('Error', 'La nota debe ser un número entre 1 y 7.', 'error');
       return;
     }
 
-    const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
-    const payload = {
-      alumno_RUT: selectedAlumno.alumno_RUT,
-      nota: parseFloat(nota),
-      profesor_id: profesorId,
-      rol: 'informante',
+    const saveNota = async () => {
+      const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
+      const payload = {
+        alumno_RUT: selectedAlumno.alumno_RUT,
+        nota: parseFloat(nota),
+        profesor_id: profesorId,
+        rol: 'informante',
+      };
+
+      try {
+        await axios.post(url, payload);
+        const updatedRows = rows.map(row => {
+          if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
+            return { ...row, nota_informante: nota };
+          }
+          return row;
+        });
+        setRows(updatedRows);
+        Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
+      } catch (error) {
+        console.error('Error al guardar la nota:', error);
+        Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
+      }
     };
 
-    try {
-      await axios.post(url, payload);
-      const updatedRows = rows.map(row => {
-        if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
-          return { ...row, nota_informante: nota };
-        }
-        return row;
-      });
-      setRows(updatedRows);
-      handleClose();
-      Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
-    } catch (error) {
-      console.error('Error al guardar la nota:', error);
-      Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
+    if (withFileUpload) {
+      if (!file) {
+        Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
+      const alumnoRut = selectedAlumno.alumno_RUT;
+
+      try {
+        await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        setRubricaSubida(true); // Mark rubrica as uploaded
+        await saveNota();
+        Swal.fire('¡Subido y guardado!', 'La rúbrica y la nota han sido actualizadas.', 'success');
+      } catch (error) {
+        console.error('Error al subir la rúbrica de informante:', error);
+        Swal.fire('Error', 'No se pudo subir la rúbrica de informante.', 'error');
+      }
+    } else {
+      if (!rubricaSubida) {
+        Swal.fire('Error', 'Debes subir la rúbrica antes de asignar una nota.', 'error');
+        return;
+      }
+      await saveNota();
     }
+
+    handleClose();
   };
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
-
- const handleUpload = async () => {
-  if (!file) {
-    Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
-  const alumnoRut = selectedAlumno.alumno_RUT;
-
-  try {
-    const response = await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    Swal.fire('¡Subido!', 'La rúbrica de informante ha sido actualizada.', 'success');
-    handleClose();
-  } catch (error) {
-    console.error('Error al subir la rúbrica de informante:', error);
-    Swal.fire('Error', 'No se pudo subir la rúbrica de informante.', 'error');
-  }
-}; 
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
@@ -170,31 +183,44 @@ const InformanteTable = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="nota"
-            label="Nota del Informante"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={nota}
-            onChange={(e) => setNota(e.target.value)}
-          />
-          <div>
-            <Button onClick={handleDownload} sx={{ mt: 2, mb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="nota"
+              label="Nota del Informante"
+              type="text"
+              variant="outlined"
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <Button onClick={handleDownload}>
               Descargar Rúbrica
             </Button>
-            <Button component="label" sx={{ mt: 2, mb: 1, ml: 2 }}>
+            <Button component="label">
               Subir Rúbrica
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
-          </div>
+          </Box>
+          {file && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <Button onClick={() => handleSave(true)} variant="contained" color="primary">
+                Confirmar Subida y Guardar Nota
+              </Button>
+            </Box>
+          )}
+          {!file && rubricaSubida && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <Button onClick={() => handleSave()} variant="contained" color="primary">
+                Guardar Nota
+              </Button>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSave}>Guardar Nota</Button>
-          <Button onClick={handleUpload} disabled={!file}>Subir Rúbrica</Button>
         </DialogActions>
       </Dialog>
     </Paper>
