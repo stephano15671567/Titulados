@@ -1,17 +1,25 @@
-import React from 'react';
+import React from "react";
 import {
-  Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Typography, Button, Container, Paper
-} from '@mui/material';
-import BackgroundTransition from '../../BackgroundTransition/BackgroundTransition';
-import background1 from '../Home/components/images/imag_valparaiso.jpg';
-import background2 from '../Home/components/images/imagen_2.jpg';
-import background3 from '../Home/components/images/imagen_3.jpg';
-import background4 from '../Home/components/images/imagen_4.jpg';
-import background5 from '../Home/components/images/imagen_5.jpg';
-import axios from 'axios';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Swal from 'sweetalert2'; // Importa SweetAlert2
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
+  Button,
+  Container,
+  Paper,
+} from "@mui/material";
+import BackgroundTransition from "../../BackgroundTransition/BackgroundTransition";
+import background1 from "../Home/components/images/imag_valparaiso.jpg";
+import background2 from "../Home/components/images/imagen_2.jpg";
+import background3 from "../Home/components/images/imagen_3.jpg";
+import background4 from "../Home/components/images/imagen_4.jpg";
+import background5 from "../Home/components/images/imagen_5.jpg";
+import axios from "axios";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Swal from "sweetalert2"; // Importa SweetAlert2
 
 function TituladosHome() {
   const win = window.sessionStorage;
@@ -28,7 +36,7 @@ function TituladosHome() {
 
   const handleSignOut = () => {
     win.clear();
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   const handleFileUpload = async (e, endpoint) => {
@@ -48,38 +56,44 @@ function TituladosHome() {
       });
       setOpen(true);
     } catch (err) {
-      console.log("Error al subir el archivo:", err.response?.data ?? err.message);
+      console.log(
+        "Error al subir el archivo:",
+        err.response?.data ?? err.message
+      );
       setOpen2(true);
     }
   };
 
   const handleFileDownload = async () => {
-    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivos-word`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivo-word`;
 
     try {
       const response = await axios.get(url, {
-        responseType: 'blob'
+        responseType: "blob",
       });
 
       const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = downloadUrl;
-      link.setAttribute('download', 'Formulario Inscripción Seminario de Título V2.docx'); // Nombre del archivo
+      link.setAttribute(
+        "download",
+        "Formulario Inscripción Seminario de Título.docx"
+      ); // Nombre del archivo
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
 
       Swal.fire(
-        'Descargado',
-        'El archivo se ha descargado correctamente.',
-        'success'
+        "Descargado",
+        "El archivo se ha descargado correctamente.",
+        "success"
       );
     } catch (error) {
-      console.log('Error durante la descarga:', error);
+      console.log("Error durante la descarga:", error);
       Swal.fire(
-        'Error',
-        'Hubo un error al descargar el archivo, pruebe nuevamente más tarde.',
-        'error'
+        "Error",
+        "Hubo un error al descargar el archivo, pruebe nuevamente más tarde.",
+        "error"
       );
     }
   };
@@ -94,7 +108,7 @@ function TituladosHome() {
         variant="contained"
         color="secondary"
         startIcon={<LogoutIcon />}
-        style={{ position: 'absolute', top: '20px', right: '20px' }}
+        style={{ position: "absolute", top: "20px", right: "20px" }}
       >
         Salir
       </Button>
@@ -124,16 +138,21 @@ function TituladosHome() {
               Ficha de Inscripción
             </Typography>
             <Typography variant="body1">
-              Sube o descarga tu ficha de inscripción para tu seminario de título.
+              Sube o descarga tu ficha de inscripción para tu seminario de
+              título.
             </Typography>
             <input
-              accept="application/pdf"
+              accept=".docx"
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
               onChange={(e) => handleFileUpload(e, "api/archivos/")}
             />
-            <label htmlFor="upload-ficha" style={{ width: "100%", marginTop: "20px" }}>
+
+            <label
+              htmlFor="upload-ficha"
+              style={{ width: "100%", marginTop: "20px" }}
+            >
               <Button
                 variant="contained"
                 style={{ backgroundColor: "rgba(0, 60, 88, 1)" }}
@@ -146,7 +165,10 @@ function TituladosHome() {
             <Button
               onClick={handleFileDownload}
               variant="contained"
-              style={{ backgroundColor: "rgba(0, 150, 136, 1)", marginTop: "20px" }}
+              style={{
+                backgroundColor: "rgba(0, 150, 136, 1)",
+                marginTop: "20px",
+              }}
               fullWidth
             >
               Descargar Ficha de Inscripción
@@ -155,9 +177,7 @@ function TituladosHome() {
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Notificación</DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                ¡Archivo subido con éxito!
-              </DialogContentText>
+              <DialogContentText>¡Archivo subido con éxito!</DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Cerrar</Button>
