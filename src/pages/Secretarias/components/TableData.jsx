@@ -148,6 +148,41 @@ const handleDescargarRubrica = () => {
   }
 };
 
+const handleDescargarFicha = () => {
+  // Verificar si existe la rubrica
+  if (selectedAlumno && selectedAlumno.RUT) {
+    fetch(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
+      .then(response => {
+        if (response.ok) {
+          // Si la rubrica existe, abrir el enlace
+          window.open(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
+        } else {
+          // Si la rubrica no existe, mostrar un mensaje de error
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'El alumno no ha subido una ficha.',
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error al verificar la existencia de la rúbrica:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema obteniendo la ficha del alumno.',
+        });
+      });
+  } else {
+    // Si no se ha seleccionado ningún alumno, mostrar un mensaje de error
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Por favor, selecciona un alumno.',
+    });
+  }
+};
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNewAlumno({ ...newAlumno, [name]: value });
@@ -368,6 +403,10 @@ const descargarActa = async (rut) => {
                     <MenuItem onClick={handleDescargarRubrica}>
                         <Description />
                       <Typography variant="caption">Descargar Rúbrica Informante</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={handleDescargarFicha}>
+                        <Description />
+                      <Typography variant="caption">Descargar Ficha Alumno</Typography>
                     </MenuItem>
                   </Menu>
                 </TableCell>
