@@ -151,11 +151,11 @@ const handleDescargarRubrica = () => {
 const handleDescargarFicha = () => {
   // Verificar si existe la rubrica
   if (selectedAlumno && selectedAlumno.RUT) {
-    fetch(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
+    fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
       .then(response => {
         if (response.ok) {
           // Si la rubrica existe, abrir el enlace
-          window.open(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
+          window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
         } else {
           // Si la rubrica no existe, mostrar un mensaje de error
           Swal.fire({
