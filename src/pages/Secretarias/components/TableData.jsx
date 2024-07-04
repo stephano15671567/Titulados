@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, Grid, TablePagination, TableFooter } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, TablePagination, TableFooter } from '@mui/material';
 import { Edit, Delete, Description, Visibility, NoteAdd } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListIcon from '@mui/icons-material/List';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import './styles.css';
 
 function TableData() {
@@ -15,8 +16,7 @@ function TableData() {
   const [editMode, setEditMode] = useState(false);
   const [showAlumnos, setShowAlumnos] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null); // Estado para controlar el menú desplegable
-  const [selectedAlumno, setSelectedAlumno] = useState([null]); // Alumno seleccionado para las acciones
-  //SELECTOR POR PAGINAS
+  const [selectedAlumno, setSelectedAlumno] = useState(null); // Alumno seleccionado para las acciones
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -40,8 +40,6 @@ function TableData() {
     fetchAlumnos();
   }, []);
 
-  //Enumerador de paginas
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -51,7 +49,6 @@ function TableData() {
     setPage(0);
   };
 
-  //Menu desplegable
   const handleMenuOpen = (event, alumno) => {
     setAnchorEl(event.currentTarget);
     setSelectedAlumno(alumno);
@@ -62,7 +59,6 @@ function TableData() {
     setSelectedAlumno(null);
   };
 
-
   const apiBaseUrl = 'https://apisst.administracionpublica-uv.cl/api/alumnos/';
 
   const fetchAlumnos = async () => {
@@ -70,7 +66,7 @@ function TableData() {
       const studentsResponse = await axios.get(`${apiBaseUrl}`);
       const studentsData = studentsResponse.data || [];
 
-      const gradesResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/notas/`);
+      const gradesResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/notas/');
       const gradesData = gradesResponse.data || [];
 
       const notasIndex = gradesData.reduce((acc, nota) => {
@@ -78,9 +74,26 @@ function TableData() {
         return acc;
       }, {});
 
-      const combinedData = studentsData.map(alumno => ({
-        ...alumno,
-        nota_examen_oral: notasIndex[alumno.RUT] || null
+      const combinedData = await Promise.all(studentsData.map(async alumno => {
+        const [fichaResponse, tesisResponse, actaResponse] = await Promise.all([
+          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${alumno.RUT}`, {
+            validateStatus: status => status < 500 // Handle 404 as resolved
+          }),
+          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${alumno.RUT}`, {
+            validateStatus: status => status < 500 // Handle 404 as resolved
+          }),
+          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${alumno.RUT}`, {
+            validateStatus: status => status < 500 // Handle 404 as resolved
+          })
+        ]);
+
+        return {
+          ...alumno,
+          nota_examen_oral: notasIndex[alumno.RUT] || null,
+          hasFicha: fichaResponse.status === 200,
+          hasTesis: tesisResponse.status === 200,
+          hasActa: actaResponse.status === 200
+        };
       }));
 
       setAlumnos(combinedData);
@@ -89,99 +102,91 @@ function TableData() {
       Swal.fire('Error', 'Ocurrió un error al obtener los datos combinados de los alumnos', 'error');
     }
   };
+
   const descargarTesis = async (rut) => {
-  try {
-    const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`, {
-      responseType: 'blob',
-    });
+    try {
+      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`, {
+        responseType: 'blob',
+      });
 
-    if (response.data.size > 0) { 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `Tesis_${rut}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      // Si no hay archivo, muestra un mensaje de error.
-      Swal.fire('No encontrado', 'No se encontró la tesis solicitada.', 'error');
+      if (response.data.size > 0) { 
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Tesis_${rut}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        Swal.fire('No encontrado', 'No se encontró la tesis solicitada.', 'error');
+      }
+    } catch (error) {
+      Swal.fire('Error', 'La tesis solicitada no existe.', 'error');
+      console.error('Error descargando la tesis:', error);
     }
-  } catch (error) {
-    Swal.fire('Error', 'La tesis solicitada no existe.', 'error');
-    console.error('Error descargando la tesis:', error);
-  }
-};
+  };
 
-const handleDescargarRubrica = () => {
-  // Verificar si existe la rubrica
-  if (selectedAlumno && selectedAlumno.RUT) {
-    fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
-      .then(response => {
-        if (response.ok) {
-          // Si la rubrica existe, abrir el enlace
-          window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
-        } else {
-          // Si la rubrica no existe, mostrar un mensaje de error
+  const handleDescargarRubrica = () => {
+    if (selectedAlumno && selectedAlumno.RUT) {
+      fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
+        .then(response => {
+          if (response.ok) {
+            window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'La rúbrica no está disponible para este alumno.',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error al verificar la existencia de la rúbrica:', error);
           Swal.fire({
             icon: 'error',
-            title: 'Oops...',
-            text: 'La rúbrica no está disponible para este alumno.',
+            title: 'Error',
+            text: 'Hubo un problema al verificar la existencia de la rúbrica.',
           });
-        }
-      })
-      .catch(error => {
-        console.error('Error al verificar la existencia de la rúbrica:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Hubo un problema al verificar la existencia de la rúbrica.',
         });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Por favor, selecciona un alumno.',
       });
-  } else {
-    // Si no se ha seleccionado ningún alumno, mostrar un mensaje de error
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Por favor, selecciona un alumno.',
-    });
-  }
-};
+    }
+  };
 
-const handleDescargarFicha = () => {
-  // Verificar si existe la rubrica
-  if (selectedAlumno && selectedAlumno.RUT) {
-    fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
-      .then(response => {
-        if (response.ok) {
-          // Si la rubrica existe, abrir el enlace
-          window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
-        } else {
-          // Si la rubrica no existe, mostrar un mensaje de error
+  const handleDescargarFicha = () => {
+    if (selectedAlumno && selectedAlumno.RUT) {
+      fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
+        .then(response => {
+          if (response.ok) {
+            window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'El alumno no ha subido una ficha.',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error al verificar la existencia de la rúbrica:', error);
           Swal.fire({
             icon: 'error',
-            title: 'Oops...',
-            text: 'El alumno no ha subido una ficha.',
+            title: 'Error',
+            text: 'Hubo un problema obteniendo la ficha del alumno.',
           });
-        }
-      })
-      .catch(error => {
-        console.error('Error al verificar la existencia de la rúbrica:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Hubo un problema obteniendo la ficha del alumno.',
         });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Por favor, selecciona un alumno.',
       });
-  } else {
-    // Si no se ha seleccionado ningún alumno, mostrar un mensaje de error
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Por favor, selecciona un alumno.',
-    });
-  }
-};
+    }
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -189,8 +194,6 @@ const handleDescargarFicha = () => {
   };
 
   const handleOpenModal = () => {
-    
-    // Aquí puedes mostrar la ventana emergente de carga
     Swal.fire({
       title: 'Cargando',
       text: 'Espere un momento...',
@@ -201,10 +204,9 @@ const handleDescargarFicha = () => {
     setTimeout(() => {
       Swal.close();
       setOpenModal(true);
-      // Aquí puedes mostrar la ventana emergente de carga
-      
     }, 1000);
   };
+
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditMode(false);
@@ -219,8 +221,7 @@ const handleDescargarFicha = () => {
       fecha_examen: '',
       tesis: '',
       mail: '',
-      
-      nota_defensa: ''
+      nota_examen_oral: ''
     });
   };
 
@@ -230,18 +231,22 @@ const handleDescargarFicha = () => {
     setNotaDefensa('');
   };
 
-   const addOrUpdateAlumno = async () => {
-    if (editMode) {
-      await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, newAlumno);
-      Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
-    } else {
-      await axios.post(apiBaseUrl, newAlumno);
-      Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
+  const addOrUpdateAlumno = async () => {
+    try {
+      if (editMode) {
+        await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, newAlumno);
+        Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
+      } else {
+        await axios.post(apiBaseUrl, newAlumno);
+        Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
+      }
+      fetchAlumnos();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error al agregar o actualizar el alumno:', error);
+      Swal.fire('Error', 'Ocurrió un error al agregar o actualizar el alumno', 'error');
     }
-    fetchAlumnos();
-    handleCloseModal();
   };
-  
 
   const addNotaDefensa = async () => {
     try {
@@ -272,16 +277,17 @@ const handleDescargarFicha = () => {
       confirmButtonText: 'Sí, eliminarlo!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`${apiBaseUrl}${RUT}`);
-        fetchAlumnos();
-        Swal.fire('Eliminado!', 'El alumno ha sido eliminado.', 'success');
+        try {
+          await axios.delete(`${apiBaseUrl}${RUT}`);
+          fetchAlumnos();
+          Swal.fire('Eliminado!', 'El alumno ha sido eliminado.', 'success');
+        } catch (error) {
+          console.error('Error eliminando el alumno:', error);
+          Swal.fire('Error', 'Ocurrió un error al eliminar el alumno', 'error');
+        }
       }
     });
   };
-
-  
-
- 
 
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
@@ -298,153 +304,166 @@ const handleDescargarFicha = () => {
     boxShadow: 24,
     p: 4,
   };
-const descargarActa = async (rut) => {
-  try {
-    const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`, {
-      responseType: 'blob',
-    });
 
-    if (response.data.size > 0) {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `Acta_${rut}.docx`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      Swal.fire('No encontrado', 'No se encontró el acta solicitada.', 'error');
+  const descargarActa = async (rut) => {
+    try {
+      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`, {
+        responseType: 'blob',
+      });
+
+      if (response.data.size > 0) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Acta_${rut}.docx`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        Swal.fire('No encontrado', 'No se encontró el acta solicitada.', 'error');
+      }
+    } catch (error) {
+      Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
+      console.error('Error descargando el acta:', error);
     }
-  } catch (error) {
-    Swal.fire('Error', 'No se pudo descargar el acta.', 'error');
-    console.error('Error descargando el acta:', error);
-  }
-};
+  };
+
   return (
     <>
       <Button      
         onClick={handleOpenModal} 
         variant="contained"
-         style={{ marginBottom: '20px', background: '#52b202'}}>
+        style={{ marginBottom: '20px', background: '#52b202'}}
+      >
         <AddCircleOutlineIcon />
         {'  '}Agregar Alumno     
       </Button>
       
-
       {showAlumnos && (
         <>
-        <TableContainer component={Paper} >
-        <Table>
-          <TableHead style={{ backgroundColor: '#cccccc', color: 'white' }}>
-            <TableRow>
-                <TableCell width="200">Nombre</TableCell>
-                <TableCell width="300">RUT</TableCell>
-                <TableCell>CODIGO</TableCell>
-                <TableCell>AÑO INGRESO</TableCell>
-                <TableCell>AÑO EGRESO</TableCell>
-                <TableCell>N Resolución</TableCell>
-                <TableCell>Hora</TableCell>
-                <TableCell>Fecha Examen</TableCell>
-                <TableCell>Mail</TableCell>
-                <TableCell>Nota Examen Oral</TableCell>
-                <TableCell width="700"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {alumnos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((alumno) => (
-              <TableRow key={alumno.RUT}>
-                <TableCell>{alumno.nombre}</TableCell>
-                  <TableCell>{alumno.RUT}</TableCell>
-                  <TableCell>{alumno.CODIGO}</TableCell>
-                  <TableCell>{alumno.ANO_INGRESO}</TableCell>
-                  <TableCell>{alumno.ANO_EGRESO}</TableCell>
-                  <TableCell>{alumno.n_resolucion}</TableCell>
-                  <TableCell>{alumno.hora}</TableCell>
-                  <TableCell>{alumno.fecha_examen}</TableCell>
-                  <TableCell>{alumno.mail}</TableCell>
-                  <TableCell>{alumno.nota_examen_oral}</TableCell>
-                  <TableCell>
-                  <IconButton
-                    onClick={(event) => handleMenuOpen(event, alumno)}
-                    color="primary"
-                  >
-                    <ListIcon />
-                    <Typography variant="caption">ACCIONES</Typography>
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                  >
-                    <MenuItem onClick={() => editAlumno(selectedAlumno)}>
-                      <Edit />
-                      <Typography variant="caption">Editar</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => deleteAlumno(selectedAlumno.RUT)}>
-                      <Delete />
-                      <Typography variant="caption">Eliminar</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => descargarActa(selectedAlumno.RUT)}>
-                      <Description />
-                      <Typography variant="caption">Descargar Acta</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => handleOpenNotaDefensaModal(selectedAlumno)}>
-                      <NoteAdd />
-                      <Typography variant="caption">Añadir Nota de Defensa</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => descargarTesis(selectedAlumno.RUT)}>
-                      <Description />
-                      <Typography variant="caption">Tesis</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={handleDescargarRubrica}>
-                      <Description />
-                      <Typography variant="caption">Descargar Rúbrica Guía</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={handleDescargarRubrica}>
-                        <Description />
-                      <Typography variant="caption">Descargar Rúbrica Informante</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={handleDescargarFicha}>
-                        <Description />
-                      <Typography variant="caption">Descargar Ficha Alumno</Typography>
-                    </MenuItem>
-                  </Menu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-          <TableRow>
-            <TableCell colSpan={11}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#737373', width: '100%', margin: '1',padding: '0px' }}>
-                <TablePagination
-                  className="custom-pagination"
-                  rowsPerPageOptions={[5, 10, 25]}
-                  component="div"
-                  count={alumnos.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  labelRowsPerPage="Filas por página"
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-        </Table>
-      </TableContainer>
-      
-    </>
-    )}
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead style={{ backgroundColor: '#cccccc', color: 'white' }}>
+                <TableRow>
+                  <TableCell width="200">Nombre</TableCell>
+                  <TableCell width="300">RUT</TableCell>
+                  <TableCell>CODIGO</TableCell>
+                  <TableCell>AÑO INGRESO</TableCell>
+                  <TableCell>AÑO EGRESO</TableCell>
+                  <TableCell>N Resolución</TableCell>
+                  <TableCell>Hora</TableCell>
+                  <TableCell>Fecha Examen</TableCell>
+                  <TableCell>Mail</TableCell>
+                  <TableCell>Nota Examen Oral</TableCell>
+                  <TableCell width="700"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {alumnos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((alumno) => (
+                  <TableRow key={alumno.RUT}>
+                    <TableCell>{alumno.nombre}</TableCell>
+                    <TableCell>{alumno.RUT}</TableCell>
+                    <TableCell>{alumno.CODIGO}</TableCell>
+                    <TableCell>{alumno.ANO_INGRESO}</TableCell>
+                    <TableCell>{alumno.ANO_EGRESO}</TableCell>
+                    <TableCell>{alumno.n_resolucion}</TableCell>
+                    <TableCell>{alumno.hora}</TableCell>
+                    <TableCell>{alumno.fecha_examen}</TableCell>
+                    <TableCell>{alumno.mail}</TableCell>
+                    <TableCell>{alumno.nota_examen_oral}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={(event) => handleMenuOpen(event, alumno)}
+                        color="primary"
+                      >
+                        <ListIcon />
+                        <Typography variant="caption">ACCIONES</Typography>
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                      >
+                        <MenuItem onClick={() => editAlumno(selectedAlumno)}>
+                          <Edit />
+                          <Typography variant="caption">Editar</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => deleteAlumno(selectedAlumno.RUT)}>
+                          <Delete />
+                          <Typography variant="caption">Eliminar</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => descargarActa(selectedAlumno.RUT)}>
+                          {alumno.hasActa ? (
+                            <CheckCircleIcon style={{ color: 'green' }} />
+                          ) : (
+                            <Description />
+                          )}
+                          <Typography variant="caption">Descargar Acta</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => handleOpenNotaDefensaModal(selectedAlumno)}>
+                          <NoteAdd />
+                          <Typography variant="caption">Añadir Nota de Defensa</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => descargarTesis(selectedAlumno.RUT)}>
+                          {alumno.hasTesis ? (
+                            <CheckCircleIcon style={{ color: 'green' }} />
+                          ) : (
+                            <Description />
+                          )}
+                          <Typography variant="caption">Tesis</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleDescargarRubrica}>
+                          <Description />
+                          <Typography variant="caption">Descargar Rúbrica Guía</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleDescargarRubrica}>
+                          <Description />
+                          <Typography variant="caption">Descargar Rúbrica Informante</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleDescargarFicha}>
+                          {alumno.hasFicha ? (
+                            <CheckCircleIcon style={{ color: 'green' }} />
+                          ) : (
+                            <Description />
+                          )}
+                          <Typography variant="caption">Descargar Ficha Alumno</Typography>
+                        </MenuItem>
+                      </Menu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={11}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#737373', width: '100%', margin: '1', padding: '0px' }}>
+                      <TablePagination
+                        className="custom-pagination"
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={alumnos.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        labelRowsPerPage="Filas por página"
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
+        </>
+      )}
 
-    <Modal
-      open={openModal}
-      onClose={handleCloseModal}
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-    >
-      <Box
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box
           sx={{
             ...modalStyle,
             width: '90%',
@@ -455,36 +474,35 @@ const descargarActa = async (rut) => {
             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)', // Sombra suave para efecto de capas
           }}
         >
-        <Typography id="modal-title" variant="h6" component="h2" marginBottom={2} sx={{ fontSize: '1.5rem' }}>
-          {editMode ? 'Editar Alumno' : 'Agregar Nuevo Alumno'}
-        </Typography>
-        <Box
-          component="form"
-          sx={{ '& .MuiTextField-root': { marginBottom: '10px', width: '100%' }, mt: 2, maxHeight: '300px', overflowY: 'auto' }}
-          noValidate
-          autoComplete="off"
-        >
-          {Object.keys(newAlumno).map((key) => (
-            <TextField
-              key={key}
-              name={key}
-              label={key.toUpperCase().replace('_', ' ')}
-              value={newAlumno[key]}
-              onChange={handleInputChange}
-              fullWidth
-              margin="dense"
-              InputProps={{ style: { fontSize: '0.8rem' } }} // Tamaño de fuente más pequeño
-            />
-          ))}
+          <Typography id="modal-title" variant="h6" component="h2" marginBottom={2} sx={{ fontSize: '1.5rem' }}>
+            {editMode ? 'Editar Alumno' : 'Agregar Nuevo Alumno'}
+          </Typography>
+          <Box
+            component="form"
+            sx={{ '& .MuiTextField-root': { marginBottom: '10px', width: '100%' }, mt: 2, maxHeight: '300px', overflowY: 'auto' }}
+            noValidate
+            autoComplete="off"
+          >
+            {Object.keys(newAlumno).map((key) => (
+              <TextField
+                key={key}
+                name={key}
+                label={key.toUpperCase().replace('_', ' ')}
+                value={newAlumno[key]}
+                onChange={handleInputChange}
+                fullWidth
+                margin="dense"
+                InputProps={{ style: { fontSize: '0.8rem' } }} // Tamaño de fuente más pequeño
+              />
+            ))}
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+            <Button onClick={addOrUpdateAlumno} color="primary" variant="contained">
+              {editMode ? 'Actualizar' : 'Agregar'}
+            </Button>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-          <Button onClick={addOrUpdateAlumno} color="primary" variant="contained">
-            {editMode ? 'Actualizar' : 'Agregar'}
-          </Button>
-        </Box>
-      </Box>
-    </Modal>
-
+      </Modal>
 
       <Modal
         open={notaDefensaModalOpen}
