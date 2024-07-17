@@ -61,7 +61,7 @@ function Titulados() {
     /* global google */
     google.accounts.id.initialize({
       client_id:
-        "417041141509-495v48nc29snmejlojgaj49pq8ck3ukn.apps.googleusercontent.com",
+        "376536263555-11knv0d7p87f1o5aa97mjnm2m2b297ir.apps.googleusercontent.com",
       callback: handleCallbackResponse,
     });
 
