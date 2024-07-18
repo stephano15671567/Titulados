@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, TablePagination, TableFooter } from '@mui/material';
-import { Edit, Delete, Description, Visibility, NoteAdd } from '@mui/icons-material';
+import { Edit, Delete, Description, NoteAdd, List } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import ListIcon from '@mui/icons-material/List';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import './styles.css';
 
 function TableData() {
@@ -59,40 +58,24 @@ function TableData() {
     setSelectedAlumno(null);
   };
 
-  const apiBaseUrl = 'https://apisst.administracionpublica-uv.cl/api/alumnos/';
+  const apiBaseUrl = 'http://localhost:4000/api/alumnos/';
 
   const fetchAlumnos = async () => {
     try {
       const studentsResponse = await axios.get(`${apiBaseUrl}`);
       const studentsData = studentsResponse.data || [];
 
-      const gradesResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/notas/');
-      const gradesData = gradesResponse.data || [];
-
-      const notasIndex = gradesData.reduce((acc, nota) => {
-        acc[nota.alumno_RUT] = nota.nota_examen_oral;
-        return acc;
-      }, {});
-
       const combinedData = await Promise.all(studentsData.map(async alumno => {
-        const [fichaResponse, tesisResponse, actaResponse] = await Promise.all([
-          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${alumno.RUT}`, {
-            validateStatus: status => status < 500 // Handle 404 as resolved
-          }),
-          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${alumno.RUT}`, {
-            validateStatus: status => status < 500 // Handle 404 as resolved
-          }),
-          axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${alumno.RUT}`, {
-            validateStatus: status => status < 500 // Handle 404 as resolved
-          })
-        ]);
+        const archivosResponse = await axios.get(`http://localhost:4000/api/archivos/verificar/${alumno.RUT}`);
+        const archivosData = archivosResponse.data;
 
         return {
           ...alumno,
-          nota_examen_oral: notasIndex[alumno.RUT] || null,
-          hasFicha: fichaResponse.status === 200,
-          hasTesis: tesisResponse.status === 200,
-          hasActa: actaResponse.status === 200
+          hasFicha: archivosData.ficha,
+          hasTesis: archivosData.tesis,
+          hasActa: archivosData.acta,
+          hasGuia: archivosData.guia,
+          hasInformante: archivosData.informante
         };
       }));
 
@@ -105,7 +88,7 @@ function TableData() {
 
   const descargarTesis = async (rut) => {
     try {
-      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`, {
+      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/tesis/${rut}`, {
         responseType: 'blob',
       });
 
@@ -126,26 +109,27 @@ function TableData() {
     }
   };
 
-  const handleDescargarRubrica = () => {
+  const handleDescargarRubrica = (tipo) => {
     if (selectedAlumno && selectedAlumno.RUT) {
-      fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`)
+      const url = `http://localhost:4000/api/archivos/descargar/rubrica/${tipo}/con-notas/${selectedAlumno.RUT}`;
+      fetch(url)
         .then(response => {
           if (response.ok) {
-            window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia/con-notas/${selectedAlumno.RUT}`, '_blank');
+            window.open(url, '_blank');
           } else {
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'La rúbrica no está disponible para este alumno.',
+              text: `La rúbrica ${tipo} no está disponible para este alumno.`,
             });
           }
         })
         .catch(error => {
-          console.error('Error al verificar la existencia de la rúbrica:', error);
+          console.error(`Error al verificar la existencia de la rúbrica ${tipo}:`, error);
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Hubo un problema al verificar la existencia de la rúbrica.',
+            text: `Hubo un problema al verificar la existencia de la rúbrica ${tipo}.`,
           });
         });
     } else {
@@ -159,10 +143,10 @@ function TableData() {
 
   const handleDescargarFicha = () => {
     if (selectedAlumno && selectedAlumno.RUT) {
-      fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
+      fetch(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
         .then(response => {
           if (response.ok) {
-            window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
+            window.open(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
           } else {
             Swal.fire({
               icon: 'error',
@@ -172,7 +156,7 @@ function TableData() {
           }
         })
         .catch(error => {
-          console.error('Error al verificar la existencia de la rúbrica:', error);
+          console.error('Error al verificar la existencia de la ficha:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -250,7 +234,7 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post('https://apisst.administracionpublica-uv.cl/api/notas/examenoral', { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post('http://localhost:4000/api/notas/examenoral', { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
@@ -307,7 +291,7 @@ function TableData() {
 
   const descargarActa = async (rut) => {
     try {
-      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`, {
+      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
         responseType: 'blob',
       });
 
@@ -376,7 +360,7 @@ function TableData() {
                         onClick={(event) => handleMenuOpen(event, alumno)}
                         color="primary"
                       >
-                        <ListIcon />
+                        <List />
                         <Typography variant="caption">ACCIONES</Typography>
                       </IconButton>
                       <Menu
@@ -384,50 +368,62 @@ function TableData() {
                         open={Boolean(anchorEl)}
                         onClose={handleMenuClose}
                       >
-                        <MenuItem onClick={() => editAlumno(selectedAlumno)}>
-                          <Edit />
-                          <Typography variant="caption">Editar</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => deleteAlumno(selectedAlumno.RUT)}>
-                          <Delete />
-                          <Typography variant="caption">Eliminar</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => descargarActa(selectedAlumno.RUT)}>
-                          {alumno.hasActa ? (
-                            <CheckCircleIcon style={{ color: 'green' }} />
-                          ) : (
-                            <Description />
-                          )}
-                          <Typography variant="caption">Descargar Acta</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => handleOpenNotaDefensaModal(selectedAlumno)}>
-                          <NoteAdd />
-                          <Typography variant="caption">Añadir Nota de Defensa</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => descargarTesis(selectedAlumno.RUT)}>
-                          {alumno.hasTesis ? (
-                            <CheckCircleIcon style={{ color: 'green' }} />
-                          ) : (
-                            <Description />
-                          )}
-                          <Typography variant="caption">Tesis</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleDescargarRubrica}>
-                          <Description />
-                          <Typography variant="caption">Descargar Rúbrica Guía</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleDescargarRubrica}>
-                          <Description />
-                          <Typography variant="caption">Descargar Rúbrica Informante</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleDescargarFicha}>
-                          {alumno.hasFicha ? (
-                            <CheckCircleIcon style={{ color: 'green' }} />
-                          ) : (
-                            <Description />
-                          )}
-                          <Typography variant="caption">Descargar Ficha Alumno</Typography>
-                        </MenuItem>
+                        {selectedAlumno && (
+                          <>
+                            <MenuItem onClick={() => editAlumno(selectedAlumno)}>
+                              <Edit />
+                              <Typography variant="caption">Editar</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => deleteAlumno(selectedAlumno.RUT)}>
+                              <Delete />
+                              <Typography variant="caption">Eliminar</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => descargarActa(selectedAlumno.RUT)}>
+                              {selectedAlumno.hasActa ? (
+                                <CheckCircleIcon style={{ color: 'green' }} />
+                              ) : (
+                                <Description />
+                              )}
+                              <Typography variant="caption">Descargar Acta</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleOpenNotaDefensaModal(selectedAlumno)}>
+                              <NoteAdd />
+                              <Typography variant="caption">Añadir Nota de Defensa</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => descargarTesis(selectedAlumno.RUT)}>
+                              {selectedAlumno.hasTesis ? (
+                                <CheckCircleIcon style={{ color: 'green' }} />
+                              ) : (
+                                <Description />
+                              )}
+                              <Typography variant="caption">Tesis</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleDescargarRubrica('guia')}>
+                              {selectedAlumno.hasGuia ? (
+                                <CheckCircleIcon style={{ color: 'green' }} />
+                              ) : (
+                                <Description />
+                              )}
+                              <Typography variant="caption">Descargar Rúbrica Guía</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleDescargarRubrica('informante')}>
+                              {selectedAlumno.hasInformante ? (
+                                <CheckCircleIcon style={{ color: 'green' }} />
+                              ) : (
+                                <Description />
+                              )}
+                              <Typography variant="caption">Descargar Rúbrica Informante</Typography>
+                            </MenuItem>
+                            <MenuItem onClick={handleDescargarFicha}>
+                              {selectedAlumno.hasFicha ? (
+                                <CheckCircleIcon style={{ color: 'green' }} />
+                              ) : (
+                                <Description />
+                              )}
+                              <Typography variant="caption">Descargar Ficha Alumno</Typography>
+                            </MenuItem>
+                          </>
+                        )}
                       </Menu>
                     </TableCell>
                   </TableRow>

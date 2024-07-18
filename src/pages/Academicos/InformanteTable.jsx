@@ -21,9 +21,9 @@ const InformanteTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/informante/${profesorId}`);
-        const notasResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/notas');
-        const alumnosResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/alumnos');
+        const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/informante/${profesorId}`);
+        const notasResponse = await axios.get('http://localhost:4000/api/notas');
+        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -71,7 +71,7 @@ const InformanteTable = () => {
     }
 
     const saveNota = async () => {
-      const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
+      const url = `http://localhost:4000/api/notas/upsert`;
       const payload = {
         alumno_RUT: selectedAlumno.alumno_RUT,
         nota: parseFloat(nota),
@@ -106,7 +106,7 @@ const InformanteTable = () => {
       const alumnoRut = selectedAlumno.alumno_RUT;
 
       try {
-        await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+        await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -135,7 +135,7 @@ const InformanteTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/informante`;
+    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/informante`;
   };
 
   return (

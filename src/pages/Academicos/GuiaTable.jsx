@@ -22,9 +22,9 @@ const GuiaTable = () => {
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/guia/${profesorId}`);
-        const notasResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/notas');
-        const alumnosResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/alumnos');
+        const assignmentsResponse = await axios.get(`http://localhost:4000/api/asignaciones/guia/${profesorId}`);
+        const notasResponse = await axios.get('http://localhost:4000/api/notas');
+        const alumnosResponse = await axios.get('http://localhost:4000/api/alumnos');
         const alumnos = alumnosResponse.data;
 
         const combinedData = assignmentsResponse.data.map(asignacion => {
@@ -82,14 +82,14 @@ const GuiaTable = () => {
 
     try {
       // Subir rúbrica
-      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
+      await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       // Guardar nota
-      const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
+      const url = `http://localhost:4000/api/notas/upsert`;
       const payload = {
         alumno_RUT: selectedAlumno.alumno_RUT,
         nota: parseFloat(nota),
@@ -119,7 +119,7 @@ const GuiaTable = () => {
 
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
-    window.location.href = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/guia`;
+    window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/guia`;
   };
 
   const handleFileChangeTesis = (event) => {
@@ -137,7 +137,7 @@ const GuiaTable = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/tesis/${alumnoRut}`, formData, {
+      await axios.post(`http://localhost:4000/api/archivos/subir/tesis/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

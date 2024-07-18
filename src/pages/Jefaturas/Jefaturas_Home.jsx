@@ -18,7 +18,7 @@ const Jefatura = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('https://apisst.administracionpublica-uv.cl/api/titulados/alumnosTitulados')
+    fetch('http://localhost:4000/api/titulados/alumnosTitulados')
       .then((response) => {
         if (response.ok && response.headers.get('Content-Type').includes('application/json')) {
           return response.json();
@@ -45,7 +45,7 @@ const Jefatura = () => {
     color: 'white',
   };
 
-  const reportUrl = 'https://apisst.administracionpublica-uv.cl/path-to-report'; // Reemplazar con el enlace correcto al reporte
+  const reportUrl = 'http://localhost:4000/path-to-report'; // Reemplazar con el enlace correcto al reporte
 
   if (loading) {
     return <Typography>Cargando...</Typography>;

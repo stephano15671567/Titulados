@@ -19,7 +19,7 @@ function SecretariaView() {
     color: 'white',
   };
 
-  const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report'; 
+  const reportUrl = 'http://localhost:4000/api/report/download-report'; 
 
   return (
     <DashBoard/>
