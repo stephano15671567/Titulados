@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
   Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField, Box
+  DialogTitle, TextField, Box, IconButton
 } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -12,10 +13,11 @@ const GuiaTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
-  const [nota, setNota] = useState('');
+  const [nota, setNota] = useState(1);
   const [file, setFile] = useState(null);
   const [fileTesis, setFileTesis] = useState(null);
   const [rubricaSubida, setRubricaSubida] = useState(false);
+  const [tesisSubida, setTesisSubida] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
@@ -33,7 +35,7 @@ const GuiaTable = () => {
           return {
             ...asignacion,
             alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
-            nota_guia: notaItem ? notaItem.nota_guia : 'No asignada',
+            nota_guia: notaItem ? notaItem.nota_guia : null,
           };
         });
 
@@ -55,9 +57,9 @@ const GuiaTable = () => {
 
   const handleClickOpen = (row) => {
     setSelectedAlumno(row);
-    setNota(row.nota_guia);
-    setRubricaSubida(false); // Reset rubrica subida status
-    setFile(null); // Reset file
+    setNota(row.nota_guia || 1);
+    setRubricaSubida(false);
+    setFile(null);
     setOpen(true);
   };
 
@@ -66,33 +68,26 @@ const GuiaTable = () => {
   };
 
   const handleConfirm = async () => {
-    if (!nota || nota < 1 || nota > 7 || isNaN(nota)) {
-      Swal.fire('Error', 'Debe ingresar una nota válida entre 1 y 7.', 'error');
-      return;
-    }
-
     if (!file) {
       Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
+    formData.append('file', file);
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      // Subir rúbrica
       await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Guardar nota
       const url = `http://localhost:4000/api/notas/upsert`;
       const payload = {
         alumno_RUT: selectedAlumno.alumno_RUT,
-        nota: parseFloat(nota),
+        nota: parseFloat(nota).toFixed(1),
         profesor_id: profesorId,
         rol: 'guia',
       };
@@ -100,11 +95,12 @@ const GuiaTable = () => {
       await axios.post(url, payload);
       const updatedRows = rows.map(row => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
-          return { ...row, nota_guia: nota };
+          return { ...row, nota_guia: payload.nota };
         }
         return row;
       });
       setRows(updatedRows);
+      setRubricaSubida(true);
       Swal.fire('¡Éxito!', 'La rúbrica y la nota han sido subidas y guardadas.', 'success');
       handleClose();
     } catch (error) {
@@ -142,12 +138,29 @@ const GuiaTable = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      setTesisSubida(true);
       Swal.fire('¡Subido!', 'La tesis ha sido subida con éxito.', 'success');
-      handleClose(); // Cierra el diálogo si es necesario
     } catch (error) {
       console.error('Error al subir la tesis:', error);
       Swal.fire('Error', 'No se pudo subir la tesis.', 'error');
     }
+  };
+
+  const handleNotaChange = (value) => {
+    const newValue = Math.min(7, Math.max(1, parseFloat(value).toFixed(1)));
+    if (isNaN(newValue) || newValue < 1 || newValue > 7) {
+      Swal.fire('Error', 'Debe ingresar una nota válida entre 1 y 7 con un solo decimal.', 'error');
+      return;
+    }
+    setNota(newValue);
+  };
+
+  const handleIncrement = () => {
+    handleNotaChange((parseFloat(nota) + 0.1).toFixed(1));
+  };
+
+  const handleDecrement = () => {
+    handleNotaChange((parseFloat(nota) - 0.1).toFixed(1));
   };
 
   return (
@@ -172,7 +185,7 @@ const GuiaTable = () => {
                   {row.alumnoNombre}
                 </TableCell>
                 <TableCell align="right">{row.alumno_RUT}</TableCell>
-                <TableCell align="right">{row.nota_guia}</TableCell>
+                <TableCell align="right">{row.nota_guia || 'No asignada'}</TableCell>
                 <TableCell align="right">
                   <Button variant="outlined" onClick={() => handleClickOpen(row)}>
                     Gestionar Rúbrica y Nota
@@ -195,18 +208,27 @@ const GuiaTable = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
         <DialogContent>
-          <Box sx={{ marginBottom: '20px' }}>
+          <Typography variant="body2" gutterBottom>
+            Nota del Guía (Ingrese un valor entre 1 y 7, con un solo decimal):
+          </Typography>
+          <Box sx={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton onClick={handleDecrement} disabled={nota <= 1}>
+              <Remove />
+            </IconButton>
             <TextField
-              autoFocus
               margin="dense"
               id="nota"
               label="Nota del Guía"
-              type="text"
+              type="number"
+              inputProps={{ min: 1, max: 7, step: 0.1 }}
+              value={nota}
+              onChange={(e) => handleNotaChange(e.target.value)}
               fullWidth
               variant="outlined"
-              value={nota}
-              onChange={(e) => setNota(e.target.value)}
             />
+            <IconButton onClick={handleIncrement} disabled={nota >= 7}>
+              <Add />
+            </IconButton>
           </Box>
           <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             <Button onClick={handleDownload}>
@@ -217,16 +239,23 @@ const GuiaTable = () => {
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
           </Box>
+          {file && !rubricaSubida && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <Button onClick={handleConfirm} variant="contained" color="primary">
+                Confirmar Subida y Guardar Nota
+              </Button>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-            <Button onClick={handleUploadTesis} component="label">
+            <Button component="label">
               Subir Tesis
               <input type="file" hidden onChange={handleFileChangeTesis} />
             </Button>
           </Box>
-          {file && (
+          {fileTesis && !tesisSubida && (
             <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <Button onClick={handleConfirm} variant="contained" color="primary">
-                Confirmar Subida y Guardar Nota
+              <Button onClick={handleUploadTesis} variant="contained" color="primary">
+                Confirmar Subida de Tesis
               </Button>
             </Box>
           )}
@@ -240,3 +269,4 @@ const GuiaTable = () => {
 };
 
 export default GuiaTable;
+

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
   Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField, Box
+  DialogTitle, TextField, Box, IconButton
 } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -12,7 +13,7 @@ const InformanteTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
-  const [nota, setNota] = useState('');
+  const [nota, setNota] = useState(1);
   const [file, setFile] = useState(null);
   const [rubricaSubida, setRubricaSubida] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_informante: '' });
@@ -32,7 +33,7 @@ const InformanteTable = () => {
           return {
             ...asignacion,
             alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
-            nota_informante: notaItem ? notaItem.nota_informante : 'No asignada',
+            nota_informante: notaItem ? notaItem.nota_informante : null,
           };
         });
 
@@ -54,9 +55,9 @@ const InformanteTable = () => {
 
   const handleClickOpen = (row) => {
     setSelectedAlumno(row);
-    setNota(row.nota_informante);
-    setRubricaSubida(false); // Reset rubrica subida status
-    setFile(null); // Reset file
+    setNota(row.nota_informante || 1);
+    setRubricaSubida(false);
+    setFile(null);
     setOpen(true);
   };
 
@@ -64,69 +65,46 @@ const InformanteTable = () => {
     setOpen(false);
   };
 
-  const handleSave = async (withFileUpload = false) => {
-    if (nota < 1 || nota > 7 || isNaN(nota)) {
-      Swal.fire('Error', 'La nota debe ser un número entre 1 y 7.', 'error');
+  const handleConfirm = async () => {
+    if (!file) {
+      Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
       return;
     }
 
-    const saveNota = async () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const alumnoRut = selectedAlumno.alumno_RUT;
+
+    try {
+      await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       const url = `http://localhost:4000/api/notas/upsert`;
       const payload = {
         alumno_RUT: selectedAlumno.alumno_RUT,
-        nota: parseFloat(nota),
+        nota: parseFloat(nota).toFixed(1),
         profesor_id: profesorId,
         rol: 'informante',
       };
 
-      try {
-        await axios.post(url, payload);
-        const updatedRows = rows.map(row => {
-          if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
-            return { ...row, nota_informante: nota };
-          }
-          return row;
-        });
-        setRows(updatedRows);
-        Swal.fire('¡Guardado!', 'La nota ha sido actualizada.', 'success');
-      } catch (error) {
-        console.error('Error al guardar la nota:', error);
-        Swal.fire('Error', 'No se pudo guardar la nota.', 'error');
-      }
-    };
-
-    if (withFileUpload) {
-      if (!file) {
-        Swal.fire('Error', 'Por favor, selecciona un archivo para subir.', 'error');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', file); // Este nombre debe coincidir con el esperado en el controlador de subida de rúbrica
-      const alumnoRut = selectedAlumno.alumno_RUT;
-
-      try {
-        await axios.post(`http://localhost:4000/api/archivos/subir/rubrica/informante/${alumnoRut}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        setRubricaSubida(true); // Mark rubrica as uploaded
-        await saveNota();
-        Swal.fire('¡Subido y guardado!', 'La rúbrica y la nota han sido actualizadas.', 'success');
-      } catch (error) {
-        console.error('Error al subir la rúbrica de informante:', error);
-        Swal.fire('Error', 'No se pudo subir la rúbrica de informante.', 'error');
-      }
-    } else {
-      if (!rubricaSubida) {
-        Swal.fire('Error', 'Debes subir la rúbrica antes de asignar una nota.', 'error');
-        return;
-      }
-      await saveNota();
+      await axios.post(url, payload);
+      const updatedRows = rows.map(row => {
+        if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
+          return { ...row, nota_informante: payload.nota };
+        }
+        return row;
+      });
+      setRows(updatedRows);
+      setRubricaSubida(true);
+      Swal.fire('¡Éxito!', 'La rúbrica y la nota han sido subidas y guardadas.', 'success');
+      handleClose();
+    } catch (error) {
+      console.error('Error al subir la rúbrica o guardar la nota:', error);
+      Swal.fire('Error', 'No se pudo completar la acción.', 'error');
     }
-
-    handleClose();
   };
 
   const handleFileChange = (event) => {
@@ -136,6 +114,23 @@ const InformanteTable = () => {
   const handleDownload = () => {
     const alumnoRut = selectedAlumno.alumno_RUT;
     window.location.href = `http://localhost:4000/api/archivos/descargar/rubrica/informante`;
+  };
+
+  const handleNotaChange = (value) => {
+    const newValue = Math.min(7, Math.max(1, parseFloat(value).toFixed(1)));
+    if (isNaN(newValue) || newValue < 1 || newValue > 7) {
+      Swal.fire('Error', 'Debe ingresar una nota válida entre 1 y 7 con un solo decimal.', 'error');
+      return;
+    }
+    setNota(newValue);
+  };
+
+  const handleIncrement = () => {
+    handleNotaChange((parseFloat(nota) + 0.1).toFixed(1));
+  };
+
+  const handleDecrement = () => {
+    handleNotaChange((parseFloat(nota) - 0.1).toFixed(1));
   };
 
   return (
@@ -160,7 +155,7 @@ const InformanteTable = () => {
                   {row.alumnoNombre}
                 </TableCell>
                 <TableCell align="right">{row.alumno_RUT}</TableCell>
-                <TableCell align="right">{row.nota_informante}</TableCell>
+                <TableCell align="right">{row.nota_informante || 'No asignada'}</TableCell>
                 <TableCell align="right">
                   <Button variant="outlined" onClick={() => handleClickOpen(row)}>
                     Gestionar Rúbrica y Nota
@@ -183,17 +178,27 @@ const InformanteTable = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <Typography variant="body2" gutterBottom>
+            Nota del Informante (Ingrese un valor entre 1 y 7, con un solo decimal):
+          </Typography>
+          <Box sx={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton onClick={handleDecrement} disabled={nota <= 1}>
+              <Remove />
+            </IconButton>
             <TextField
-              autoFocus
               margin="dense"
               id="nota"
               label="Nota del Informante"
-              type="text"
-              variant="outlined"
+              type="number"
+              inputProps={{ min: 1, max: 7, step: 0.1 }}
               value={nota}
-              onChange={(e) => setNota(e.target.value)}
+              onChange={(e) => handleNotaChange(e.target.value)}
+              fullWidth
+              variant="outlined"
             />
+            <IconButton onClick={handleIncrement} disabled={nota >= 7}>
+              <Add />
+            </IconButton>
           </Box>
           <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             <Button onClick={handleDownload}>
@@ -204,17 +209,10 @@ const InformanteTable = () => {
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
           </Box>
-          {file && (
+          {file && !rubricaSubida && (
             <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <Button onClick={() => handleSave(true)} variant="contained" color="primary">
+              <Button onClick={handleConfirm} variant="contained" color="primary">
                 Confirmar Subida y Guardar Nota
-              </Button>
-            </Box>
-          )}
-          {!file && rubricaSubida && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <Button onClick={() => handleSave()} variant="contained" color="primary">
-                Guardar Nota
               </Button>
             </Box>
           )}
