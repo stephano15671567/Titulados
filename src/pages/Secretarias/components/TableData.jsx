@@ -58,7 +58,7 @@ function TableData() {
     setSelectedAlumno(null);
   };
 
-  const apiBaseUrl = 'http://localhost:4000/api/alumnos/';
+  const apiBaseUrl = 'https://apisst.administracionpublica-uv.cl/api/alumnos/';
 
   const fetchAlumnos = async () => {
     try {
@@ -66,7 +66,7 @@ function TableData() {
       const studentsData = studentsResponse.data || [];
 
       const combinedData = await Promise.all(studentsData.map(async alumno => {
-        const archivosResponse = await axios.get(`http://localhost:4000/api/archivos/verificar/${alumno.RUT}`);
+        const archivosResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/verificar/${alumno.RUT}`);
         const archivosData = archivosResponse.data;
 
         return {
@@ -88,7 +88,7 @@ function TableData() {
 
   const descargarTesis = async (rut) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/tesis/${rut}`, {
+      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`, {
         responseType: 'blob',
       });
 
@@ -111,7 +111,7 @@ function TableData() {
 
   const handleDescargarRubrica = (tipo) => {
     if (selectedAlumno && selectedAlumno.RUT) {
-      const url = `http://localhost:4000/api/archivos/descargar/rubrica/${tipo}/con-notas/${selectedAlumno.RUT}`;
+      const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/${tipo}/con-notas/${selectedAlumno.RUT}`;
       fetch(url)
         .then(response => {
           if (response.ok) {
@@ -143,10 +143,10 @@ function TableData() {
 
   const handleDescargarFicha = () => {
     if (selectedAlumno && selectedAlumno.RUT) {
-      fetch(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
+      fetch(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`)
         .then(response => {
           if (response.ok) {
-            window.open(`http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
+            window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`, '_blank');
           } else {
             Swal.fire({
               icon: 'error',
@@ -234,7 +234,7 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post('http://localhost:4000/api/notas/examenoral', { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa });
+      await axios.post('https://apisst.administracionpublica-uv.cl/api/notas/examenoral', { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa });
       Swal.fire('Agregada', 'La nota de defensa ha sido añadida con éxito', 'success');
       handleCloseNotaDefensaModal();
       fetchAlumnos();
@@ -291,7 +291,7 @@ function TableData() {
 
   const descargarActa = async (rut) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/archivos/descargar/acta/${rut}`, {
+      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`, {
         responseType: 'blob',
       });
 

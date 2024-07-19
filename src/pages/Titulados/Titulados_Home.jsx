@@ -19,7 +19,7 @@ import background4 from "../Home/components/images/imagen_4.jpg";
 import background5 from "../Home/components/images/imagen_5.jpg";
 import axios from "axios";
 import LogoutIcon from "@mui/icons-material/Logout";
-import Swal from "sweetalert2"; // Importa SweetAlert2
+import Swal from "sweetalert2";
 
 function TituladosHome() {
   const win = window.sessionStorage;
@@ -39,7 +39,7 @@ function TituladosHome() {
     window.location.href = "/";
   };
 
-  const handleFileUpload = async (e, endpoint) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) {
       return;
@@ -47,8 +47,7 @@ function TituladosHome() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("idUsuario", id);
-    endpoint = `http://localhost:4000/${endpoint}${id}`;
+    const endpoint = `https://apisst.administracionpublica-uv.cl/api/archivos/${id}`;
 
     try {
       const response = await axios.post(endpoint, formData, {
@@ -65,7 +64,7 @@ function TituladosHome() {
   };
 
   const handleFileDownload = async () => {
-    const url = `http://localhost:4000/api/archivos/descargar/archivo-word`;
+    const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/archivo-word`;
 
     try {
       const response = await axios.get(url, {
@@ -78,7 +77,7 @@ function TituladosHome() {
       link.setAttribute(
         "download",
         "Formulario Inscripción Seminario de Título.docx"
-      ); // Nombre del archivo
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -146,7 +145,7 @@ function TituladosHome() {
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
-              onChange={(e) => handleFileUpload(e, "api/archivos/")}
+              onChange={(e) => handleFileUpload(e)}
             />
 
             <label

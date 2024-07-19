@@ -229,7 +229,7 @@ const handleNotify = async (assignmentId) => {
   setError("");
   try {
     const response = await axios.post(
-      "http://localhost:4000/api/asignaciones",
+      "https://apisst.administracionpublica-uv.cl/api/asignaciones",
       {
         alumnoId: formData.alumno,
         profesorId: formData.profesor,
