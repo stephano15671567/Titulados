@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, TablePagination, TableFooter } from '@mui/material';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Modal, Box, Typography, IconButton, TablePagination, TableFooter
+} from '@mui/material';
 import { Edit, Delete, Description, NoteAdd, List } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO, isValid, parse } from 'date-fns';
 import './styles.css';
 
 function TableData() {
@@ -14,11 +19,10 @@ function TableData() {
   const [openModal, setOpenModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [showAlumnos, setShowAlumnos] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null); // Estado para controlar el menú desplegable
-  const [selectedAlumno, setSelectedAlumno] = useState(null); // Alumno seleccionado para las acciones
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedAlumno, setSelectedAlumno] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const [newAlumno, setNewAlumno] = useState({
     nombre: '',
     RUT: '',
@@ -27,7 +31,7 @@ function TableData() {
     ANO_EGRESO: '',
     n_resolucion: '',
     hora: '',
-    fecha_examen: '',
+    fecha_examen: null,
     tesis: '',
     mail: '',
     nota_examen_oral: ''
@@ -177,6 +181,14 @@ function TableData() {
     setNewAlumno({ ...newAlumno, [name]: value });
   };
 
+  const handleDateChange = (date) => {
+    setNewAlumno({ ...newAlumno, fecha_examen: date });
+  };
+
+  const handleTimeChange = (time) => {
+    setNewAlumno({ ...newAlumno, hora: time });
+  };
+
   const handleOpenModal = () => {
     Swal.fire({
       title: 'Cargando',
@@ -202,7 +214,7 @@ function TableData() {
       ANO_EGRESO: '',
       n_resolucion: '',
       hora: '',
-      fecha_examen: '',
+      fecha_examen: null,
       tesis: '',
       mail: '',
       nota_examen_oral: ''
@@ -217,11 +229,17 @@ function TableData() {
 
   const addOrUpdateAlumno = async () => {
     try {
+      const formattedAlumno = {
+        ...newAlumno,
+        fecha_examen: newAlumno.fecha_examen ? newAlumno.fecha_examen.toISOString() : null,
+        hora: newAlumno.hora ? format(newAlumno.hora, 'HH:mm:ss') : ''
+      };
+
       if (editMode) {
-        await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, newAlumno);
+        await axios.put(`${apiBaseUrl}${newAlumno.RUT}`, formattedAlumno);
         Swal.fire('Actualizado', 'El alumno ha sido actualizado con éxito', 'success');
       } else {
-        await axios.post(apiBaseUrl, newAlumno);
+        await axios.post(apiBaseUrl, formattedAlumno);
         Swal.fire('Agregado', 'El alumno ha sido agregado con éxito', 'success');
       }
       fetchAlumnos();
@@ -245,7 +263,11 @@ function TableData() {
   };
 
   const editAlumno = (alumno) => {
-    setNewAlumno(alumno);
+    setNewAlumno({
+      ...alumno,
+      fecha_examen: alumno.fecha_examen ? parseISO(alumno.fecha_examen) : null,
+      hora: alumno.hora ? parse(alumno.hora, 'HH:mm:ss', new Date()) : null
+    });
     setEditMode(true);
     handleOpenModal();
   };
@@ -352,7 +374,7 @@ function TableData() {
                     <TableCell>{alumno.ANO_EGRESO}</TableCell>
                     <TableCell>{alumno.n_resolucion}</TableCell>
                     <TableCell>{alumno.hora}</TableCell>
-                    <TableCell>{alumno.fecha_examen}</TableCell>
+                    <TableCell>{alumno.fecha_examen ? format(parseISO(alumno.fecha_examen), 'dd/MM/yyyy') : ''}</TableCell>
                     <TableCell>{alumno.mail}</TableCell>
                     <TableCell>{alumno.nota_examen_oral}</TableCell>
                     <TableCell>
@@ -466,8 +488,8 @@ function TableData() {
             maxWidth: '400px',
             margin: 'auto',
             paddingBottom: '20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Fondo semitransparente
-            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)', // Sombra suave para efecto de capas
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)', 
           }}
         >
           <Typography id="modal-title" variant="h6" component="h2" marginBottom={2} sx={{ fontSize: '1.5rem' }}>
@@ -479,18 +501,94 @@ function TableData() {
             noValidate
             autoComplete="off"
           >
-            {Object.keys(newAlumno).map((key) => (
-              <TextField
-                key={key}
-                name={key}
-                label={key.toUpperCase().replace('_', ' ')}
-                value={newAlumno[key]}
-                onChange={handleInputChange}
-                fullWidth
-                margin="dense"
-                InputProps={{ style: { fontSize: '0.8rem' } }} // Tamaño de fuente más pequeño
-              />
-            ))}
+            <TextField
+              name="nombre"
+              label="Nombre"
+              value={newAlumno.nombre}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="RUT"
+              label="RUT"
+              value={newAlumno.RUT}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="CODIGO"
+              label="Código"
+              value={newAlumno.CODIGO}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="ANO_INGRESO"
+              label="Año de Ingreso"
+              value={newAlumno.ANO_INGRESO}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="ANO_EGRESO"
+              label="Año de Egreso"
+              value={newAlumno.ANO_EGRESO}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="n_resolucion"
+              label="N Resolución"
+              value={newAlumno.n_resolucion}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <DatePicker
+              selected={newAlumno.fecha_examen}
+              onChange={handleDateChange}
+              dateFormat="dd/MM/yyyy"
+              customInput={<TextField fullWidth margin="dense" label="Fecha de Examen" />}
+            />
+            <DatePicker
+              selected={newAlumno.hora}
+              onChange={handleTimeChange}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={15}
+              timeCaption="Hora"
+              dateFormat="HH:mm"
+              customInput={<TextField fullWidth margin="dense" label="Hora de Examen" />}
+            />
+            <TextField
+              name="tesis"
+              label="Tesis"
+              value={newAlumno.tesis}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="mail"
+              label="Correo"
+              value={newAlumno.mail}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
+            <TextField
+              name="nota_examen_oral"
+              label="Nota Examen Oral"
+              value={newAlumno.nota_examen_oral}
+              onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+            />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
             <Button onClick={addOrUpdateAlumno} color="primary" variant="contained">
