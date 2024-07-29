@@ -12,6 +12,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format, parseISO, isValid, parse } from 'date-fns';
+import CancelIcon from '@mui/icons-material/Cancel';
 import './styles.css';
 
 function TableData() {
@@ -82,7 +83,7 @@ function TableData() {
           hasInformante: archivosData.informante
         };
       }));
-
+      console.log(combinedData)
       setAlumnos(combinedData);
     } catch (error) {
       console.error('Error fetching combined alumnos data:', error);
@@ -361,7 +362,10 @@ function TableData() {
                   <TableCell>Fecha Examen</TableCell>
                   <TableCell>Mail</TableCell>
                   <TableCell>Nota Examen Oral</TableCell>
-                  <TableCell width="700"></TableCell>
+                  <TableCell width="100">Documentos</TableCell>
+                  <TableCell>Aciones</TableCell> 
+
+                  
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -377,6 +381,14 @@ function TableData() {
                     <TableCell>{alumno.fecha_examen ? format(parseISO(alumno.fecha_examen), 'dd/MM/yyyy') : ''}</TableCell>
                     <TableCell>{alumno.mail}</TableCell>
                     <TableCell>{alumno.nota_examen_oral}</TableCell>
+                    <TableCell>
+                    {alumno.hasFicha === 1 ? <>Ficha:<CheckCircleIcon color="success" /> </>: <>Ficha:<CancelIcon color="error" /> </>}
+                    {alumno.hasTesis === 1 ? <>Tésis:<CheckCircleIcon color="success" /> </>: <>Tésis:<CancelIcon color="error" /> </>}
+                    {alumno.hasGuia === 1 ? <>R. Guía:<CheckCircleIcon color="success" /> </>: <>R. Guía:<CancelIcon color="error" /> </>}
+
+
+                    </TableCell>
+
                     <TableCell>
                       <IconButton
                         onClick={(event) => handleMenuOpen(event, alumno)}
@@ -454,7 +466,7 @@ function TableData() {
               <TableFooter>
                 <TableRow>
                   <TableCell colSpan={11}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#737373', width: '100%', margin: '1', padding: '0px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#737373', width: '110%', margin: '1', padding: '0px' }}>
                       <TablePagination
                         className="custom-pagination"
                         rowsPerPageOptions={[5, 10, 25]}
