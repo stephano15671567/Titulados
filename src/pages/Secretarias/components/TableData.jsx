@@ -384,7 +384,9 @@ function TableData() {
                     <TableCell>
                     {alumno.hasFicha === 1 ? <>Ficha:<CheckCircleIcon color="success" /> </>: <>Ficha:<CancelIcon color="error" /> </>}
                     {alumno.hasTesis === 1 ? <>Tésis:<CheckCircleIcon color="success" /> </>: <>Tésis:<CancelIcon color="error" /> </>}
-                    {alumno.hasGuia === 1 ? <>R. Guía:<CheckCircleIcon color="success" /> </>: <>R. Guía:<CancelIcon color="error" /> </>}
+                    {alumno.hasGuia === 1 ? <>Guía:<CheckCircleIcon color="success" /> </>: <>Guía:<CancelIcon color="error" /> </>}
+                    {alumno.hasInformante === 1 ? <>Informante:<CheckCircleIcon color="success" /> </>: <>Informante:<CancelIcon color="error" /> </>}
+
 
 
                     </TableCell>
