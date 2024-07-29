@@ -66,7 +66,7 @@ function Home() {
                 letterSpacing: ".1rem",
               }}
             >
-              Sistema de Titulados
+              Sistema de Seminario De Título
             </Typography>
           </Paper>
 
