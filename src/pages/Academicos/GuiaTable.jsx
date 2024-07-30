@@ -248,8 +248,8 @@ const GuiaTable = () => {
           )}
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
             <Button component="label">
-              Subir Tesis
-              <input type="file" hidden onChange={handleFileChangeTesis} />
+              Subir Tesis en pdf
+              <input type="file" accept="application/pdf" hidden onChange={handleFileChangeTesis} />
             </Button>
           </Box>
           {fileTesis && !tesisSubida && (
