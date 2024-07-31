@@ -21,6 +21,27 @@ const GuiaTable = () => {
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
+  const cargando = () => {
+    Swal.fire({
+      title: "Cargando . . .",
+      text: "Espere por favor",
+      html: '<i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+  };
+
+  const falla = () => {
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo generar la carta",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  };
+  
+  
+
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
@@ -72,6 +93,8 @@ const GuiaTable = () => {
       Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
       return;
     }
+    cargando();
+    handleClose();
 
     const formData = new FormData();
     formData.append('file', file);
@@ -127,6 +150,8 @@ const GuiaTable = () => {
       Swal.fire('Error', 'Por favor, selecciona un archivo de tesis para subir.', 'error');
       return;
     }
+    cargando();
+    handleClose();
 
     const formData = new FormData();
     formData.append('tesis', fileTesis);
@@ -188,7 +213,7 @@ const GuiaTable = () => {
                 <TableCell align="right">{row.nota_guia || 'No asignada'}</TableCell>
                 <TableCell align="right">
                   <Button variant="outlined" onClick={() => handleClickOpen(row)}>
-                    Gestionar Rúbrica y Nota
+                    Gestionar Rúbrica, Nota y Tésis
                   </Button>
                 </TableCell>
               </TableRow>
@@ -232,11 +257,11 @@ const GuiaTable = () => {
           </Box>
           <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             <Button onClick={handleDownload}>
-              Descargar Rúbrica
+              Descargar Rúbrica en excel (.xlsx)
             </Button>
             <Button component="label">
-              Subir Rúbrica
-              <input type="file" hidden onChange={handleFileChange} />
+              Subir Rúbrica en excel (.xlsx)
+              <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden onChange={handleFileChange} />
             </Button>
           </Box>
           {file && !rubricaSubida && (

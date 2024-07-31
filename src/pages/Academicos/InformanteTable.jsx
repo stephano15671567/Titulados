@@ -19,6 +19,28 @@ const InformanteTable = () => {
   const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_informante: '' });
   const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
 
+
+
+  const cargando = () => {
+    Swal.fire({
+      title: "Cargando . . .",
+      text: "Espere por favor",
+      html: '<i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+  };
+
+  const falla = () => {
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo generar la carta",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  };
+  
+  
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
@@ -70,6 +92,9 @@ const InformanteTable = () => {
       Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
       return;
     }
+    cargando();
+    handleClose();
+
 
     const formData = new FormData();
     formData.append('file', file);
@@ -202,11 +227,11 @@ const InformanteTable = () => {
           </Box>
           <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             <Button onClick={handleDownload}>
-              Descargar Rúbrica
+              Descargar Rúbrica en excel (.xlsx)
             </Button>
             <Button component="label">
-              Subir Rúbrica
-              <input type="file" hidden onChange={handleFileChange} />
+              Subir Rúbrica en excel  (.xlsx)
+              <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden onChange={handleFileChange} />
             </Button>
           </Box>
           {file && !rubricaSubida && (
