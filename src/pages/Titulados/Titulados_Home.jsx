@@ -27,6 +27,25 @@ function TituladosHome() {
   const [open, setOpen] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
 
+  const cargando = () => {
+    Swal.fire({
+      title: "Cargando . . .",
+      text: "Espere por favor",
+      html: '<i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+  };
+
+  const falla = () => {
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo generar la carta",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -44,22 +63,31 @@ function TituladosHome() {
     if (!file) {
       return;
     }
+    cargando();
 
     const formData = new FormData();
     formData.append("file", file);
-    const endpoint = `https://apisst.administracionpublica-uv.cl/api/archivos/${id}`;
+    const endpoint = `http://localhost:4000/api/archivos/${id}`;
 
     try {
       const response = await axios.post(endpoint, formData, {
         withCredentials: true,
       });
-      setOpen(true);
+      Swal.fire(
+        "Subida exitosa",
+        "Su ficha a sido subida correctamente",
+        "success"
+      );
     } catch (err) {
       console.log(
         "Error al subir el archivo:",
         err.response?.data ?? err.message
       );
-      setOpen2(true);
+      Swal.fire(
+        "Error",
+        "Hubo un error al subir el archivo, pruebe nuevamente más tarde.",
+        "error"
+      );
     }
   };
 
