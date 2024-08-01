@@ -14,6 +14,7 @@ import Archivos from "../pages/Secretarias/pages/Archivos";
 import AlumnosSecretaria from "../pages/Secretarias/pages/gestionAlumnos";
 import Profesores from "../pages/Secretarias/pages/gestionProfesores";
 import Assignments from "../pages/Secretarias/pages/asignaciones";
+import NotificacionesTable from "../pages/Secretarias/pages/NotifiacionesTable";
 
 
 const FullLayout = Loadable(
@@ -70,6 +71,10 @@ const Router = [
             path: "asignaciones",
             element: <Assignments />,
           },
+          {
+            path: "notificaciones",
+            element: <NotificacionesTable/>
+          }
         ],
       },
       { path: "/Academicos",

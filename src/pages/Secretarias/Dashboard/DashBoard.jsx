@@ -62,7 +62,8 @@ function DashBoard(props) {
           { text: 'Archivos', path: '/Secretarias/files' },
           { text: 'Gestión Alumnos', path: '/Secretarias/gestion-alumnos' },
           { text: 'Gestión Profesores', path: '/Secretarias/gestion-profesores' },
-          { text: 'Asignaciones', path: '/Secretarias/asignaciones' }
+          { text: 'Asignaciones', path: '/Secretarias/asignaciones' },
+          { text: 'Notificaciones', path: '/Secretarias/notificaciones' }
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton onClick={() => handleNavigate(item.path)}>
