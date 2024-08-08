@@ -62,7 +62,7 @@ function BotonesInicio() {
         <BotonCard to="/Titulados" image= {imagen1}  label="Estudiantes" />
         <BotonCard to="/Secretarias" image= {imagen2} label="Secretarias" />
         <BotonCard to="/Academicos" image= {imagen3}  label="Académicos" />
-        <BotonCard to="/Jefaturas" image= {imagen3} label="Jefaturas" />
+        <BotonCard to="/Secretarias" image= {imagen3} label="Jefaturas" />
       </Box>
     </Box>
   );
