@@ -1,12 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
-  TableRow, TablePagination, Button, Dialog, DialogActions, DialogContent,
-  DialogTitle, TextField, Box, IconButton
-} from '@mui/material';
-import { Add, Remove } from '@mui/icons-material';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Box,
+  IconButton,
+} from "@mui/material";
+import { Add, Remove } from "@mui/icons-material";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const GuiaTable = () => {
   const [rows, setRows] = useState([]);
@@ -18,8 +32,14 @@ const GuiaTable = () => {
   const [fileTesis, setFileTesis] = useState(null);
   const [rubricaSubida, setRubricaSubida] = useState(false);
   const [tesisSubida, setTesisSubida] = useState(false);
-  const [selectedAlumno, setSelectedAlumno] = useState({ alumno_RUT: '', alumnoNombre: '', nota_guia: '' });
-  const [profesorId, setProfesorId] = useState(window.sessionStorage.getItem("id"));
+  const [selectedAlumno, setSelectedAlumno] = useState({
+    alumno_RUT: "",
+    alumnoNombre: "",
+    nota_guia: "",
+  });
+  const [profesorId, setProfesorId] = useState(
+    window.sessionStorage.getItem("id")
+  );
 
   const cargando = () => {
     Swal.fire({
@@ -39,23 +59,29 @@ const GuiaTable = () => {
       confirmButtonText: "Ok",
     });
   };
-  
-  
 
   useEffect(() => {
     const fetchAssignmentsAndNotes = async () => {
       if (profesorId) {
-        const assignmentsResponse = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/guia/${profesorId}`);
-        const notasResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/notas');
-        const alumnosResponse = await axios.get('https://apisst.administracionpublica-uv.cl/api/alumnos');
+        const assignmentsResponse = await axios.get(
+          `https://apisst.administracionpublica-uv.cl/api/asignaciones/guia/${profesorId}`
+        );
+        const notasResponse = await axios.get(
+          "https://apisst.administracionpublica-uv.cl/api/notas"
+        );
+        const alumnosResponse = await axios.get(
+          "https://apisst.administracionpublica-uv.cl/api/alumnos"
+        );
         const alumnos = alumnosResponse.data;
 
-        const combinedData = assignmentsResponse.data.map(asignacion => {
-          const alumno = alumnos.find(a => a.RUT === asignacion.alumno_RUT);
-          const notaItem = notasResponse.data.find(n => n.alumno_RUT === asignacion.alumno_RUT);
+        const combinedData = assignmentsResponse.data.map((asignacion) => {
+          const alumno = alumnos.find((a) => a.RUT === asignacion.alumno_RUT);
+          const notaItem = notasResponse.data.find(
+            (n) => n.alumno_RUT === asignacion.alumno_RUT
+          );
           return {
             ...asignacion,
-            alumnoNombre: alumno ? alumno.nombre : 'Nombre no encontrado',
+            alumnoNombre: alumno ? alumno.nombre : "Nombre no encontrado",
             nota_guia: notaItem ? notaItem.nota_guia : null,
           };
         });
@@ -90,33 +116,37 @@ const GuiaTable = () => {
 
   const handleConfirm = async () => {
     if (!file) {
-      Swal.fire('Error', 'Debe subir un archivo de rúbrica.', 'error');
+      Swal.fire("Error", "Debe subir un archivo de rúbrica.", "error");
       return;
     }
     cargando();
     handleClose();
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await axios.post(
+        `https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${alumnoRut}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       const url = `https://apisst.administracionpublica-uv.cl/api/notas/upsert`;
       const payload = {
         alumno_RUT: selectedAlumno.alumno_RUT,
         nota: parseFloat(nota).toFixed(1),
         profesor_id: profesorId,
-        rol: 'guia',
+        rol: "guia",
       };
 
       await axios.post(url, payload);
-      const updatedRows = rows.map(row => {
+      const updatedRows = rows.map((row) => {
         if (row.alumno_RUT === selectedAlumno.alumno_RUT) {
           return { ...row, nota_guia: payload.nota };
         }
@@ -124,11 +154,15 @@ const GuiaTable = () => {
       });
       setRows(updatedRows);
       setRubricaSubida(true);
-      Swal.fire('¡Éxito!', 'La rúbrica y la nota han sido subidas y guardadas.', 'success');
+      Swal.fire(
+        "¡Éxito!",
+        "La rúbrica y la nota han sido subidas y guardadas.",
+        "success"
+      );
       handleClose();
     } catch (error) {
-      console.error('Error al subir la rúbrica o guardar la nota:', error);
-      Swal.fire('Error', 'No se pudo completar la acción.', 'error');
+      console.error("Error al subir la rúbrica o guardar la nota:", error);
+      Swal.fire("Error", "No se pudo completar la acción.", "error");
     }
   };
 
@@ -147,34 +181,46 @@ const GuiaTable = () => {
 
   const handleUploadTesis = async () => {
     if (!fileTesis) {
-      Swal.fire('Error', 'Por favor, selecciona un archivo de tesis para subir.', 'error');
+      Swal.fire(
+        "Error",
+        "Por favor, selecciona un archivo de tesis para subir.",
+        "error"
+      );
       return;
     }
     cargando();
     handleClose();
 
     const formData = new FormData();
-    formData.append('tesis', fileTesis);
+    formData.append("tesis", fileTesis);
     const alumnoRut = selectedAlumno.alumno_RUT;
 
     try {
-      await axios.post(`https://apisst.administracionpublica-uv.cl/api/archivos/subir/tesis/${alumnoRut}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await axios.post(
+        `https://apisst.administracionpublica-uv.cl/api/archivos/subir/tesis/${alumnoRut}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       setTesisSubida(true);
-      Swal.fire('¡Subido!', 'La tesis ha sido subida con éxito.', 'success');
+      Swal.fire("¡Subido!", "La tesis ha sido subida con éxito.", "success");
     } catch (error) {
-      console.error('Error al subir la tesis:', error);
-      Swal.fire('Error', 'No se pudo subir la tesis.', 'error');
+      console.error("Error al subir la tesis:", error);
+      Swal.fire("Error", "No se pudo subir la tesis.", "error");
     }
   };
 
   const handleNotaChange = (value) => {
     const newValue = Math.min(7, Math.max(1, parseFloat(value).toFixed(1)));
     if (isNaN(newValue) || newValue < 1 || newValue > 7) {
-      Swal.fire('Error', 'Debe ingresar una nota válida entre 1 y 7 con un solo decimal.', 'error');
+      Swal.fire(
+        "Error",
+        "Debe ingresar una nota válida entre 1 y 7 con un solo decimal.",
+        "error"
+      );
       return;
     }
     setNota(newValue);
@@ -189,7 +235,7 @@ const GuiaTable = () => {
   };
 
   return (
-    <Paper sx={{ padding: '20px', marginBottom: '20px', width: '100%' }}>
+    <Paper sx={{ padding: "20px", marginBottom: "20px", width: "100%" }}>
       <Typography variant="h5" gutterBottom component="div">
         Guía
       </Typography>
@@ -204,20 +250,27 @@ const GuiaTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.alumno_RUT}>
-                <TableCell component="th" scope="row">
-                  {row.alumnoNombre}
-                </TableCell>
-                <TableCell align="right">{row.alumno_RUT}</TableCell>
-                <TableCell align="right">{row.nota_guia || 'No asignada'}</TableCell>
-                <TableCell align="right">
-                  <Button variant="outlined" onClick={() => handleClickOpen(row)}>
-                    Gestionar Rúbrica, Nota y Tésis
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {rows
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row) => (
+                <TableRow key={row.alumno_RUT}>
+                  <TableCell component="th" scope="row">
+                    {row.alumnoNombre}
+                  </TableCell>
+                  <TableCell align="right">{row.alumno_RUT}</TableCell>
+                  <TableCell align="right">
+                    {row.nota_guia || "No asignada"}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleClickOpen(row)}
+                    >
+                      Gestionar Rúbrica, Nota y Tésis
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -236,7 +289,14 @@ const GuiaTable = () => {
           <Typography variant="body2" gutterBottom>
             Nota del Guía (Ingrese un valor entre 1 y 7, con un solo decimal):
           </Typography>
-          <Box sx={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box
+            sx={{
+              marginBottom: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
             <IconButton onClick={handleDecrement} disabled={nota <= 1}>
               <Remove />
             </IconButton>
@@ -255,31 +315,65 @@ const GuiaTable = () => {
               <Add />
             </IconButton>
           </Box>
-          <Box sx={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            <Button onClick={handleDownload}>
-              Descargar Rúbrica en excel (.xlsx)
-            </Button>
+          <Box sx={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <Button onClick={handleDownload}>Descargar Rúbrica</Button>
             <Button component="label">
-              Subir Rúbrica en excel (.xlsx)
-              <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden onChange={handleFileChange} />
+              Subir Rúbrica en PDF (.PDF)
+              <input
+                type="file"
+                accept="application/pdf"
+                hidden
+                onChange={handleFileChange}
+              />
             </Button>
           </Box>
           {file && !rubricaSubida && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <Button onClick={handleConfirm} variant="contained" color="primary">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "10px",
+              }}
+            >
+              <Button
+                onClick={handleConfirm}
+                variant="contained"
+                color="primary"
+              >
                 Confirmar Subida y Guardar Nota
               </Button>
             </Box>
           )}
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
             <Button component="label">
-              Subir Tesis en pdf
-              <input type="file" accept="application/pdf" hidden onChange={handleFileChangeTesis} />
+              Subir Tesis en PDF (.PDF)
+              <input
+                type="file"
+                accept="application/pdf"
+                hidden
+                onChange={handleFileChangeTesis}
+              />
             </Button>
           </Box>
           {fileTesis && !tesisSubida && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-              <Button onClick={handleUploadTesis} variant="contained" color="primary">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "10px",
+              }}
+            >
+              <Button
+                onClick={handleUploadTesis}
+                variant="contained"
+                color="primary"
+              >
                 Confirmar Subida de Tesis
               </Button>
             </Box>
@@ -294,4 +388,3 @@ const GuiaTable = () => {
 };
 
 export default GuiaTable;
-
