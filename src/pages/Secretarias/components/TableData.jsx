@@ -39,7 +39,40 @@ function TableData() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filteredAlumnos, setFilteredAlumnos] = useState([]);
-  const [filterState, setFilterState] = useState('');
+  const [filterState, setFilterState] = useState("");
+  const [openStateModal, setOpenStateModal] = useState(false);
+  const [newState, setNewState] = useState("");
+  const [comments, setComments] = useState("");
+  const handleUpdateState = (state) => {
+    setNewState(state);
+    setComments(""); // Reset comments
+    setOpenStateModal(true); // Open the modal
+  };
+  const handleSaveState = async () => {
+    if (selectedAlumno && newState) {
+      try {
+        await axios.patch("https://apisst.administracionpublica-uv.cl/api/states/", {
+          RUT: selectedAlumno.RUT,
+          state: newState,
+          comments: comments,
+        });
+        Swal.fire(
+          "Actualizado",
+          "El estado del alumno ha sido actualizado",
+          "success"
+        );
+        setOpenStateModal(false); // Close the modal
+        fetchAlumnosByState(newState); // Refresh the data based on the new state
+      } catch (error) {
+        console.error("Error updating student state:", error);
+        Swal.fire(
+          "Error",
+          "Ocurrió un error al actualizar el estado del alumno",
+          "error"
+        );
+      }
+    }
+  };
   const [newAlumno, setNewAlumno] = useState({
     nombre: "",
     RUT: "",
@@ -57,7 +90,7 @@ function TableData() {
   const [notaDefensaModalOpen, setNotaDefensaModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchAlumnos();
+    fetchAlumnosByState("pendiente");
   }, []);
 
   const handleChangePage = (event, newPage) => {
@@ -80,28 +113,48 @@ function TableData() {
   };
 
   const handleAprobados = () => {
-    console.log("aprobados");
+    fetchAlumnosByState("aprobado");
   };
+
   const handleReprobados = () => {
-    console.log("reprobados");
+    fetchAlumnosByState("reprobado");
   };
 
   const handlePendientes = () => {
-    console.log("pendientes");
+    fetchAlumnosByState("pendiente");
   };
   const apiBaseUrl = "https://apisst.administracionpublica-uv.cl/api/alumnos/";
 
-  const fetchAlumnos = async () => {
+  const fetchAlumnosByState = async (state) => {
     try {
+      // Fetch students data
       const studentsResponse = await axios.get(`${apiBaseUrl}`);
       const studentsData = studentsResponse.data || [];
 
+      // Fetch state-specific data
+      const stateResponse = await axios.get(
+        `https://apisst.administracionpublica-uv.cl/api/states/${state}`
+      );
+      const stateData = stateResponse.data || [];
+
+      // Filter students based on the state
+      const stateRUTs = stateData.map((stateItem) => stateItem.RUT);
+      const filteredStudentsData = studentsData.filter((alumno) =>
+        stateRUTs.includes(alumno.RUT)
+      );
+
+      // Combine data with additional attributes
       const combinedData = await Promise.all(
-        studentsData.map(async (alumno) => {
+        filteredStudentsData.map(async (alumno) => {
           const archivosResponse = await axios.get(
             `https://apisst.administracionpublica-uv.cl/api/archivos/verificar/${alumno.RUT}`
           );
           const archivosData = archivosResponse.data;
+
+          // Find the corresponding state data
+          const studentState = stateData.find(
+            (stateItem) => stateItem.RUT === alumno.RUT
+          );
 
           return {
             ...alumno,
@@ -110,48 +163,26 @@ function TableData() {
             hasActa: archivosData.acta,
             hasGuia: archivosData.guia,
             hasInformante: archivosData.informante,
+            state: studentState ? studentState.state : null,
+            process_date: studentState ? studentState.process_date : null,
+            comments: studentState ? studentState.comments : null,
           };
         })
       );
+
+      // Set the combined and filtered data
       console.log(combinedData);
       setAlumnos(combinedData);
     } catch (error) {
-      console.error("Error fetching combined alumnos data:", error);
+      console.error(
+        `Error fetching combined alumnos data for ${state}:`,
+        error
+      );
       Swal.fire(
         "Error",
-        "Ocurrió un error al obtener los datos combinados de los alumnos",
+        `Ocurrió un error al obtener los datos combinados de los alumnos para el estado ${state}`,
         "error"
       );
-    }
-  };
-
-  const descargarTesis = async (rut) => {
-    try {
-      const response = await axios.get(
-        `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`,
-        {
-          responseType: "blob",
-        }
-      );
-
-      if (response.data.size > 0) {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Tesis_${rut}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        Swal.fire(
-          "No encontrado",
-          "No se encontró la tesis solicitada.",
-          "error"
-        );
-      }
-    } catch (error) {
-      Swal.fire("Error", "La tesis solicitada no existe.", "error");
-      console.error("Error descargando la tesis:", error);
     }
   };
 
@@ -483,6 +514,7 @@ function TableData() {
                   <TableCell>Mail</TableCell>
                   <TableCell>Nota Examen Oral</TableCell>
                   <TableCell width="100">Documentos</TableCell>
+                  <TableCell width="100">Estado</TableCell>
                   <TableCell>Aciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -549,6 +581,15 @@ function TableData() {
                             Informante:
                             <CancelIcon color="error" />{" "}
                           </>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {alumno.state === "aprobado" ? (
+                          <span style={{ color: "green" }}>{alumno.state}</span>
+                        ) : alumno.state === "reprobado" ? (
+                          <span style={{ color: "red" }}>{alumno.state}</span>
+                        ) : (
+                          <span style={{ color: "blue" }}>{alumno.state}</span>
                         )}
                       </TableCell>
 
@@ -655,6 +696,30 @@ function TableData() {
                                   Descargar Ficha Alumno
                                 </Typography>
                               </MenuItem>
+                              <MenuItem
+                                onClick={() => handleUpdateState("aprobado")}
+                              >
+                                <CheckCircleIcon style={{ color: "green" }} />
+                                <Typography variant="caption">
+                                  Aprobar
+                                </Typography>
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => handleUpdateState("reprobado")}
+                              >
+                                <CancelIcon style={{ color: "red" }} />
+                                <Typography variant="caption">
+                                  Reprobar
+                                </Typography>
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => handleUpdateState("pendiente")}
+                              >
+                                <CancelIcon style={{ color: "blue" }} />
+                                <Typography variant="caption">
+                                  Dejar Pendiente
+                                </Typography>
+                              </MenuItem>
                             </>
                           )}
                         </Menu>
@@ -670,7 +735,7 @@ function TableData() {
                         display: "flex",
                         justifyContent: "flex-end",
                         backgroundColor: "#737373",
-                        width: "110%",
+                        width: "118%",
                         margin: "1",
                         padding: "0px",
                       }}
@@ -881,6 +946,41 @@ function TableData() {
                 Añadir Nota
               </Button>
             </Box>
+          </Box>
+        </Box>
+      </Modal>
+      <Modal
+        open={openStateModal}
+        onClose={() => setOpenStateModal(false)}
+        aria-labelledby="state-modal-title"
+        aria-describedby="state-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography
+            id="state-modal-title"
+            variant="h6"
+            component="h2"
+            marginBottom={2}
+          >
+            {`Cambiar estado a "${newState}"`}
+          </Typography>
+          <TextField
+            label="Comentarios"
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            fullWidth
+            multiline
+            rows={4}
+            margin="dense"
+          />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+            <Button
+              onClick={handleSaveState}
+              color="primary"
+              variant="contained"
+            >
+              Guardar
+            </Button>
           </Box>
         </Box>
       </Modal>
