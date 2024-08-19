@@ -364,7 +364,7 @@ function TableData() {
           "success"
         );
       }
-      fetchAlumnos();
+      fetchAlumnosByState("pendiente");
       handleCloseModal();
     } catch (error) {
       console.error("Error al agregar o actualizar el alumno:", error);
@@ -388,7 +388,7 @@ function TableData() {
         "success"
       );
       handleCloseNotaDefensaModal();
-      fetchAlumnos();
+      fetchAlumnosByState("pendiente");
     } catch (error) {
       Swal.fire(
         "Error",
@@ -422,7 +422,7 @@ function TableData() {
       if (result.isConfirmed) {
         try {
           await axios.delete(`${apiBaseUrl}${RUT}`);
-          fetchAlumnos();
+          fetchAlumnosByState("pendiente");
           Swal.fire("Eliminado!", "El alumno ha sido eliminado.", "success");
         } catch (error) {
           console.error("Error eliminando el alumno:", error);
@@ -434,7 +434,7 @@ function TableData() {
 
   const toggleShowAlumnos = () => {
     setShowAlumnos(!showAlumnos);
-    if (!showAlumnos) fetchAlumnos();
+    if (!showAlumnos) fetchAlumnosByState("pendiente");
   };
 
   const modalStyle = {
