@@ -111,6 +111,37 @@ function TableData() {
     setAnchorEl(null);
     setSelectedAlumno(null);
   };
+ 
+  
+  const descargarTesis = async (rut) => {
+    try {
+      const response = await axios.get(
+        `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      if (response.data.size > 0) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Tesis_${rut}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        Swal.fire(
+          "No encontrado",
+          "No se encontró la tesis solicitada.",
+          "error"
+        );
+      }
+    } catch (error) {
+      Swal.fire("Error", "La tesis solicitada no existe.", "error");
+      console.error("Error descargando la tesis:", error);
+    }
+  };
 
   const handleAprobados = () => {
     fetchAlumnosByState("aprobado");
