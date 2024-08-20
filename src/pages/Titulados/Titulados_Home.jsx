@@ -67,7 +67,7 @@ function TituladosHome() {
 
     const formData = new FormData();
     formData.append("file", file);
-    const endpoint = `http://localhost:4000/api/archivos/${id}`;
+    const endpoint = `https://apisst.administracionpublica-uv.cl/api/archivos/${id}`;
 
     try {
       const response = await axios.post(endpoint, formData, {
