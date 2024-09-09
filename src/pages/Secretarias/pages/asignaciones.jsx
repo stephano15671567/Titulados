@@ -30,135 +30,141 @@ import DashBoard from "../Dashboard/DashBoard";
 export default function Asignaciones() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [showAssignments, setShowAssignments] = useState(false);
+  const [error, setError] = useState("");
+  const [alumnos, setAlumnos] = useState([]);
+  const [profesores, setProfesores] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [selectedAlumno, setSelectedAlumno] = useState("");
+  const [formDataEdit, setFormDataEdit] = useState({
+    profesor: "",
+    rol: "",
+  });
+
+  const toggleAssignments = async () => {
+    await fetchFetchedAssignments(); // Asegurarse de actualizar las asignaciones antes de mostrarlas
+    setShowAssignments(!showAssignments);
+  };
 
   const handleModifyClick = (assignment) => {
     setCurrentAssignment(assignment);
     setEditModalOpen(true);
   };
 
-  const [open, setOpen] = useState(false);
-  const [showAssignments, setShowAssignments] = useState(false);
-  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const handleOpen = () => setOpen(true);
   const handleCloseedit = () => setEditModalOpen(false);
 
-  const [error, setError] = useState("");
-  const [alumnos, setAlumnos] = useState([]);
-  const [profesores, setProfesores] = useState([]);
-  const [assignments, setAssignments] = useState({}); // { [alumnoId]: { profesorId, rol } }
-  const toggleAssignments = () => {
-    setShowAssignments(!showAssignments); // Toggle the visibility of the assignments table
+  const handleAlumnoChange = (event) => {
+    const alumnoId = event.target.value;
+    setSelectedAlumno(alumnoId);
+    fetchAssignments(alumnoId);
   };
-  
 
-  const [formDataEdit, setFormDataEdit] = useState({
-    alumno: "",
-    profesor: "",
-    rol: "",
-  });
-
-  const [formData, setFormData] = useState({
-    alumno: "",
-    profesor: "",
-    rol: "",
-  });
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
+  const handleProfesorChange = (rol, profesorId) => {
+    setAssignments((prevAssignments) => ({
+      ...prevAssignments,
+      [rol]: profesorId,
     }));
   };
-
-  const handleEditChange = (event) => {
-    const { name, value } = event.target;
-    setFormDataEdit((prevformDataEdit) => ({
-      ...prevformDataEdit,
-      [name]: value,
-    }));
-  };
-
-const handleNotify = async (assignmentId) => {
-  console.log("Notifying professor with ID:", assignmentId);
-  try {
-    await notificarCorreo(assignmentId);
-    // Mostrar mensaje de éxito con Swal
-    Swal.fire({
-      icon: 'success',
-      title: '¡Éxito!',
-      text: 'Se ha notificado al profesor correctamente.',
-    });
-  } catch (error) {
-    console.error("Error fetching fetched assignments:", error);
-    // Mostrar mensaje de error con Swal
-    Swal.fire({
-      icon: 'error',
-      title: '¡Error!',
-      text: 'Hubo un problema al notificar al profesor. Inténtalo de nuevo más tarde.',
-    });
-  }
-}; 
- 
-  const handleDownload = (assignment) => {
-    console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`);
-  };
-
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/alumnos");
+      const response = await axios.get("http://localhost:4000/api/alumnos");
       setAlumnos(response.data);
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error fetching alumnos:", error);
+    }
+  };
+
+  const fetchProfesores = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/profesores");
+      setProfesores(response.data);
+    } catch (error) {
+      console.error("Error fetching profesores:", error);
+    }
+  };
+
+  const fetchAssignments = async (alumnoId) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/asignaciones/${alumnoId}`);
+      const assignmentsMap = response.data.reduce((acc, curr) => {
+        acc[curr.rol] = curr.profesor_id || "";
+        return acc;
+      }, {});
+      setAssignments(assignmentsMap);
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+    }
+  };
+
+  const handleAssign = async () => {
+    try {
+      const roles = ["guia", "informante", "secretario", "presidente"];
+      for (const rol of roles) {
+        if (assignments[rol]) {
+          await axios.post("http://localhost:4000/api/asignaciones", {
+            alumnoId: selectedAlumno,
+            profesorId: assignments[rol],
+            rol,
+          });
+        }
+      }
+      Swal.fire("Éxito", "Asignaciones guardadas correctamente", "success");
+      handleClose(); // Cerrar el modal después de guardar
+      fetchFetchedAssignments(); // Actualizar las asignaciones para visualizarlas sin recargar
+    } catch (error) {
+      console.error("Error al asignar profesores:", error);
+      setError("Error al asignar profesores");
     }
   };
 
   const notificarCorreo = async (assignmentId) => {
     try {
-      const response = await axios.post(
-        `https://apisst.administracionpublica-uv.cl/api/correo_send/notificar/${assignmentId}/`
-      );
+      const response = await axios.post(`http://localhost:4000/api/correo_send/notificar/${assignmentId}/`);
       console.log("Correo enviado:", response.data);
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error al enviar correo:", error);
     }
   };
 
-
-  const fetchProfesores = async () => {
+  const handleNotify = async (assignmentId) => {
     try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
-      setProfesores(response.data);
+      await notificarCorreo(assignmentId);
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Se ha notificado al profesor correctamente.',
+      });
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      Swal.fire({
+        icon: 'error',
+        title: '¡Error!',
+        text: 'Hubo un problema al notificar al profesor. Inténtalo de nuevo más tarde.',
+      });
     }
+  };
+
+  const handleDownload = (assignment) => {
+    console.log("Downloading assignment with ID:", assignment.alumno_RUT);
+    window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
   };
 
   const fetchFetchedAssignments = async () => {
     try {
-      const response = await axios.get(
-        "https://apisst.administracionpublica-uv.cl/api/asignaciones"
-      );
-      setAssignments(response.data);
+      const response = await axios.get("http://localhost:4000/api/asignaciones");
+      setAssignments(response.data || []); // Aseguramos que sea un array
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
+      setAssignments([]); // Si hay error, aseguramos que assignments sea un array vacío
     }
   };
 
-  useEffect(() => {
-    fetchAlumnos();
-    fetchProfesores();
-    fetchFetchedAssignments();
-  }, []);
-
   const handleDeletedb = async (assignmentId) => {
     try {
-      const response = await axios.delete(
-        `https://apisst.administracionpublica-uv.cl/api/asignaciones/${assignmentId}`
-      );
+      const response = await axios.delete(`http://localhost:4000/api/asignaciones/${assignmentId}`);
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
     } catch (error) {
@@ -166,98 +172,60 @@ const handleNotify = async (assignmentId) => {
     }
   };
 
-  
-
   const handleDelete = (assignmentId) => {
-  console.log("Deleting assignment with ID:", assignmentId);
-
-  // Mostrar mensaje de confirmación utilizando Swal
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: "¡No podrás revertir esto!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sí, eliminarlo!'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Si el usuario confirma, eliminar la asignación
-      handleDeletedb(assignmentId);
-    } else {
-      // Si el usuario cancela, no hacer nada
-      console.log("Eliminación cancelada por el usuario.");
-    }
-  });
-};
-
-  const modifyAssignment = async (alumnoId) => {
-  setError("");
-
-  try {
-    const response = await axios.put(
-      `https://apisst.administracionpublica-uv.cl/api/asignaciones/${currentAssignment.asignacion_id}`,
-      {
-        alumnoId: currentAssignment.alumno_RUT,
-        profesorId: formDataEdit.profesor,
-        rol: formDataEdit.rol,
-
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esto!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminarlo!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeletedb(assignmentId);
       }
-    );
-    console.log("Updated assignment data:", response.data);
-    fetchFetchedAssignments();
-    setEditModalOpen(false); // Close the modal
-
-    // Mostrar mensaje de éxito con Swal
-    Swal.fire(
-      'Asignación actualizada',
-      'La asignación ha sido actualizada con éxito.',
-      'success'
-    );
-  } catch (error) {
-    console.log(error);
-    setError("No se puede asignar al mismo profesor");
-  }
-};
-
-  const handleModify = (alumnoId) => {
-    alumnoId.preventDefault();
-    modifyAssignment();
-    fetchFetchedAssignments();
+    });
   };
 
-  const handleAssign = async (alumnoId) => {
-  alumnoId.preventDefault();
-  setError("");
-  try {
-    const response = await axios.post(
-      "https://apisst.administracionpublica-uv.cl/api/asignaciones",
-      {
-        alumnoId: formData.alumno,
-        profesorId: formData.profesor,
-        rol: formData.rol,
-      }
-    );
-    // Handle success
+  const modifyAssignment = async () => {
+    setError("");
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+        {
+          alumnoId: currentAssignment.alumno_RUT,
+          profesorId: formDataEdit.profesor,
+          rol: formDataEdit.rol,
+        }
+      );
+      console.log("Updated assignment data:", response.data);
+      fetchFetchedAssignments();
+      setEditModalOpen(false);
+      Swal.fire('Asignación actualizada', 'La asignación ha sido actualizada con éxito.', 'success');
+    } catch (error) {
+      setError("No se puede asignar al mismo profesor");
+    }
+  };
+
+  const handleModify = (event) => {
+    event.preventDefault();
+    modifyAssignment();
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setFormDataEdit((prevFormDataEdit) => ({
+      ...prevFormDataEdit,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    fetchAlumnos();
+    fetchProfesores();
     fetchFetchedAssignments();
-    console.log("Asignación creada:", response.data);
-
-    // Mostrar mensaje de éxito con Swal
-    Swal.fire(
-      'Asignación creada',
-      'La asignación ha sido creada con éxito.',
-      'success'
-    );
-
-    // Cerrar la ventana modal después de un breve retraso
-    setTimeout(() => {
-      handleClose();
-    }, 1000); // 1000ms = 1 segundo (puedes ajustar este valor según tu preferencia)
-  } catch (error) {
-    console.error("Error al crear asignación:", error.response.data);
-    setError("Alumno ya fue previamente asignado");
-  }
-};
+  }, []);
 
   const modalStyle = {
     position: "absolute",
@@ -270,19 +238,20 @@ const handleNotify = async (assignmentId) => {
     boxShadow: 24,
     p: 4,
   };
+
   return (
     <>
-  <DashBoard/>
-     <Box sx={{ display: 'flex', justifyContent: 'center', mb: '10px' }}>
-  <Box mr={1}>
-    <Button variant="contained" onClick={handleOpen} color="success">
-      Generar Asignación
-    </Button>
-  </Box>
-  <Button variant="contained" onClick={toggleAssignments} color="error">
-    Visualizar Asignaciones
-  </Button>
-</Box> 
+      <DashBoard />
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '10px' }}>
+        <Box mr={1}>
+          <Button variant="contained" onClick={handleOpen} color="success">
+            Generar Asignación
+          </Button>
+        </Box>
+        <Button variant="contained" onClick={toggleAssignments} color="error">
+          Visualizar Asignaciones
+        </Button>
+      </Box>
 
       <Modal
         open={open}
@@ -291,39 +260,15 @@ const handleNotify = async (assignmentId) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2, // Margin bottom for spacing
-            }}
-          >
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Crear Asignación
-            </Typography>
-            <Button
-              variant="outlined"
-              onClick={handleClose}
-              startIcon={<HighlightOffIcon />}
-            >
-              Cerrar
-            </Button>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">Crear Asignación</Typography>
+            <Button variant="outlined" onClick={handleClose} startIcon={<HighlightOffIcon />}>Cerrar</Button>
           </Box>
-          <Box component="form" onSubmit={handleAssign} sx={{ mt: 2 }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+          <Box sx={{ mt: 2 }}>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Alumno</InputLabel>
-              <Select
-                name="alumno"
-                value={formData.alumno || ""}
-                label="Alumno"
-                onChange={handleInputChange}
-              >
+              <Select value={selectedAlumno || ""} label="Alumno" onChange={handleAlumnoChange}>
                 {alumnos.map((alumno) => (
                   <MenuItem key={alumno.RUT} value={alumno.RUT}>
                     {alumno.nombre}
@@ -332,49 +277,33 @@ const handleNotify = async (assignmentId) => {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Profesor</InputLabel>
-              <Select
-                name="profesor"
-                value={formData.profesor || ""}
-                label="Profesor"
-                onChange={handleInputChange}
-              >
-                {profesores.map((profesor) => (
-                  <MenuItem
-                    key={profesor.profesor_id}
-                    value={profesor.profesor_id}
-                  >
-                    {profesor.nombre}
-                  </MenuItem>
+            {selectedAlumno && (
+              <>
+                <Typography variant="h6">Asignar Profesores</Typography>
+                {["guia", "informante", "secretario", "presidente"].map((rol) => (
+                  <Box key={rol} sx={{ mb: 2 }}>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel>{rol.charAt(0).toUpperCase() + rol.slice(1)}</InputLabel>
+                      <Select value={assignments[rol] || ""} onChange={(e) => handleProfesorChange(rol, e.target.value)}>
+                        <MenuItem value="">No Asignado</MenuItem>
+                        {profesores.map((profesor) => (
+                          <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
+                            {profesor.nombre}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 ))}
-              </Select>
-            </FormControl>
+              </>
+            )}
 
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Rol</InputLabel>
-              <Select
-                name="rol"
-                value={formData.rol}
-                label="Rol"
-                onChange={handleInputChange}
-              >
-                <MenuItem value="guia">Guía</MenuItem>
-                <MenuItem value="informante">Informante</MenuItem>
-                <MenuItem value="secretario">Secretario</MenuItem>
-                <MenuItem value="presidente">Presidente</MenuItem>
-                
-              </Select>
-            </FormControl>
-
-            <Button variant="contained" type="submit">
-              Crear Asignación
-            </Button>
+            <Button variant="contained" onClick={handleAssign}>Guardar Asignaciones</Button>
           </Box>
         </Box>
       </Modal>
-      
-      {showAssignments && (
+
+      {showAssignments && Array.isArray(assignments) && assignments.length > 0 && (
         <TableContainer component={Paper} style={{ width: '50%', float: 'right', marginRight: '10px' }}>
           <Table>
             <TableHead>
@@ -392,20 +321,12 @@ const handleNotify = async (assignmentId) => {
                   <TableCell>{assignment.nombre_profesor}</TableCell>
                   <TableCell>{assignment.rol}</TableCell>
                   <TableCell>
-                  <div>
-                  <Button onClick={() => handleModifyClick(assignment)} startIcon={<EditIcon />} size="small" style={{ marginBottom: '8px' }}>
-                    Modificar
-                  </Button>
-                  <Button onClick={() => handleDelete(assignment.asignacion_id)} startIcon={<DeleteIcon />} color="error" size="small" style={{ marginBottom: '8px' }}>
-                    Eliminar
-                  </Button>
-                  <Button onClick={() => handleNotify(assignment.asignacion_id)} startIcon={<AttachEmailIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>
-                    Notificar profesor
-                  </Button>
-                  <Button onClick={() => handleDownload(assignment)} startIcon={<RemoveRedEyeIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>
-                    Ver Ficha
-                  </Button>
-                  </div>
+                    <div>
+                      <Button onClick={() => handleModifyClick(assignment)} startIcon={<EditIcon />} size="small" style={{ marginBottom: '8px' }}>Modificar</Button>
+                      <Button onClick={() => handleDelete(assignment.asignacion_id)} startIcon={<DeleteIcon />} color="error" size="small" style={{ marginBottom: '8px' }}>Eliminar</Button>
+                      <Button onClick={() => handleNotify(assignment.asignacion_id)} startIcon={<AttachEmailIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>Notificar profesor</Button>
+                      <Button onClick={() => handleDownload(assignment)} startIcon={<RemoveRedEyeIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>Ver Ficha</Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -413,101 +334,46 @@ const handleNotify = async (assignmentId) => {
           </Table>
         </TableContainer>
       )}
+
       <Modal
         open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={handleCloseedit}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Modificar Asignación
-          </Typography>
+          <Typography id="modal-modal-title" variant="h6" component="h2">Modificar Asignación</Typography>
           {currentAssignment && (
             <>
-              <Box sx={modalStyle}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 2, // Margin bottom for spacing
-                  }}
-                >
-                  
-                  <Typography
-                    id="modal-modal-title"
-                    variant="h6"
-                    component="h2"
-                  >
-                    Modificar asignación
-                  </Typography>
+              <Box component="form" onSubmit={handleModify} sx={{ mt: 2 }}>
+                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                <InputLabel>Alumno</InputLabel>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <Input disabled defaultValue={currentAssignment.alumno_RUT + " " + currentAssignment.alumno_nombre} />
+                </FormControl>
 
-                  <Button
-                    variant="outlined"
-                    onClick={handleCloseedit}
-                    startIcon={<HighlightOffIcon />}
-                  >
-                    Cerrar
-                  </Button>
-                </Box>
-                <Box component="form" onSubmit={handleModify} sx={{ mt: 2 }}>
-                  {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      {error}
-                    </Alert>
-                  )}
-                  <InputLabel>Alumno</InputLabel>
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <Input
-                      disabled
-                      defaultValue={
-                        currentAssignment.alumno_RUT +
-                        " " +
-                        currentAssignment.alumno_nombre
-                      }
-                    />
-                  </FormControl>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Profesor</InputLabel>
+                  <Select name="profesor" value={formDataEdit.profesor || ""} label="Profesor" onChange={handleEditChange}>
+                    {profesores.map((profesor) => (
+                      <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
+                        {profesor.nombre}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Profesor</InputLabel>
-                    <Select
-                      name="profesor"
-                      value={formDataEdit.profesor || ""}
-                      label="Profesor"
-                      onChange={handleEditChange}
-                    >
-                      {profesores.map((profesor) => (
-                        <MenuItem
-                          key={profesor.profesor_id}
-                          value={profesor.profesor_id}
-                        >
-                          {profesor.nombre}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Rol</InputLabel>
+                  <Select name="rol" value={formDataEdit.rol} label="Rol" onChange={handleEditChange}>
+                    <MenuItem value="guia">Guía</MenuItem>
+                    <MenuItem value="informante">Informante</MenuItem>
+                    <MenuItem value="secretario">Secretario</MenuItem>
+                    <MenuItem value="presidente">Presidente</MenuItem>
+                  </Select>
+                </FormControl>
 
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Rol</InputLabel>
-                    <Select
-                      name="rol"
-                      value={formDataEdit.rol}
-                      label="Rol"
-                      onChange={handleEditChange}
-                    >
-                      <MenuItem value="guia">Guía</MenuItem>
-                      <MenuItem value="informante">Informante</MenuItem>
-                      <MenuItem value="secretario">Secretario</MenuItem>
-                      <MenuItem value="presidente">Presidente</MenuItem>
-
-                    </Select>
-                  </FormControl>
-
-                  <Button variant="contained" type="submit">
-                    Modificar Asignación
-                  </Button>
-                </Box>
+                <Button variant="contained" type="submit">Modificar Asignación</Button>
               </Box>
             </>
           )}
