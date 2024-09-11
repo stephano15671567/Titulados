@@ -71,7 +71,7 @@ export default function Asignaciones() {
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/alumnos");
+      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/alumnos");
       setAlumnos(response.data);
     } catch (error) {
       console.error("Error fetching alumnos:", error);
@@ -80,7 +80,7 @@ export default function Asignaciones() {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/profesores");
+      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
       setProfesores(response.data);
     } catch (error) {
       console.error("Error fetching profesores:", error);
@@ -89,7 +89,7 @@ export default function Asignaciones() {
 
   const fetchAssignments = async (alumnoId) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/asignaciones/${alumnoId}`);
+      const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/asignaciones/${alumnoId}`);
       const assignmentsMap = response.data.reduce((acc, curr) => {
         acc[curr.rol] = curr.profesor_id || "";
         return acc;
@@ -100,12 +100,33 @@ export default function Asignaciones() {
     }
   };
 
+  const verificarRoles = (asignaciones) => {
+    const rolesProhibidos = [
+      { rol1: 'guia', rol2: 'informante' },
+      { rol1: 'secretario', rol2: 'presidente' },
+    ];
+
+    for (const { rol1, rol2 } of rolesProhibidos) {
+      if (asignaciones[rol1] && asignaciones[rol1] === asignaciones[rol2]) {
+        return `No se puede asignar el mismo profesor como ${rol1} y ${rol2} al mismo tiempo.`;
+      }
+    }
+    
+    return "";
+  };
+
   const handleAssign = async () => {
+    const errorRol = verificarRoles(assignments);
+    if (errorRol) {
+      setError(errorRol);
+      return;
+    }
+
     try {
       const roles = ["guia", "informante", "secretario", "presidente"];
       for (const rol of roles) {
         if (assignments[rol]) {
-          await axios.post("http://localhost:4000/api/asignaciones", {
+          await axios.post("https://apisst.administracionpublica-uv.cl/api/asignaciones", {
             alumnoId: selectedAlumno,
             profesorId: assignments[rol],
             rol,
@@ -123,7 +144,7 @@ export default function Asignaciones() {
 
   const notificarCorreo = async (assignmentId) => {
     try {
-      const response = await axios.post(`http://localhost:4000/api/correo_send/notificar/${assignmentId}/`);
+      const response = await axios.post(`https://apisst.administracionpublica-uv.cl/api/correo_send/notificar/${assignmentId}/`);
       console.log("Correo enviado:", response.data);
     } catch (error) {
       console.error("Error al enviar correo:", error);
@@ -149,12 +170,12 @@ export default function Asignaciones() {
 
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`http://localhost:4000/api/archivos/${assignment.alumno_RUT}`);
+    window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`);
   };
 
   const fetchFetchedAssignments = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/asignaciones");
+      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/asignaciones");
       setAssignments(response.data || []); // Aseguramos que sea un array
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -164,7 +185,7 @@ export default function Asignaciones() {
 
   const handleDeletedb = async (assignmentId) => {
     try {
-      const response = await axios.delete(`http://localhost:4000/api/asignaciones/${assignmentId}`);
+      const response = await axios.delete(`https://apisst.administracionpublica-uv.cl/api/asignaciones/${assignmentId}`);
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
     } catch (error) {
@@ -192,7 +213,7 @@ export default function Asignaciones() {
     setError("");
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/asignaciones/${currentAssignment.asignacion_id}`,
+        `https://apisst.administracionpublica-uv.cl/api/asignaciones/${currentAssignment.asignacion_id}`,
         {
           alumnoId: currentAssignment.alumno_RUT,
           profesorId: formDataEdit.profesor,

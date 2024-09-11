@@ -51,7 +51,7 @@ function TableData() {
   const handleSaveState = async () => {
     if (selectedAlumno && newState) {
       try {
-        await axios.patch("http://localhost:4000/api/states/", {
+        await axios.patch("https://apisst.administracionpublica-uv.cl/api/states/", {
           RUT: selectedAlumno.RUT,
           state: newState,
           comments: comments,
@@ -116,7 +116,7 @@ function TableData() {
   const descargarTesis = async (rut) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/archivos/descargar/tesis/${rut}`,
+        `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/tesis/${rut}`,
         {
           responseType: "blob",
         }
@@ -154,7 +154,7 @@ function TableData() {
   const handlePendientes = () => {
     fetchAlumnosByState("pendiente");
   };
-  const apiBaseUrl = "http://localhost:4000/api/alumnos/";
+  const apiBaseUrl = "https://apisst.administracionpublica-uv.cl/api/alumnos/";
 
   const fetchAlumnosByState = async (state) => {
     try {
@@ -164,7 +164,7 @@ function TableData() {
 
       // Fetch state-specific data
       const stateResponse = await axios.get(
-        `http://localhost:4000/api/states/${state}`
+        `https://apisst.administracionpublica-uv.cl/api/states/${state}`
       );
       const stateData = stateResponse.data || [];
 
@@ -178,7 +178,7 @@ function TableData() {
       const combinedData = await Promise.all(
         filteredStudentsData.map(async (alumno) => {
           const archivosResponse = await axios.get(
-            `http://localhost:4000/api/archivos/verificar/${alumno.RUT}`
+            `https://apisst.administracionpublica-uv.cl/api/archivos/verificar/${alumno.RUT}`
           );
           const archivosData = archivosResponse.data;
 
@@ -219,7 +219,7 @@ function TableData() {
 
   const handleDescargarRubrica = (tipo) => {
     if (selectedAlumno && selectedAlumno.RUT) {
-      const url = `http://localhost:4000/api/archivos/descargar/rubrica/${tipo}/con-notas/${selectedAlumno.RUT}`;
+      const url = `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/rubrica/${tipo}/con-notas/${selectedAlumno.RUT}`;
       fetch(url)
         .then((response) => {
           if (response.ok) {
@@ -255,12 +255,12 @@ function TableData() {
   const handleDescargarFicha = () => {
     if (selectedAlumno && selectedAlumno.RUT) {
       fetch(
-        `http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`
+        `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`
       )
         .then((response) => {
           if (response.ok) {
             window.open(
-              `http://localhost:4000/api/archivos/descargar/ficha/${selectedAlumno.RUT}`,
+              `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/ficha/${selectedAlumno.RUT}`,
               "_blank"
             );
           } else {
@@ -379,7 +379,7 @@ function TableData() {
   const addNotaDefensa = async () => {
     try {
       await axios.post(
-        "http://localhost:4000/api/notas/examenoral",
+        "https://apisst.administracionpublica-uv.cl/api/notas/examenoral",
         { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa }
       );
       Swal.fire(
@@ -451,7 +451,7 @@ function TableData() {
   const descargarActa = async (rut) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/archivos/descargar/acta/${rut}`,
+        `https://apisst.administracionpublica-uv.cl/api/archivos/descargar/acta/${rut}`,
         {
           responseType: "blob",
         }

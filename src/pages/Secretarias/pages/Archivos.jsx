@@ -4,8 +4,7 @@ import axios from 'axios';
 import DashBoard from '../Dashboard/DashBoard';
 import Swal from 'sweetalert2';
 
-import uploadFileIcon from '@mui/icons-material/FileUpload';
-import selectFileIcon from '@mui/icons-material/AttachFile';
+
 
 function FileUpload({ buttonSx }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,12 +30,17 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('http://localhost:4000/upload/', formData);
+      await axios.post('https://apisst.administracionpublica-uv.cl/upload/', formData); // Reemplaza con la URL adecuada
       setUploadStatus('Archivo subido con éxito');
     } catch (error) {
       setUploadStatus('Error al subir el archivo');
       console.error('Error al subir el archivo:', error);
     }
+  };
+
+  const handleDownloadReport = () => {
+    const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report'; // Reemplaza con la URL correcta del reporte
+    window.open(reportUrl, '_blank');
   };
 
   return (
@@ -59,6 +63,11 @@ function FileUpload({ buttonSx }) {
         </label>
         <Button variant="contained" fullWidth startIcon={<uploadFileIcon />} sx={{ bgcolor: '#4CAF50', color: 'white' }} onClick={handleFileUpload}>
           Subir Archivo
+        </Button>
+
+        {/* Botón para generar reporte */}
+        <Button variant="contained" fullWidth startIcon={<reportIcon />} sx={{ bgcolor: '#FFA726', color: 'white', mt: 2 }} onClick={handleDownloadReport}>
+          Reporte
         </Button>
       </Box>
       {uploadStatus && <Typography sx={{ mt: 2 }}>{uploadStatus}</Typography>}
