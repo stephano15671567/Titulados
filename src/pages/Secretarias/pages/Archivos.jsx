@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import axios from 'axios';
-import DashBoard from '../Dashboard/DashBoard';
 import Swal from 'sweetalert2';
-
-
 
 function FileUpload({ buttonSx }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -21,7 +18,7 @@ function FileUpload({ buttonSx }) {
         icon: 'warning',
         title: 'Por favor selecciona un archivo para subir',
         showConfirmButton: false,
-        timer: 2000 // Muestra el mensaje durante 2 segundos
+        timer: 2000
       });
       return;
     }
@@ -30,7 +27,7 @@ function FileUpload({ buttonSx }) {
     formData.append('archivo', selectedFile);
   
     try {
-      await axios.post('https://apisst.administracionpublica-uv.cl/upload/', formData); // Reemplaza con la URL adecuada
+      await axios.post('https://apisst.administracionpublica-uv.cl/upload/', formData);
       setUploadStatus('Archivo subido con éxito');
     } catch (error) {
       setUploadStatus('Error al subir el archivo');
@@ -39,13 +36,12 @@ function FileUpload({ buttonSx }) {
   };
 
   const handleDownloadReport = () => {
-    const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report'; // Reemplaza con la URL correcta del reporte
+    const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report'; 
     window.open(reportUrl, '_blank');
   };
 
   return (
     <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-      <DashBoard/>
       <Box sx={{ bgcolor: '#f0f0f0', p: 2, mb: 2, width: '100%' }}>
         <Typography variant="h6" mb={1}>Subir Archivo</Typography>
         <Typography variant="body1" mb={2}>Por favor selecciona un archivo y haz clic en "Subir Archivo".</Typography>
@@ -57,17 +53,16 @@ function FileUpload({ buttonSx }) {
           id="raised-button-file"
         />
         <label htmlFor="raised-button-file" style={{ width: '100%', marginBottom: '16px' }}>
-          <Button variant="contained" fullWidth startIcon={<selectFileIcon />} sx={{ bgcolor: '#0093ff', color: 'white' }} component="span">
+          <Button variant="contained" fullWidth sx={{ bgcolor: '#0093ff', color: 'white' }} component="span">
             Seleccionar archivo
           </Button>
         </label>
-        <Button variant="contained" fullWidth startIcon={<uploadFileIcon />} sx={{ bgcolor: '#4CAF50', color: 'white' }} onClick={handleFileUpload}>
+        <Button variant="contained" fullWidth sx={{ bgcolor: '#4CAF50', color: 'white' }} onClick={handleFileUpload}>
           Subir Archivo
         </Button>
 
-        {/* Botón para generar reporte */}
-        <Button variant="contained" fullWidth startIcon={<reportIcon />} sx={{ bgcolor: '#FFA726', color: 'white', mt: 2 }} onClick={handleDownloadReport}>
-          Reporte
+        <Button variant="contained" fullWidth sx={{ bgcolor: '#FFA726', color: 'white', mt: 2 }} onClick={handleDownloadReport}>
+          Descargar Reporte
         </Button>
       </Box>
       {uploadStatus && <Typography sx={{ mt: 2 }}>{uploadStatus}</Typography>}

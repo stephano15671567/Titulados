@@ -93,6 +93,16 @@ function TableData() {
     fetchAlumnosByState("pendiente");
   }, []);
 
+  useEffect(() => {
+    // Filtrar los alumnos por nombre o RUT en un solo campo de búsqueda
+    const filteredData = alumnos.filter(
+      (alumno) =>
+        alumno.nombre.toLowerCase().includes(filterState.toLowerCase()) ||
+        alumno.RUT.toLowerCase().includes(filterState.toLowerCase())
+    );
+    setFilteredAlumnos(filteredData);
+  }, [filterState, alumnos]);
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -110,6 +120,17 @@ function TableData() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedAlumno(null);
+  };
+
+  const ordenarPorApellidoAscendente = () => {
+    const alumnosOrdenados = [...filteredAlumnos].sort((a, b) => {
+      const apellidoA = a.nombre.split(" ").pop().toLowerCase();
+      const apellidoB = b.nombre.split(" ").pop().toLowerCase();
+      if (apellidoA < apellidoB) return -1;
+      if (apellidoA > apellidoB) return 1;
+      return 0;
+    });
+    setFilteredAlumnos(alumnosOrdenados);
   };
  
   
@@ -379,7 +400,7 @@ function TableData() {
   const addNotaDefensa = async () => {
     try {
       await axios.post(
-        "https://apisst.administracionpublica-uv.cl/api/notas/examenoral",
+        "/api/notas/examenoral",
         { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa }
       );
       Swal.fire(
@@ -528,6 +549,27 @@ function TableData() {
         {"  "}VER Alumnos Pendientes o cursando
       </Button>
 
+      <TextField
+  label="Buscar por Nombre o RUT"
+  variant="outlined"
+  size="small"
+  value={filterState}
+  onChange={(e) => setFilterState(e.target.value)}
+  style={{ marginRight: "10px" }}
+  InputProps={{
+    style: {
+      backgroundColor: "#ffffff", // Cambiar el color de fondo
+    },
+  }}
+/>
+<Button
+  variant="contained"
+  onClick={() => ordenarPorApellidoAscendente()}
+  style={{ backgroundColor: "#52b202", marginLeft: "10px" }}
+>
+  Ordenar por Apellido
+</Button>
+
       {showAlumnos && (
         <>
           <TableContainer component={Paper}>
@@ -550,10 +592,10 @@ function TableData() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {alumnos
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((alumno) => (
-                    <TableRow key={alumno.RUT}>
+                  {filteredAlumnos
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((alumno) => (
+                      <TableRow key={alumno.RUT}>
                       <TableCell>{alumno.nombre}</TableCell>
                       <TableCell>{alumno.RUT}</TableCell>
                       <TableCell>{alumno.CODIGO}</TableCell>
