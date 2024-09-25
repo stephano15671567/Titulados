@@ -40,6 +40,8 @@ const GuiaTable = () => {
   const [profesorId, setProfesorId] = useState(
     window.sessionStorage.getItem("id")
   );
+  const [tituloTesis, setTituloTesis] = useState(""); // Estado para el título de la tesis
+  const [tesisConfirmada, setTesisConfirmada] = useState(false); // Estado para confirmar la tesis
 
   const cargando = () => {
     Swal.fire({
@@ -107,12 +109,45 @@ const GuiaTable = () => {
     setNota(row.nota_guia || 1);
     setRubricaSubida(false);
     setFile(null);
+    setTituloTesis(""); // Limpiar el título de la tesis al abrir el modal
+    setTesisConfirmada(false); // Reiniciar confirmación
     setOpen(true);
   };
 
   const handleClose = () => {
+    console.log("Cerrando el modal..."); // Verificar en la consola si se ejecuta
     setOpen(false);
   };
+
+  const handleConfirmarTituloTesis = async () => {
+    if (!tituloTesis.trim()) {
+      Swal.fire("Error", "Debe ingresar un título de tesis válido.", "error");
+      return;
+    }
+  
+    cargando();
+  
+    const payload = {
+      tesis: tituloTesis, // Solo envía el campo tesis
+    };
+  
+    try {
+      // Usar la nueva ruta para actualizar solo el título de la tesis
+      await axios.patch(
+        `https://apisst.administracionpublica-uv.cl/api/alumnos/${selectedAlumno.alumno_RUT}/tesis`, 
+        payload
+      );
+  
+      setTesisConfirmada(true);
+      Swal.fire("¡Éxito!", "El título de la tesis ha sido guardado correctamente.", "success");
+      handleClose();
+    } catch (error) {
+      console.error("Error al guardar el título de la tesis:", error);
+      Swal.fire("Error", "No se pudo guardar el título de la tesis.", "error");
+      handleClose();
+    }
+  };
+  
 
   const handleConfirm = async () => {
     if (!file) {
@@ -143,6 +178,7 @@ const GuiaTable = () => {
         nota: parseFloat(nota).toFixed(1),
         profesor_id: profesorId,
         rol: "guia",
+        tesis: tituloTesis, // Enviar el título de la tesis
       };
 
       await axios.post(url, payload);
@@ -156,7 +192,7 @@ const GuiaTable = () => {
       setRubricaSubida(true);
       Swal.fire(
         "¡Éxito!",
-        "La rúbrica y la nota han sido subidas y guardadas.",
+        "La rúbrica, nota y título de la tesis han sido subidos y guardados.",
         "success"
       );
       handleClose();
@@ -266,7 +302,7 @@ const GuiaTable = () => {
                       variant="outlined"
                       onClick={() => handleClickOpen(row)}
                     >
-                      Gestionar Rúbrica, Nota y Tésis
+                      Gestionar Rúbrica, Nota y Tesis
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -284,7 +320,7 @@ const GuiaTable = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Gestionar Rúbrica y Nota del Alumno</DialogTitle>
+        <DialogTitle>Gestionar Rúbrica, Nota y Título de Tesis del Alumno</DialogTitle>
         <DialogContent>
           <Typography variant="body2" gutterBottom>
             Nota del Guía (Ingrese un valor entre 1 y 7, con un solo decimal):
@@ -314,6 +350,32 @@ const GuiaTable = () => {
             <IconButton onClick={handleIncrement} disabled={nota >= 7}>
               <Add />
             </IconButton>
+          </Box>
+          <TextField
+            margin="dense"
+            id="tituloTesis"
+            label="Título de la Tesis"
+            type="text"
+            fullWidth
+            value={tituloTesis}
+            onChange={(e) => setTituloTesis(e.target.value)}
+            variant="outlined"
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
+            <Button
+              onClick={handleConfirmarTituloTesis}
+              variant="contained"
+              color="primary"
+              disabled={tesisConfirmada}
+            >
+              Confirmar Título de Tesis
+            </Button>
           </Box>
           <Box sx={{ display: "flex", gap: "10px", justifyContent: "center" }}>
             <Button onClick={handleDownload}>Descargar Rúbrica</Button>
