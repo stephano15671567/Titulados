@@ -807,7 +807,8 @@ function TableData() {
                       style={{
                         display: "flex",
                         justifyContent: "flex-end",
-                        backgroundColor: "#737373",
+                        backgroundColor: "#73737",
+                        color: "white",
                         width: "118%",
                         margin: "1",
                         padding: "0px",
