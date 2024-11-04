@@ -36,6 +36,7 @@ export default function Asignaciones() {
   const [alumnos, setAlumnos] = useState([]);
   const [profesores, setProfesores] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [roleAssignments, setRoleAssignments] = useState({});
   const [selectedAlumno, setSelectedAlumno] = useState("");
   const [formDataEdit, setFormDataEdit] = useState({
     profesor: "",
@@ -50,6 +51,10 @@ export default function Asignaciones() {
   const handleModifyClick = (assignment) => {
     setCurrentAssignment(assignment);
     setEditModalOpen(true);
+    setFormDataEdit({
+      profesor: assignment.profesor_id,
+      rol: assignment.rol,
+    });
   };
 
   const handleClose = () => setOpen(false);
@@ -63,8 +68,8 @@ export default function Asignaciones() {
   };
 
   const handleProfesorChange = (rol, profesorId) => {
-    setAssignments((prevAssignments) => ({
-      ...prevAssignments,
+    setRoleAssignments((prevRoleAssignments) => ({
+      ...prevRoleAssignments,
       [rol]: profesorId,
     }));
   };
@@ -72,7 +77,8 @@ export default function Asignaciones() {
   const fetchAlumnos = async () => {
     try {
       const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/alumnos");
-      setAlumnos(response.data);
+      const sortedAlumnos = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre)); // Ordena alfabéticamente por nombre
+      setAlumnos(sortedAlumnos);
     } catch (error) {
       console.error("Error fetching alumnos:", error);
     }
@@ -81,7 +87,8 @@ export default function Asignaciones() {
   const fetchProfesores = async () => {
     try {
       const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
-      setProfesores(response.data);
+      const sortedProfesores = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre)); // Ordena alfabéticamente por nombre
+      setProfesores(sortedProfesores);
     } catch (error) {
       console.error("Error fetching profesores:", error);
     }
@@ -94,7 +101,7 @@ export default function Asignaciones() {
         acc[curr.rol] = curr.profesor_id || "";
         return acc;
       }, {});
-      setAssignments(assignmentsMap);
+      setRoleAssignments(assignmentsMap);
     } catch (error) {
       console.error("Error fetching assignments:", error);
     }
@@ -111,12 +118,11 @@ export default function Asignaciones() {
         return `No se puede asignar el mismo profesor como ${rol1} y ${rol2} al mismo tiempo.`;
       }
     }
-    
     return "";
   };
 
   const handleAssign = async () => {
-    const errorRol = verificarRoles(assignments);
+    const errorRol = verificarRoles(roleAssignments);
     if (errorRol) {
       setError(errorRol);
       return;
@@ -124,18 +130,35 @@ export default function Asignaciones() {
 
     try {
       const roles = ["guia", "informante", "secretario", "presidente"];
+      const newAssignments = [];
+
       for (const rol of roles) {
-        if (assignments[rol]) {
-          await axios.post("https://apisst.administracionpublica-uv.cl/api/asignaciones", {
+        if (roleAssignments[rol]) {
+          const response = await axios.post("https://apisst.administracionpublica-uv.cl/api/asignaciones", {
             alumnoId: selectedAlumno,
-            profesorId: assignments[rol],
+            profesorId: roleAssignments[rol],
             rol,
+          });
+
+          // Obtener asignacion_id y fechaAsignacion desde response.data
+          const { asignacion_id, fechaAsignacion } = response.data;
+
+          // Buscar los nombres de alumno y profesor para mostrarlos en la tabla
+          newAssignments.push({
+            alumno_nombre: alumnos.find(alumno => alumno.RUT === selectedAlumno).nombre,
+            nombre_profesor: profesores.find(profesor => profesor.profesor_id === roleAssignments[rol]).nombre,
+            rol,
+            fechaAsignacion, // Usamos la fecha proporcionada por el backend
+            asignacion_id,
+            alumno_RUT: selectedAlumno,
+            profesor_id: roleAssignments[rol],
           });
         }
       }
+
+      setAssignments((prevAssignments) => [...prevAssignments, ...newAssignments]); // Actualizar el estado con las nuevas asignaciones
       Swal.fire("Éxito", "Asignaciones guardadas correctamente", "success");
-      handleClose(); // Cerrar el modal después de guardar
-      fetchFetchedAssignments(); // Actualizar las asignaciones para visualizarlas sin recargar
+      handleClose();
     } catch (error) {
       console.error("Error al asignar profesores:", error);
       setError("Error al asignar profesores");
@@ -175,8 +198,8 @@ export default function Asignaciones() {
 
   const fetchFetchedAssignments = async () => {
     try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/asignaciones");
-      setAssignments(response.data || []); // Aseguramos que sea un array
+      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/asignaciones/");
+      setAssignments(response.data || []); // Asegurarse de que siempre sea un array
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
       setAssignments([]); // Si hay error, aseguramos que assignments sea un array vacío
@@ -305,7 +328,7 @@ export default function Asignaciones() {
                   <Box key={rol} sx={{ mb: 2 }}>
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel>{rol.charAt(0).toUpperCase() + rol.slice(1)}</InputLabel>
-                      <Select value={assignments[rol] || ""} onChange={(e) => handleProfesorChange(rol, e.target.value)}>
+                      <Select value={roleAssignments[rol] || ""} onChange={(e) => handleProfesorChange(rol, e.target.value)}>
                         <MenuItem value="">No Asignado</MenuItem>
                         {profesores.map((profesor) => (
                           <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
@@ -325,13 +348,14 @@ export default function Asignaciones() {
       </Modal>
 
       {showAssignments && Array.isArray(assignments) && assignments.length > 0 && (
-        <TableContainer component={Paper} style={{ width: '50%', float: 'right', marginRight: '10px' }}>
+        <TableContainer component={Paper} style={{ width: '90%', marginLeft: '300px', marginTop: '20px' }}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Alumno</TableCell>
                 <TableCell>Profesor</TableCell>
                 <TableCell>Rol</TableCell>
+                <TableCell>Fecha de Asignación</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -341,6 +365,7 @@ export default function Asignaciones() {
                   <TableCell>{assignment.alumno_nombre}</TableCell>
                   <TableCell>{assignment.nombre_profesor}</TableCell>
                   <TableCell>{assignment.rol}</TableCell>
+                  <TableCell>{new Date(assignment.fechaAsignacion).toLocaleString()}</TableCell>
                   <TableCell>
                     <div>
                       <Button onClick={() => handleModifyClick(assignment)} startIcon={<EditIcon />} size="small" style={{ marginBottom: '8px' }}>Modificar</Button>
@@ -363,7 +388,6 @@ export default function Asignaciones() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">Modificar Asignación</Typography>
           {currentAssignment && (
             <>
               <Box component="form" onSubmit={handleModify} sx={{ mt: 2 }}>

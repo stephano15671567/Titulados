@@ -164,7 +164,7 @@ function TableDataProfesores() {
         variant="contained"
          style={{ marginBottom: '20px', background: '#52b202'}}>
         <AddCircleOutlineIcon />
-        {'  '}Agregar Alumno     
+        {'  '}Agregar Profesor   
       </Button>
       </div>
       <DashBoard/>

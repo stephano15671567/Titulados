@@ -126,18 +126,20 @@ export default function Asignaciones() {
   };
 
   const fetchProfesores = async () => {
-    try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
-      setProfesores(response.data);
-    } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
-    }
-  };
+  try {
+    const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
+    const sortedProfesores = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre)); // Ordena alfabéticamente por nombre
+    setProfesores(sortedProfesores);
+  } catch (error) {
+    console.error("Error fetching profesores:", error);
+  }
+};
+c
 
   const fetchFetchedAssignments = async () => {
     try {
       const response = await axios.get(
-        "https://apisst.administracionpublica-uv.cl/api/asignaciones"
+        "https://apisst.administracionpublica-uv.cl/api/asignaciones/"
       );
       setAssignments(response.data);
     } catch (error) {

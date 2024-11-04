@@ -37,15 +37,6 @@ function TituladosHome() {
     });
   };
 
-  const falla = () => {
-    Swal.fire({
-      title: "Error",
-      text: "No se pudo generar la carta",
-      icon: "error",
-      confirmButtonText: "Ok",
-    });
-  };
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -75,7 +66,7 @@ function TituladosHome() {
       });
       Swal.fire(
         "Subida exitosa",
-        "Su ficha a sido subida correctamente",
+        "Su ficha ha sido subida correctamente",
         "success"
       );
     } catch (err) {
@@ -169,7 +160,7 @@ function TituladosHome() {
               título.
             </Typography>
             <input
-              accept=".docx"
+              accept="*"
               style={{ display: "none" }}
               id="upload-ficha"
               type="file"
