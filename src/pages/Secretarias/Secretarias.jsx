@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
-import { Box, Container, Paper, Typography, Button } from '@mui/material';
-import axios from 'axios';  // Importamos axios para hacer la solicitud
-import DashBoard from './Dashboard/DashBoard';
+import React from 'react';
+import { Container, Paper, Typography, Button } from '@mui/material';
+import axios from 'axios';
 
 function SecretariaView() {
-  const [showTable, setShowTable] = useState(false);
-  const [showProfesoresTable, setShowProfesoresTable] = useState(false);
-  const [showAsignacionesTable, setShowAsignacionesTable] = useState(false); 
-
   const buttonSx = {
     mt: 2,
     mb: 2,
@@ -18,22 +13,31 @@ function SecretariaView() {
     color: 'white',
   };
 
-  // URL para la descarga del reporte en producción
-  const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report'; 
+  const reportUrl = 'https://apisst.administracionpublica-uv.cl/api/report/download-report';
 
   const handleDownloadReport = async () => {
     try {
-      // Realizamos la solicitud GET para descargar el archivo Excel
-      const response = await axios.get(reportUrl, { responseType: 'blob' });
+      // Supongamos que el token está en localStorage con clave 'authToken'
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Debes iniciar sesión para descargar el reporte');
+        return;
+      }
 
-      // Creamos una URL de descarga del archivo
+      const response = await axios.get(reportUrl, {
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'reporte.xlsx'; // Nombre del archivo que se descargará
+      a.download = 'reporte.xlsx';
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);  // Eliminamos el enlace una vez descargado
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Error al descargar el reporte:', error);
       alert('Hubo un problema al descargar el reporte.');
@@ -46,10 +50,7 @@ function SecretariaView() {
         <Typography variant="h5" gutterBottom>
           Generar Reporte de Titulados
         </Typography>
-        <Button
-          sx={buttonSx}
-          onClick={handleDownloadReport} // Llama a la función de descarga
-        >
+        <Button sx={buttonSx} onClick={handleDownloadReport}>
           Descargar Reporte Excel
         </Button>
       </Paper>
