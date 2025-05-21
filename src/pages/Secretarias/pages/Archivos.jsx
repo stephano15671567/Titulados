@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Typography,
@@ -16,13 +16,13 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import DashBoard from "../Dashboard/DashBoard";
 import { DataGrid } from "@mui/x-data-grid";
-import { set } from "date-fns";
-import { useEffect } from "react";
+
 function FileUpload({ buttonSx }) {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
-  const [students, setStudents] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState("");
@@ -30,19 +30,15 @@ function FileUpload({ buttonSx }) {
   const [studentRut, setStudentRut] = useState("");
   const [type, setType] = useState("");
   const [file, setFile] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Search query state
   const [guiaNumber, setGuiaNumber] = useState("");
   const [guiaTesisName, setGuiaTesisName] = useState(1.0);
   const [informanteNumber, setInformanteNumber] = useState(1.0);
-  const [menuAnchorEls, setMenuAnchorEls] = useState({});
+  const [loadingDownload, setLoadingDownload] = useState(false);
 
   useEffect(() => {
     const fetchFollowUps = async () => {
       try {
-        const response = await axios.get(
-          `https://apisst.administracionpublica-uv.cl/api/alumnos/`
-        );
+        const response = await axios.get(`https://apisst.administracionpublica-uv.cl/api/alumnos/`);
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching students:", error);
@@ -50,7 +46,7 @@ function FileUpload({ buttonSx }) {
     };
 
     fetchFollowUps();
-  });
+  }, []);
 
   const filteredUsers = users.filter((user) =>
     user.nombre.toLowerCase().includes(searchQuery.toLowerCase())
@@ -90,15 +86,17 @@ function FileUpload({ buttonSx }) {
     setDialogOpen(true);
     setAnchorEl(null);
   };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedFile(null);
   };
-  const handleFileChangeStudent = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
 
-    const fileExtension = file.name.split(".").pop().toLowerCase();
+  const handleFileChangeStudent = (event) => {
+    const selected = event.target.files[0];
+    if (!selected) return;
+
+    const fileExtension = selected.name.split(".").pop().toLowerCase();
     const acceptedExtensions = acceptedFileTypes
       .split(",")
       .map((ext) => ext.trim().slice(1));
@@ -113,7 +111,7 @@ function FileUpload({ buttonSx }) {
       return;
     }
 
-    setFile(file);
+    setFile(selected);
     setUploadStatus("");
   };
 
@@ -142,36 +140,22 @@ function FileUpload({ buttonSx }) {
         try {
           setDialogOpen(false);
           const formData = new FormData();
-          if (!file) {
-            Swal.fire({
-              icon: "error",
-              title: "Por favor selecciona un archivo para subir",
-              showConfirmButton: false,
-              timer: 2000,
-            });
-            return;
-          }
           formData.append("file", file);
           Swal.fire({
             title: "Por favor espera",
             text: "Subiendo archivo...",
             allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
+            didOpen: () => Swal.showLoading(),
           });
           await axios.post(
             `https://apisst.administracionpublica-uv.cl/api/archivos/${studentRut}`,
             formData
           );
           Swal.close();
-          Swal.fire(
-            "Subida exitosa",
-            "Ficha ha sido subida correctamente",
-            "success"
-          );
+          Swal.fire("Subida exitosa", "Ficha ha sido subida correctamente", "success");
           setFile(null);
         } catch (error) {
+          Swal.close();
           Swal.fire(
             "Error",
             "Hubo un error al subir el archivo, pruebe nuevamente más tarde.",
@@ -180,14 +164,14 @@ function FileUpload({ buttonSx }) {
           console.error("Error al subir el archivo:", error);
           setFile(null);
         }
-        setFile(null);
         break;
+
       case "guia":
         try {
           setDialogOpen(false);
           const formData = new FormData();
           formData.append("file", file);
-          if (!guiaNumber || !guiaTesisName || !file) {
+          if (!guiaNumber || !guiaTesisName) {
             Swal.fire({
               icon: "error",
               title: "Campos vacíos",
@@ -200,59 +184,41 @@ function FileUpload({ buttonSx }) {
             title: "Por favor espera",
             text: "Subiendo archivo...",
             allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
+            didOpen: () => Swal.showLoading(),
           });
           await axios.post(
             `https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/guia/${studentRut}`,
             formData,
             {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
+              headers: { "Content-Type": "multipart/form-data" },
             }
           );
-          const payload = {
-            tesis: guiaTesisName,
-          };
-          await axios.patch(
-            `https://apisst.administracionpublica-uv.cl/api/alumnos/${studentRut}/tesis`,
-            payload
-          );
+          const payload = { tesis: guiaTesisName };
+          await axios.patch(`https://apisst.administracionpublica-uv.cl/api/alumnos/${studentRut}/tesis`, payload);
           const asignment = await axios.get(
             `https://apisst.administracionpublica-uv.cl/api/notas/obtainid/${studentRut}`
           );
-          const profesorId = asignment.data.find(
-            (item) => item.rol === "guia"
-          ).profesor_id;
+          const profesorId = asignment.data.find((item) => item.rol === "guia").profesor_id;
           const payloadNotas = {
             alumno_RUT: studentRut,
             nota: guiaNumber,
             profesor_id: profesorId,
             rol: "guia",
           };
-          await axios.post(
-            `https://apisst.administracionpublica-uv.cl/api/notas/upsert`,
-            payloadNotas
-          );
+          await axios.post(`https://apisst.administracionpublica-uv.cl/api/notas/upsert`, payloadNotas);
           Swal.close();
-          Swal.fire(
-            "Subida exitosa",
-            "Rúbrica de guía ha sido subida correctamente",
-            "success"
-          );
+          Swal.fire("Subida exitosa", "Rúbrica de guía ha sido subida correctamente", "success");
           setFile(null);
         } catch (error) {
           console.error("Error al subir el archivo:", error);
           setFile(null);
         }
-        setFile(null);
         break;
+
       case "informante":
         try {
           setDialogOpen(false);
-          if (!informanteNumber || !file) {
+          if (!informanteNumber) {
             Swal.fire({
               icon: "error",
               title: "Campos vacíos",
@@ -265,9 +231,7 @@ function FileUpload({ buttonSx }) {
             title: "Por favor espera",
             text: "Subiendo archivo...",
             allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
+            didOpen: () => Swal.showLoading(),
           });
           const formData = new FormData();
           formData.append("file", file);
@@ -275,27 +239,20 @@ function FileUpload({ buttonSx }) {
             `https://apisst.administracionpublica-uv.cl/api/archivos/subir/rubrica/informante/${studentRut}`,
             formData,
             {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
+              headers: { "Content-Type": "multipart/form-data" },
             }
           );
           const asignment = await axios.get(
             `https://apisst.administracionpublica-uv.cl/api/notas/obtainidinformante/${studentRut}`
           );
-          const profesorId = asignment.data.find(
-            (item) => item.rol === "informante"
-          ).profesor_id;
+          const profesorId = asignment.data.find((item) => item.rol === "informante").profesor_id;
           const payload = {
             alumno_RUT: studentRut,
             nota: informanteNumber,
             profesor_id: profesorId,
             rol: "informante",
           };
-          await axios.post(
-            `https://apisst.administracionpublica-uv.cl/api/notas/upsert`,
-            payload
-          );
+          await axios.post(`https://apisst.administracionpublica-uv.cl/api/notas/upsert`, payload);
           Swal.close();
           Swal.fire(
             "Subida exitosa",
@@ -309,6 +266,7 @@ function FileUpload({ buttonSx }) {
           setFile(null);
         }
         break;
+
       case "tesis":
         try {
           setDialogOpen(false);
@@ -325,9 +283,7 @@ function FileUpload({ buttonSx }) {
             title: "Por favor espera",
             text: "Subiendo archivo...",
             allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
+            didOpen: () => Swal.showLoading(),
           });
           const formData = new FormData();
           formData.append("tesis", file);
@@ -335,17 +291,11 @@ function FileUpload({ buttonSx }) {
             `https://apisst.administracionpublica-uv.cl/api/archivos/subir/tesis/${studentRut}`,
             formData,
             {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            })
-
-          Swal.close();
-          Swal.fire(
-            "Subida exitosa",
-            "Tesis ha sido subida correctamente",
-            "success"
+              headers: { "Content-Type": "multipart/form-data" },
+            }
           );
+          Swal.close();
+          Swal.fire("Subida exitosa", "Tesis ha sido subida correctamente", "success");
           setFile(null);
         } catch (error) {
           Swal.close();
@@ -360,7 +310,7 @@ function FileUpload({ buttonSx }) {
       default:
         setFile(null);
         setDialogOpen(false);
-        studentRut("");
+        setStudentRut("");
         console.error("Tipo de archivo no válido");
     }
   };
@@ -385,10 +335,7 @@ function FileUpload({ buttonSx }) {
     formData.append("archivo", selectedFile);
 
     try {
-      await axios.post(
-        "https://apisst.administracionpublica-uv.cl/upload/",
-        formData
-      );
+      await axios.post("https://apisst.administracionpublica-uv.cl/upload/", formData);
       setUploadStatus("Archivo subido con éxito");
     } catch (error) {
       setUploadStatus("Error al subir el archivo");
@@ -396,14 +343,51 @@ function FileUpload({ buttonSx }) {
     }
   };
 
-  const handleDownloadReport = () => {
-    const reportUrl =
-      "https://apisst.administracionpublica-uv.cl/api/report/download-report";
-    window.open(reportUrl, "_blank");
-  };
+  // Aquí la función corregida para descargar el reporte con token y fetch
+  const handleDownloadReport = async () => {
+    const token = window.sessionStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "No autenticado",
+        text: "Por favor inicia sesión para descargar el reporte",
+      });
+      return;
+    }
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setLoadingDownload(true);
+
+    try {
+      const response = await fetch("https://apisst.administracionpublica-uv.cl/api/report/download-report", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al descargar el archivo");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reporte.xlsx";
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error al descargar",
+        text: error.message || "Hubo un problema al descargar el reporte",
+      });
+      console.error("Error al descargar el archivo:", error);
+    } finally {
+      setLoadingDownload(false);
+    }
   };
 
   const columns = [
@@ -416,15 +400,6 @@ function FileUpload({ buttonSx }) {
       renderCell: (params) => {
         return (
           <Box>
-            {/*
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => console.log(`alo ${params.row.rut}`)}
-            >
-              Ver Alumno
-            </Button>
-            */}
             <Button variant="contained" color="primary" onClick={handleClick}>
               Subir archivo
             </Button>
@@ -433,9 +408,7 @@ function FileUpload({ buttonSx }) {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
+              MenuListProps={{ "aria-labelledby": "basic-button" }}
             >
               <MenuItem onClick={() => handleClose("ficha", params.row.RUT)}>
                 Ficha del estudiante
@@ -443,9 +416,7 @@ function FileUpload({ buttonSx }) {
               <MenuItem onClick={() => handleClose("guia", params.row.RUT)}>
                 Rúbrica de Guía
               </MenuItem>
-              <MenuItem
-                onClick={() => handleClose("informante", params.row.RUT)}
-              >
+              <MenuItem onClick={() => handleClose("informante", params.row.RUT)}>
                 Rúbrica de informante
               </MenuItem>
               <MenuItem onClick={() => handleClose("tesis", params.row.RUT)}>
@@ -457,14 +428,11 @@ function FileUpload({ buttonSx }) {
       },
     },
   ];
-  const handleMenuClick = (event, studentId) => {
-    setMenuAnchorEls((prev) => ({ ...prev, [studentId]: event.currentTarget }));
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = (studentId) => {
-    setMenuAnchorEls((prev) => ({ ...prev, [studentId]: null }));
-    setAnchorEl(null);
-  };
   return (
     <main>
       <DashBoard />
@@ -511,18 +479,20 @@ function FileUpload({ buttonSx }) {
           >
             Subir Archivo
           </Button>
-          <Box sx={{ marginBottom: 2, width: "100%" }}></Box>
 
           <Button
             variant="contained"
             fullWidth
             sx={{ bgcolor: "#FFA726", color: "white", mt: 2 }}
             onClick={handleDownloadReport}
+            disabled={loadingDownload}
           >
-            Descargar Reporte
+            {loadingDownload ? "Descargando..." : "Descargar Reporte"}
           </Button>
         </Box>
+
         {uploadStatus && <Typography sx={{ mt: 2 }}>{uploadStatus}</Typography>}
+
         <Box sx={{ bgcolor: "#f0f0f0", p: 2, mb: 2, width: "100%" }}>
           <Typography variant="h6" mb={1}>
             Subir archivos manualmente a alumnos
@@ -536,78 +506,68 @@ function FileUpload({ buttonSx }) {
           />
           <DataGrid
             initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 10, // Set the initial page size to 10
-                  page: 0, // Start at the first page
-                },
-              },
+              pagination: { paginationModel: { pageSize: 10, page: 0 } },
             }}
             pageSizeOptions={[10, 100, { value: users.length, label: "All" }]}
-            rows={filteredUsers} // Use filtered users
+            rows={filteredUsers}
             columns={columns}
             getRowId={(row) => row.RUT}
             sx={{ height: "100%", width: "100%" }}
           />
         </Box>
+
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogTitle>Opción seleccionada</DialogTitle>
           <DialogContent>
             <DialogContentText>{dialogContent}</DialogContentText>
-            {type === "guia" && (
+            {(type === "guia" || type === "informante") && (
               <>
-                <TextField
-                  label="Nota de Guía"
-                  variant="outlined"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  required
-                  type="number"
-                  inputProps={{
-                    step: "0.1", // Allow increments of 0.1
-                    min: 1.0, // Minimum value
-                    max: 7.0, // Maximum value
-                  }}
-                  onChange={(e) => {
-                    let value = parseFloat(e.target.value);
-                    if (value < 1.0) value = 1.0;
-                    if (value > 7.0) value = 7.0;
-                    setGuiaNumber(value);
-                  }}
-                  value={guiaNumber}
-                />
-                <TextField
-                  label="Nombre Tesis"
-                  variant="outlined"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  required
-                  onChange={(e) => setGuiaTesisName(e.target.value)} // Add state for guía tesis name
-                />
-              </>
-            )}
-            {type === "informante" && (
-              <>
-                <TextField
-                  label="Nota de Informante"
-                  variant="outlined"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  required
-                  type="number"
-                  inputProps={{
-                    step: "0.1", // Allow increments of 0.1
-                    min: 1.0, // Minimum value
-                    max: 7.0, // Maximum value
-                  }}
-                  onChange={(e) => {
-                    let value = parseFloat(e.target.value);
-                    if (value < 1.0) value = 1.0;
-                    if (value > 7.0) value = 7.0;
-                    setInformanteNumber(value);
-                  }}
-                  value={informanteNumber}
-                />
+                {type === "guia" && (
+                  <TextField
+                    label="Nota de Guía"
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    required
+                    type="number"
+                    inputProps={{ step: "0.1", min: 1.0, max: 7.0 }}
+                    onChange={(e) => {
+                      let value = parseFloat(e.target.value);
+                      if (value < 1.0) value = 1.0;
+                      if (value > 7.0) value = 7.0;
+                      setGuiaNumber(value);
+                    }}
+                    value={guiaNumber}
+                  />
+                )}
+                {type === "guia" && (
+                  <TextField
+                    label="Nombre Tesis"
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    required
+                    onChange={(e) => setGuiaTesisName(e.target.value)}
+                  />
+                )}
+                {type === "informante" && (
+                  <TextField
+                    label="Nota de Informante"
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    required
+                    type="number"
+                    inputProps={{ step: "0.1", min: 1.0, max: 7.0 }}
+                    onChange={(e) => {
+                      let value = parseFloat(e.target.value);
+                      if (value < 1.0) value = 1.0;
+                      if (value > 7.0) value = 7.0;
+                      setInformanteNumber(value);
+                    }}
+                    value={informanteNumber}
+                  />
+                )}
               </>
             )}
             {(type === "ficha" ||

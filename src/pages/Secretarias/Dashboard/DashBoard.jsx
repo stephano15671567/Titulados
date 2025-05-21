@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -27,7 +27,6 @@ function DashBoard(props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showSignIn, setShowSignIn] = useState(true); // Cambiar a false cuando inicia sesión
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -45,12 +44,11 @@ function DashBoard(props) {
   };
 
   const handleNavigate = (path) => {
-    setIsLoading(true); // Inicia la animación de carga
+    setIsLoading(true);
     navigate(path);
-    // Simulando un tiempo de carga (podrías hacer una llamada a una API aquí)
     setTimeout(() => {
-      setIsLoading(false); // Completa la animación de carga
-    }, 1000); // Simula una carga de 1 segundo
+      setIsLoading(false);
+    }, 1000);
   };
 
   const drawer = (
@@ -84,9 +82,7 @@ function DashBoard(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      {isLoading && <div className="loader">
-      
-      </div>} {/* Agrega la animación de carga */}
+      {isLoading && <div className="loader"></div>}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -103,15 +99,12 @@ function DashBoard(props) {
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': 
-            { boxSizing: 'border-box',
-             width: drawerWidth,
-            },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >
           {drawer}
         </Drawer>
-        
+
         <Drawer
           variant="permanent"
           sx={{
@@ -122,6 +115,12 @@ function DashBoard(props) {
         >
           {drawer}
         </Drawer>
+      </Box>
+
+      {/* Aquí renderizamos el contenido según la ruta */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Outlet />
       </Box>
     </Box>
   );

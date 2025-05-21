@@ -25,7 +25,7 @@ function HomeSecretaria() {
       if (!token) return;
 
       const res = await axios.post(
-        "http://localhost:4000/api/secretarias/ver",
+        "https://apisst.administracionpublica-uv.cl/api/secretarias/ver",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -33,9 +33,7 @@ function HomeSecretaria() {
         win.setItem("status", res.data.status);
         win.setItem("rol", res.data.rol);
         win.setItem("token", res.data.token);
-        // campus
         win.setItem("campus", res.data.campus);
-
         setUser({ rol: "secretaria", status: true });
         setShowSignIn(false);
       } else {
@@ -62,16 +60,20 @@ function HomeSecretaria() {
   // Google
   useEffect(() => {
     /* global google */
-    if (showSignIn && window.google) {
+    if (showSignIn && window.google && !window.__GSI_PROMPT_STARTED__) {
+      window.__GSI_PROMPT_STARTED__ = true; // ←✅ evita múltiples llamados simultáneos
+
       google.accounts.id.initialize({
         client_id: "376536263555-11knv0d7p87f1o5aa97mjnm2m2b297ir.apps.googleusercontent.com",
         callback: handleCallbackResponse,
       });
+
       google.accounts.id.renderButton(document.getElementById("signIn"), {
         theme: "filled_blue",
         size: "large",
         text: "continue_with",
       });
+
       google.accounts.id.prompt();
     }
   }, [showSignIn]);
@@ -79,15 +81,14 @@ function HomeSecretaria() {
   const handleCallbackResponse = async (response) => {
     try {
       const backendResp = await axios.post(
-        "http://localhost:4000/api/secretarias/auth",
+        "https://apisst.administracionpublica-uv.cl/api/secretarias/auth",
         { token: response.credential }
       );
-      const decoded = jwtDecode(backendResp.data); 
+      const decoded = jwtDecode(backendResp.data);
 
       win.setItem("status", decoded.status);
       win.setItem("rol", decoded.rol);
       win.setItem("token", backendResp.data);
-      // campus
       win.setItem("campus", decoded.campus);
 
       setUser({ rol: decoded.rol, status: decoded.status });
@@ -113,12 +114,7 @@ function HomeSecretaria() {
           <Button
             variant="contained"
             onClick={() => navigate("/")}
-            sx={{
-              position: "absolute",
-              top: 20,
-              left: 20,
-              zIndex: 1000,
-            }}
+            sx={{ position: "absolute", top: 20, left: 20, zIndex: 1000 }}
             startIcon={<ArrowBackIcon />}
           >
             Atrás
@@ -159,5 +155,3 @@ function HomeSecretaria() {
 }
 
 export default HomeSecretaria;
-
-
