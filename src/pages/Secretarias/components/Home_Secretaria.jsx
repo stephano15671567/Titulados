@@ -1,152 +1,106 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, TextField, Button, Paper, Typography } from "@mui/material";
-import { jwtDecode } from "jwt-decode";
-import { Outlet } from "react-router";
+// src/pages/Secretarias/components/Home_Secretaria.jsx
+
+import React, { useEffect, useState } from "react";
+import { Box, Paper, Typography, Button } from "@mui/material";
+import { jwtDecode } from 'jwt-decode';
 import axios from "axios";
+import BackgroundTransition from "../../../BackgroundTransition/BackgroundTransition";
 import background1 from "../../Home/components/images/imag_valparaiso.jpg";
 import background2 from "../../Home/components/images/imagen_2.jpg";
 import background3 from "../../Home/components/images/imagen_3.jpg";
 import background4 from "../../Home/components/images/imagen_4.jpg";
 import background5 from "../../Home/components/images/imagen_5.jpg";
-import BackgroundTransition from "../../../BackgroundTransition/BackgroundTransition";
-import LogoutIcon from '@mui/icons-material/Logout';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DashBoard from "../Dashboard/DashBoard";
-import Swal from "sweetalert2";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Outlet, useNavigate } from "react-router-dom";
 
-function SecretariasHome() {
+function HomeSecretaria() {
   const navigate = useNavigate();
-  const win = window.sessionStorage; //Variable de sesión
-  const [user, setUser] = useState({});
-  const [showSignIn, setShowSignIn] = useState(!win.getItem("status")); // Show if no token
+  const win = window.sessionStorage;
+  const [showSignIn, setShowSignIn] = useState(!win.getItem("status"));
+  const [user, setUser] = useState({ rol: "", status: false });
 
   const verifyToken = async () => {
     try {
+      const token = win.getItem("token");
+      if (!token) return;
+
       const res = await axios.post(
-        "https://apisst.administracionpublica-uv.cl/api/secretarias/ver/",
+        "http://localhost:4000/api/secretarias/ver",
         {},
-        {
-          headers: {
-            authorization: "Bearer " + win.getItem("token"),
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (res.data.status === true) {
+      if (res.data.status && res.data.rol === "secretaria") {
         win.setItem("status", res.data.status);
         win.setItem("rol", res.data.rol);
         win.setItem("token", res.data.token);
-        setUser({ rol: win.getItem("rol") });
+        // campus
+        win.setItem("campus", res.data.campus);
+
+        setUser({ rol: "secretaria", status: true });
         setShowSignIn(false);
-        return true;
+      } else {
+        win.clear();
+        setShowSignIn(true);
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error verifying token Secretaria:", error);
       win.clear();
       setShowSignIn(true);
-      return false;
     }
   };
 
   useEffect(() => {
     if (win.getItem("status") === "true" && win.getItem("rol") === "secretaria") {
-      if (win.getItem("token") !== null) {
-        verifyToken();
-      }
+      verifyToken();
     } else {
       win.clear();
       setShowSignIn(true);
     }
+    // eslint-disable-next-line
   }, []);
 
-  //Global de google
+  // Google
   useEffect(() => {
     /* global google */
-    google.accounts.id.initialize({
-      client_id:
-        "376536263555-11knv0d7p87f1o5aa97mjnm2m2b297ir.apps.googleusercontent.com",
-      callback: handleCallbackResponse,
-    });
-
-    if (showSignIn) {
+    if (showSignIn && window.google) {
+      google.accounts.id.initialize({
+        client_id: "376536263555-11knv0d7p87f1o5aa97mjnm2m2b297ir.apps.googleusercontent.com",
+        callback: handleCallbackResponse,
+      });
       google.accounts.id.renderButton(document.getElementById("signIn"), {
         theme: "filled_blue",
         size: "large",
         text: "continue_with",
       });
-
       google.accounts.id.prompt();
     }
   }, [showSignIn]);
 
-  const handleToken = async (response) => {
+  const handleCallbackResponse = async (response) => {
     try {
-      const res = await axios.post(
-        "https://apisst.administracionpublica-uv.cl/api/secretarias/auth/",
-        {
-          token: response.credential,
-        }
+      const backendResp = await axios.post(
+        "http://localhost:4000/api/secretarias/auth",
+        { token: response.credential }
       );
-      const usuario = jwtDecode(res.data);
-      /*SETEO DE CREDENCIALES*/
-      win.setItem("status", usuario.status);
-      win.setItem("rol", usuario.rol);
-      win.setItem("token", res.data);
-      setUser({ rol: usuario.rol });
-      setShowSignIn(false); // Hide signIn button
-      return true;
+      const decoded = jwtDecode(backendResp.data); 
+
+      win.setItem("status", decoded.status);
+      win.setItem("rol", decoded.rol);
+      win.setItem("token", backendResp.data);
+      // campus
+      win.setItem("campus", decoded.campus);
+
+      setUser({ rol: decoded.rol, status: decoded.status });
+      setShowSignIn(false);
     } catch (err) {
-      console.error("Error during token verification: ", err);
-      return false;
+      console.error("Error login Secretaria:", err);
     }
   };
-  //GUARDAR TOKEN ENCRIPTADO EN VARIABLE DE CONTEXTO
 
-  function handleCallbackResponse(response) {
-    handleToken(response);
-  }
-
-  function handleSignOut() {
-    Swal.fire({
-      title: "Seguro quieres cerrar sesión?",
-      text: "Tendrás que iniciar sesión de nuevo para acceder a tus archivos",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Si, cerrar sesión"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setUser({});
-        win.clear();
-        setShowSignIn(true); // Show signIn button
-          }
-    });
-    
-  }
-
-  const containerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    padding: "20px",
-  };
-
-  const formContainerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: "20px",
-    background: "lightgray",
-    padding: "20px",
-    width: "100%",
-    maxWidth: "1000px",
-  };
-
-  const leftTextStyle = {
-    fontSize: "15px",
+  const handleSignOut = () => {
+    win.clear();
+    setUser({ rol: "", status: false });
+    setShowSignIn(true);
   };
 
   return (
@@ -154,76 +108,56 @@ function SecretariasHome() {
       images={[background1, background2, background3, background4, background5]}
       duration={5000}
     >
-      <Box style={containerStyle}>
-        {showSignIn && (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100vh"
-          >
-          <Button variant="contained" 
-          onClick={() => navigate('/')} // Replace '/' with your ../home route
-          sx={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            zIndex: 1000,
-          }}
-          startIcon={<ArrowBackIcon />}>
-          Atras
-          </Button>
-            <Paper elevation={10} sx={{ padding: 3, width: "400px" }}> {/* Standardized width */}
-              <Typography variant="h5" gutterBottom textAlign="center">
-                Inicie sesión con su correo institucional
-              </Typography>
-              <Box
-                sx={{
-                  marginTop: 2,
-                  backgroundColor: "#4285F4",
-                  "&:hover": {
-                    backgroundColor: "#357ae8",
-                  },
-                }}
-                id="signIn"
-              >
-                Iniciar Sesión con Google
-              </Box>
-            </Paper>
-          </Box>
-        )}
-        {user.rol && (
-          <Box
+      {showSignIn && (
+        <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+          <Button
+            variant="contained"
+            onClick={() => navigate("/")}
             sx={{
-              height: '100vh',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'flex-start', // Asegura que el contenido se alinee al inicio del contenedor
+              position: "absolute",
+              top: 20,
+              left: 20,
+              zIndex: 1000,
             }}
+            startIcon={<ArrowBackIcon />}
           >
-            <Button
-              onClick={handleSignOut}
-              variant="contained"
-              color="secondary"
-              startIcon={<LogoutIcon />}
+            Atrás
+          </Button>
+          <Paper elevation={10} sx={{ p: 3, width: 400 }}>
+            <Typography variant="h5" textAlign="center" gutterBottom>
+              Inicia sesión con tu correo institucional
+            </Typography>
+            <Box
+              id="signIn"
               sx={{
-                marginTop: 4, // Ajusta este valor según sea necesario
-                alignSelf: 'flex-end', // Alinea el botón a la derecha
-                marginRight: 2, // Ajusta el margen derecho para posicionar correctamente el botón
+                mt: 2,
+                backgroundColor: "#4285F4",
+                "&:hover": { backgroundColor: "#357ae8" },
               }}
             >
-              Salir
-            </Button>
-            <Outlet />
-          </Box>
-          
-        )}
-      </Box>
+              Iniciar Sesión con Google
+            </Box>
+          </Paper>
+        </Box>
+      )}
+
+      {!showSignIn && user.rol === "secretaria" && (
+        <Box sx={{ position: "relative", minHeight: "100vh" }}>
+          <Button
+            onClick={handleSignOut}
+            variant="contained"
+            color="secondary"
+            sx={{ position: "absolute", top: 20, right: 20 }}
+          >
+            Cerrar Sesión
+          </Button>
+          <Outlet />
+        </Box>
+      )}
     </BackgroundTransition>
   );
 }
 
-export default SecretariasHome;
+export default HomeSecretaria;
+
 
