@@ -14,10 +14,10 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import Swal from "sweetalert2";
-import DashBoard from "../Dashboard/DashBoard";
+import DashBoard from "../Dashboard/DashBoard"; // Mantener esta importación
 import { DataGrid } from "@mui/x-data-grid";
 
-function FileUpload({ buttonSx }) {
+function Archivos() {
   const [selectedFile, setSelectedFile] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
   const [users, setUsers] = useState([]);
@@ -343,7 +343,6 @@ function FileUpload({ buttonSx }) {
     }
   };
 
-  // Aquí la función corregida para descargar el reporte con token y fetch
   const handleDownloadReport = async () => {
     const token = window.sessionStorage.getItem("token");
     if (!token) {
@@ -433,15 +432,19 @@ function FileUpload({ buttonSx }) {
     setAnchorEl(event.currentTarget);
   };
 
+  const drawerWidth = 240;
+  const appBarHeight = 64;
+
   return (
     <main>
-      <DashBoard />
+      <DashBoard /> {/* Se mantiene aquí */}
       <Box
         sx={{
-          width: "150%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
+          ml: { sm: `${drawerWidth}px` }, // Margen izquierdo para compensar el Drawer
+          mt: `${appBarHeight}px`, // Margen superior para compensar el AppBar
+          p: 3, // Padding general para el contenido
+          width: { sm: `calc(100% - ${drawerWidth}px)` }, // Ajustar el ancho para no desbordar
+          boxSizing: 'border-box', // Asegurar que el padding no añada ancho extra
         }}
       >
         <Box sx={{ bgcolor: "#f0f0f0", p: 2, mb: 2, width: "100%" }}>
@@ -574,31 +577,31 @@ function FileUpload({ buttonSx }) {
               type === "guia" ||
               type === "informante" ||
               type === "tesis") && (
-              <input
-                type="file"
-                onChange={handleFileChangeStudent}
-                accept={acceptedFileTypes}
-                style={{ display: "block", marginTop: "16px" }}
-              />
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={handleFileUploadStudent}
-              disabled={
-                !file ||
-                (type === "guia" && (!guiaNumber || !guiaTesisName)) ||
-                (type === "informante" && !informanteNumber)
-              }
-            >
-              Subir Archivo
-            </Button>
-            <Button onClick={handleDialogClose}>Cerrar</Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
+            <input
+              type="file"
+              onChange={handleFileChangeStudent}
+              accept={acceptedFileTypes}
+              style={{ display: "block", marginTop: "16px" }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleFileUploadStudent}
+            disabled={
+              !file ||
+              (type === "guia" && (!guiaNumber || !guiaTesisName)) ||
+              (type === "informante" && !informanteNumber)
+            }
+          >
+            Subir Archivo
+          </Button>
+          <Button onClick={handleDialogClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
     </main>
   );
 }
 
-export default FileUpload;
+export default Archivos;

@@ -1,7 +1,7 @@
 import React from "react";
-import CustomTable from "./Notificaciones";
+import CustomTable from "../components/CustomTable"; // Corrected import path
 import DashBoard from "../Dashboard/DashBoard";
-import { Button, Paper, Typography } from "@mui/material";
+import { Button, Paper, Typography, Box } from "@mui/material";
 
 function NotificacionesTable() {
   const rows = [
@@ -30,21 +30,45 @@ function NotificacionesTable() {
       revisado: 1,
     },
   ];
-  console.log(rows)
+  console.log(rows);
+
+  const drawerWidth = 240; // Definir aquí
+  const appBarHeight = 64; // Altura típica
 
   return (
-    <div>
-      <DashBoard />
-      <Paper>
-        <Typography typography="h4"> Notificaciones </Typography>
-        <Typography typography="h5"> Filtrar por </Typography>
-        <Button color="success">Revisados</Button>
-        <Button color="warning">No Revisados</Button>
-        <Button color="info">Por fecha</Button>
-      </Paper>
+    <>
+      <DashBoard /> {/* Se mantiene aquí */}
+      <Box
+        component="main"
+        sx={{
+          ml: { sm: `${drawerWidth}px` },
+          mt: `${appBarHeight}px`,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          boxSizing: "border-box",
+        }}
+      >
+        <Paper sx={{ mb: 2, p: 2 }}>
+          <Typography variant="h4" gutterBottom>
+            {" "}
+            Notificaciones{" "}
+          </Typography>
+          <Typography variant="h5" gutterBottom>
+            {" "}
+            Filtrar por{" "}
+          </Typography>
+          <Button color="success" sx={{ mr: 1 }}>
+            Revisados
+          </Button>
+          <Button color="warning" sx={{ mr: 1 }}>
+            No Revisados
+          </Button>
+          <Button color="info">Por fecha</Button>
+        </Paper>
 
-      <CustomTable rows={rows} />
-    </div>
+        <CustomTable rows={rows} />
+      </Box>
+    </>
   );
 }
 

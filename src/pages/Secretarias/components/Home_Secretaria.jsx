@@ -12,8 +12,9 @@ import background4 from "../../Home/components/images/imagen_4.jpg";
 import background5 from "../../Home/components/images/imagen_5.jpg";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Outlet, useNavigate } from "react-router-dom";
+// NO importar DashBoard aquí si se va a renderizar en cada página hija.
 
-function HomeSecretaria() {
+function HomeSecretaria() { // Mantengo el nombre de la función como en tu código
   const navigate = useNavigate();
   const win = window.sessionStorage;
   const [showSignIn, setShowSignIn] = useState(!win.getItem("status"));
@@ -61,7 +62,7 @@ function HomeSecretaria() {
   useEffect(() => {
     /* global google */
     if (showSignIn && window.google && !window.__GSI_PROMPT_STARTED__) {
-      window.__GSI_PROMPT_STARTED__ = true; // ←✅ evita múltiples llamados simultáneos
+      window.__GSI_PROMPT_STARTED__ = true; 
 
       google.accounts.id.initialize({
         client_id: "376536263555-11knv0d7p87f1o5aa97mjnm2m2b297ir.apps.googleusercontent.com",
@@ -138,6 +139,10 @@ function HomeSecretaria() {
       )}
 
       {!showSignIn && user.rol === "secretaria" && (
+        // Este Box es el contenedor de las rutas de Secretarias.
+        // Las rutas hijas (Archivos, GestionAlumnos, etc.) se renderizarán en el <Outlet />.
+        // Estos hijos tendrán su propio DashBoard, lo cual no es lo ideal,
+        // pero es lo que pides al querer "mantener todo igual" y solo añadir márgenes.
         <Box sx={{ position: "relative", minHeight: "100vh" }}>
           <Button
             onClick={handleSignOut}
@@ -147,7 +152,7 @@ function HomeSecretaria() {
           >
             Cerrar Sesión
           </Button>
-          <Outlet />
+          <Outlet /> {/* Aquí se renderizarán tus páginas de secretaría */}
         </Box>
       )}
     </BackgroundTransition>

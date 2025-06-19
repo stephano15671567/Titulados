@@ -1,3 +1,5 @@
+// src/pages/Secretarias/Dashboard/DashBoard.jsx
+
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
@@ -17,7 +19,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Quitamos Outlet de aquí
+
 
 const drawerWidth = 240;
 
@@ -82,12 +85,37 @@ function DashBoard(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      {isLoading && <div className="loader"></div>}
+      {/* El AppBar superior (header) */}
+      <AppBar
+        position="fixed" // Fijo para que se mantenga arriba
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Panel de Secretaría
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* El Drawer (barra lateral de navegación) */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
+        {/* Drawer temporal para móviles */}
         <Drawer
           container={container}
           variant="temporary"
@@ -95,7 +123,7 @@ function DashBoard(props) {
           onTransitionEnd={handleDrawerTransitionEnd}
           onClose={handleDrawerClose}
           ModalProps={{
-            keepMounted: true,
+            keepMounted: true, 
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
@@ -105,6 +133,7 @@ function DashBoard(props) {
           {drawer}
         </Drawer>
 
+        {/* Drawer permanente para desktops */}
         <Drawer
           variant="permanent"
           sx={{
@@ -117,11 +146,12 @@ function DashBoard(props) {
         </Drawer>
       </Box>
 
-      {/* Aquí renderizamos el contenido según la ruta */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
-        <Outlet />
-      </Box>
+      {/* Si DashBoard se renderiza en cada página, NO DEBE TENER <Outlet /> AQUÍ.
+          El <Outlet /> es responsabilidad del componente que actúa como LAYOUT
+          que envuelve este DashBoard.
+          Si lo quitas de aquí, el contenido de la página se mostrará,
+          pero sin margen si no lo pones en las páginas individuales. */}
+      {isLoading && <div className="loader"></div>} 
     </Box>
   );
 }
