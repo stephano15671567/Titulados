@@ -1,0 +1,7 @@
+services:
+  nextjs:
+    image: chiii1998/titulados:latest
+    container_name: titulados
+    restart: always
+    ports:
+      - "6969:3000"

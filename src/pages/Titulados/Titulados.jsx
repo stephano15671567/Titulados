@@ -17,7 +17,7 @@ function Titulados() {
   const win = window.sessionStorage; //Variable de sesión
   const [user, setUser] = useState({});
   const [showSignIn, setShowSignIn] = useState(!win.getItem("status")); // Show if no token
-  
+  // Verificar si el token es válido
   const verifyToken = async () => {
     try {
       const res = await axios.post(
