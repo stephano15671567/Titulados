@@ -334,13 +334,13 @@ export default function Asignaciones() {
                     setFormData((prev) => ({ ...prev, alumno: e.target.value }))
                   }
                 >
-              
-                  {/* Asegura que selectedAlumno se use correctamente */}
-                  {alumnos.map((alumno) => (
-                    <MenuItem key={alumno.RUT} value={alumno.RUT}>
-                      {alumno.nombre}
-                    </MenuItem>
-                  ))}
+                  {[...alumnos]
+                    .sort((a, b) => a.nombre.localeCompare(b.nombre))
+                    .map((alumno) => (
+                      <MenuItem key={alumno.RUT} value={alumno.RUT}>
+                        {alumno.nombre}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
 
