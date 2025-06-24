@@ -3,9 +3,9 @@ import axios from "axios";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import AttachEmailIcon from '@mui/icons-material/AttachEmail';
-import Swal from 'sweetalert2';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import AttachEmailIcon from "@mui/icons-material/AttachEmail";
+import Swal from "sweetalert2";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import {
   Box,
   Table,
@@ -84,28 +84,32 @@ export default function Asignaciones() {
     try {
       await notificarCorreo(assignmentId);
       Swal.fire({
-        icon: 'success',
-        title: '¡Éxito!',
-        text: 'Se ha notificado al profesor correctamente.',
+        icon: "success",
+        title: "¡Éxito!",
+        text: "Se ha notificado al profesor correctamente.",
       });
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
       Swal.fire({
-        icon: 'error',
-        title: '¡Error!',
-        text: 'Hubo un problema al notificar al profesor. Inténtalo de nuevo más tarde.',
+        icon: "error",
+        title: "¡Error!",
+        text: "Hubo un problema al notificar al profesor. Inténtalo de nuevo más tarde.",
       });
     }
   };
 
   const handleDownload = (assignment) => {
     console.log("Downloading assignment with ID:", assignment.alumno_RUT);
-    window.open(`https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`);
+    window.open(
+      `https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`
+    );
   };
 
   const fetchAlumnos = async () => {
     try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/alumnos");
+      const response = await axios.get(
+        "https://apisst.administracionpublica-uv.cl/api/alumnos"
+      );
       setAlumnos(response.data);
     } catch (error) {
       console.error("Error fetching fetched assignments:", error);
@@ -125,8 +129,12 @@ export default function Asignaciones() {
 
   const fetchProfesores = async () => {
     try {
-      const response = await axios.get("https://apisst.administracionpublica-uv.cl/api/profesores");
-      const sortedProfesores = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      const response = await axios.get(
+        "https://apisst.administracionpublica-uv.cl/api/profesores"
+      );
+      const sortedProfesores = response.data.sort((a, b) =>
+        a.nombre.localeCompare(b.nombre)
+      );
       setProfesores(sortedProfesores);
     } catch (error) {
       console.error("Error fetching profesores:", error);
@@ -166,13 +174,13 @@ export default function Asignaciones() {
     console.log("Deleting assignment with ID:", assignmentId);
 
     Swal.fire({
-      title: '¿Estás seguro?',
+      title: "¿Estás seguro?",
       text: "¡No podrás revertir esto!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminarlo!",
     }).then((result) => {
       if (result.isConfirmed) {
         handleDeletedb(assignmentId);
@@ -199,9 +207,9 @@ export default function Asignaciones() {
       setEditModalOpen(false);
 
       Swal.fire(
-        'Asignación actualizada',
-        'La asignación ha sido actualizada con éxito.',
-        'success'
+        "Asignación actualizada",
+        "La asignación ha sido actualizada con éxito.",
+        "success"
       );
     } catch (error) {
       console.log(error);
@@ -209,13 +217,15 @@ export default function Asignaciones() {
     }
   };
 
-  const handleModify = (event) => { // Cambiado a 'event' en lugar de 'alumnoId'
+  const handleModify = (event) => {
+    // Cambiado a 'event' en lugar de 'alumnoId'
     event.preventDefault();
     modifyAssignment();
     fetchFetchedAssignments();
   };
 
-  const handleAssign = async (event) => { // Cambiado a 'event' en lugar de 'alumnoId'
+  const handleAssign = async (event) => {
+    // Cambiado a 'event' en lugar de 'alumnoId'
     event.preventDefault(); // Asegúrate de prevenir el comportamiento por defecto del formulario
     setError("");
     try {
@@ -231,9 +241,9 @@ export default function Asignaciones() {
       console.log("Asignación creada:", response.data);
 
       Swal.fire(
-        'Asignación creada',
-        'La asignación ha sido creada con éxito.',
-        'success'
+        "Asignación creada",
+        "La asignación ha sido creada con éxito.",
+        "success"
       );
 
       setTimeout(() => {
@@ -262,17 +272,17 @@ export default function Asignaciones() {
 
   return (
     <>
-      <DashBoard/> {/* Se mantiene aquí */}
+      <DashBoard /> {/* Se mantiene aquí */}
       <Box
         sx={{
           ml: { sm: `${drawerWidth}px` }, // Margen izquierdo para compensar el Drawer
           mt: `${appBarHeight}px`, // Margen superior para compensar el AppBar
           p: 3, // Padding general para el contenido
           width: { sm: `calc(100% - ${drawerWidth}px)` }, // Ajustar el ancho para no desbordar
-          boxSizing: 'border-box', // Asegurar que el padding no añada ancho extra
+          boxSizing: "border-box", // Asegurar que el padding no añada ancho extra
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: '10px' }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: "10px" }}>
           <Box mr={1}>
             <Button variant="contained" onClick={handleOpen} color="success">
               Generar Asignación
@@ -290,9 +300,24 @@ export default function Asignaciones() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={modalStyle}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">Crear Asignación</Typography>
-              <Button variant="outlined" onClick={handleClose} startIcon={<HighlightOffIcon />}>Cerrar</Button>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Crear Asignación
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={handleClose}
+                startIcon={<HighlightOffIcon />}
+              >
+                Cerrar
+              </Button>
             </Box>
             <Box component="form" onSubmit={handleAssign} sx={{ mt: 2 }}>
               {error && (
@@ -302,7 +327,15 @@ export default function Asignaciones() {
               )}
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Alumno</InputLabel>
-                <Select value={currentAssignment?.alumno || ""} label="Alumno" onChange={(e) => setFormData(prev => ({...prev, alumno: e.target.value}))}> {/* Asegura que selectedAlumno se use correctamente */}
+                <Select
+                  value={formData.alumno || ""}
+                  label="Alumno"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, alumno: e.target.value }))
+                  }
+                >
+              
+                  {/* Asegura que selectedAlumno se use correctamente */}
                   {alumnos.map((alumno) => (
                     <MenuItem key={alumno.RUT} value={alumno.RUT}>
                       {alumno.nombre}
@@ -313,9 +346,17 @@ export default function Asignaciones() {
 
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Profesor</InputLabel>
-                <Select value={formData.profesor || ""} label="Profesor" name="profesor" onChange={handleInputChange}>
+                <Select
+                  value={formData.profesor || ""}
+                  label="Profesor"
+                  name="profesor"
+                  onChange={handleInputChange}
+                >
                   {profesores.map((profesor) => (
-                    <MenuItem key={profesor.profesor_id} value={profesor.profesor_id}>
+                    <MenuItem
+                      key={profesor.profesor_id}
+                      value={profesor.profesor_id}
+                    >
                       {profesor.nombre}
                     </MenuItem>
                   ))}
@@ -324,7 +365,12 @@ export default function Asignaciones() {
 
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Rol</InputLabel>
-                <Select value={formData.rol} label="Rol" name="rol" onChange={handleInputChange}>
+                <Select
+                  value={formData.rol}
+                  label="Rol"
+                  name="rol"
+                  onChange={handleInputChange}
+                >
                   <MenuItem value="guia">Guía</MenuItem>
                   <MenuItem value="informante">Informante</MenuItem>
                   <MenuItem value="secretario">Secretario</MenuItem>
@@ -332,44 +378,91 @@ export default function Asignaciones() {
                 </Select>
               </FormControl>
 
-              <Button variant="contained" type="submit">Guardar Asignaciones</Button>
+              <Button variant="contained" type="submit">
+                Guardar Asignaciones
+              </Button>
             </Box>
           </Box>
         </Modal>
 
-        {showAssignments && Array.isArray(assignments) && assignments.length > 0 && (
-          <TableContainer component={Paper} style={{ width: '100%' /* Ajustado a 100% */, margin: '20px 0' /* Centrado, sin float */ }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Alumno</TableCell>
-                  <TableCell>Profesor</TableCell>
-                  <TableCell>Rol</TableCell>
-                  <TableCell>Fecha de Asignación</TableCell>
-                  <TableCell>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {assignments.map((assignment, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{assignment.alumno_nombre}</TableCell>
-                    <TableCell>{assignment.nombre_profesor}</TableCell>
-                    <TableCell>{assignment.rol}</TableCell>
-                    <TableCell>{new Date(assignment.fechaAsignacion).toLocaleString()}</TableCell>
-                    <TableCell>
-                      <div>
-                        <Button onClick={() => handleModifyClick(assignment)} startIcon={<EditIcon />} size="small" style={{ marginBottom: '8px' }}>Modificar</Button>
-                        <Button onClick={() => handleDelete(assignment.asignacion_id)} startIcon={<DeleteIcon />} color="error" size="small" style={{ marginBottom: '8px' }}>Eliminar</Button>
-                        <Button onClick={() => handleNotify(assignment.asignacion_id)} startIcon={<AttachEmailIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>Notificar profesor</Button>
-                        <Button onClick={() => handleDownload(assignment)} startIcon={<RemoveRedEyeIcon />} color="success" size="small" style={{ marginBottom: '8px' }}>Ver Ficha</Button>
-                      </div>
-                    </TableCell>
+        {showAssignments &&
+          Array.isArray(assignments) &&
+          assignments.length > 0 && (
+            <TableContainer
+              component={Paper}
+              style={{
+                width: "100%" /* Ajustado a 100% */,
+                margin: "20px 0" /* Centrado, sin float */,
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Alumno</TableCell>
+                    <TableCell>Profesor</TableCell>
+                    <TableCell>Rol</TableCell>
+                    <TableCell>Fecha de Asignación</TableCell>
+                    <TableCell>Acciones</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                </TableHead>
+                <TableBody>
+                  {assignments.map((assignment, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{assignment.alumno_nombre}</TableCell>
+                      <TableCell>{assignment.nombre_profesor}</TableCell>
+                      <TableCell>{assignment.rol}</TableCell>
+                      <TableCell>
+                        {new Date(assignment.fechaAsignacion).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <Button
+                            onClick={() => handleModifyClick(assignment)}
+                            startIcon={<EditIcon />}
+                            size="small"
+                            style={{ marginBottom: "8px" }}
+                          >
+                            Modificar
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              handleDelete(assignment.asignacion_id)
+                            }
+                            startIcon={<DeleteIcon />}
+                            color="error"
+                            size="small"
+                            style={{ marginBottom: "8px" }}
+                          >
+                            Eliminar
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              handleNotify(assignment.asignacion_id)
+                            }
+                            startIcon={<AttachEmailIcon />}
+                            color="success"
+                            size="small"
+                            style={{ marginBottom: "8px" }}
+                          >
+                            Notificar profesor
+                          </Button>
+                          <Button
+                            onClick={() => handleDownload(assignment)}
+                            startIcon={<RemoveRedEyeIcon />}
+                            color="success"
+                            size="small"
+                            style={{ marginBottom: "8px" }}
+                          >
+                            Ver Ficha
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
 
         <Modal
           open={editModalOpen}
