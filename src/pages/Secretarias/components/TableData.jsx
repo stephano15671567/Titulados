@@ -51,7 +51,7 @@ function TableData() {
   const handleSaveState = async () => {
     if (selectedAlumno && newState) {
       try {
-        await axios.patch("https://apisst.administracionpublica-uv.cl/api/states/", {
+        await axios.patch("https://apisst.administracionpublica-uv.cl/api/states", {
           RUT: selectedAlumno.RUT,
           state: newState,
           comments: comments,
@@ -61,6 +61,13 @@ function TableData() {
           "El estado del alumno ha sido actualizado",
           "success"
         );
+        // Ensure the modal is always on top
+        setTimeout(() => {
+          const modals = document.querySelectorAll('.MuiModal-root');
+          modals.forEach(modal => {
+            modal.style.zIndex = Number.MAX_SAFE_INTEGER;
+          });
+        }, 100);
         setOpenStateModal(false); // Close the modal
         fetchAlumnosByState(newState); // Refresh the data based on the new state
       } catch (error) {
