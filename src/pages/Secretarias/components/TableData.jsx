@@ -407,7 +407,7 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post("/api/notas/examenoral", {
+      await axios.post("https://apisst.administracionpublica-uv.cl/api/notas/examenoral", {
         alumno_RUT: selectedAlumno.RUT,
         nota_defensa: notaDefensa,
       });
@@ -419,6 +419,7 @@ function TableData() {
       handleCloseNotaDefensaModal();
       fetchAlumnosByState("pendiente");
     } catch (error) {
+      handleCloseNotaDefensaModal();
       Swal.fire(
         "Error",
         "Ocurrió un error al añadir la nota de defensa",
@@ -1005,12 +1006,21 @@ function TableData() {
           >
             Añadir Nota de Defensa
           </Typography>
+          <Typography
+            id="modal-title"
+            variant="h6"
+            component="h2"
+            marginBottom={2}
+          >
+            La nota de defensa debe estar en formato x.x, por ejemplo 5.7
+          </Typography>
           <Box
             component="form"
             sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" }, mt: 2 }}
             noValidate
             autoComplete="off"
           >
+            
             <TextField
               name="nota_defensa"
               label="Nota de Defensa"
