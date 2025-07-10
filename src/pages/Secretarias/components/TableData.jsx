@@ -51,27 +51,29 @@ function TableData() {
   const handleSaveState = async () => {
     if (selectedAlumno && newState) {
       try {
-        await axios.patch("https://apisst.administracionpublica-uv.cl/api/states", {
-          RUT: selectedAlumno.RUT,
-          state: newState,
-          comments: comments,
-        });
-        Swal.fire(
-          "Actualizado",
-          "El estado del alumno ha sido actualizado",
-          "success"
+        await axios.put(
+          "https://apisst.administracionpublica-uv.cl/api/states/",
+          {
+            RUT: selectedAlumno.RUT,
+            state: newState,
+            comments: comments,
+          }
         );
-        // Ensure the modal is always on top
-        setTimeout(() => {
-          const modals = document.querySelectorAll('.MuiModal-root');
-          modals.forEach(modal => {
-            modal.style.zIndex = Number.MAX_SAFE_INTEGER;
-          });
-        }, 100);
-        setOpenStateModal(false); // Close the modal
+        await setOpenStateModal(false); // Close the modal
+        Swal.fire({
+          title: "Actualizado",
+          text: "El estado del alumno ha sido actualizado",
+          icon: "success",
+          customClass: {
+            // 'popup' es la clase CSS para el contenedor principal del modal de SweetAlert2
+            // Le asignamos un z-index muy alto para que se superponga a otros elementos.
+            popup: "my-swal-popup-top",
+          },
+        });
         fetchAlumnosByState(newState); // Refresh the data based on the new state
       } catch (error) {
         console.error("Error updating student state:", error);
+                await setOpenStateModal(false); // Close the modal
         Swal.fire(
           "Error",
           "Ocurrió un error al actualizar el estado del alumno",
@@ -139,8 +141,7 @@ function TableData() {
     });
     setFilteredAlumnos(alumnosOrdenados);
   };
- 
-  
+
   const descargarTesis = async (rut) => {
     try {
       const response = await axios.get(
@@ -406,10 +407,10 @@ function TableData() {
 
   const addNotaDefensa = async () => {
     try {
-      await axios.post(
-        "/api/notas/examenoral",
-        { alumno_RUT: selectedAlumno.RUT, nota_defensa: notaDefensa }
-      );
+      await axios.post("/api/notas/examenoral", {
+        alumno_RUT: selectedAlumno.RUT,
+        nota_defensa: notaDefensa,
+      });
       Swal.fire(
         "Agregada",
         "La nota de defensa ha sido añadida con éxito",
@@ -557,25 +558,25 @@ function TableData() {
       </Button>
 
       <TextField
-  label="Buscar por Nombre o RUT"
-  variant="outlined"
-  size="small"
-  value={filterState}
-  onChange={(e) => setFilterState(e.target.value)}
-  style={{ marginRight: "10px" }}
-  InputProps={{
-    style: {
-      backgroundColor: "#ffffff", // Cambiar el color de fondo
-    },
-  }}
-/>
-<Button
-  variant="contained"
-  onClick={() => ordenarPorApellidoAscendente()}
-  style={{ backgroundColor: "#52b202", marginLeft: "10px" }}
->
-  Ordenar por Apellido
-</Button>
+        label="Buscar por Nombre o RUT"
+        variant="outlined"
+        size="small"
+        value={filterState}
+        onChange={(e) => setFilterState(e.target.value)}
+        style={{ marginRight: "10px" }}
+        InputProps={{
+          style: {
+            backgroundColor: "#ffffff", // Cambiar el color de fondo
+          },
+        }}
+      />
+      <Button
+        variant="contained"
+        onClick={() => ordenarPorApellidoAscendente()}
+        style={{ backgroundColor: "#52b202", marginLeft: "10px" }}
+      >
+        Ordenar por Apellido
+      </Button>
 
       {showAlumnos && (
         <>
@@ -599,10 +600,10 @@ function TableData() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                  {filteredAlumnos
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((alumno) => (
-                      <TableRow key={alumno.RUT}>
+                {filteredAlumnos
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((alumno) => (
+                    <TableRow key={alumno.RUT}>
                       <TableCell>{alumno.nombre}</TableCell>
                       <TableCell>{alumno.RUT}</TableCell>
                       <TableCell>{alumno.CODIGO}</TableCell>
