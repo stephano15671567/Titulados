@@ -2,18 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import AttachEmailIcon from "@mui/icons-material/AttachEmail";
 import Swal from "sweetalert2";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Button,
   Modal,
@@ -24,15 +18,21 @@ import {
   InputLabel,
   Alert,
   Input,
+  TextField, // Import TextField for the search bar
 } from "@mui/material";
-import DashBoard from "../Dashboard/DashBoard"; // Mantener esta importación
+import DashBoard from "../Dashboard/DashBoard";
 
 export default function Asignaciones() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // New state for search term
 
   const handleModifyClick = (assignment) => {
     setCurrentAssignment(assignment);
+    setFormDataEdit({
+      profesor: assignment.profesor_id,
+      rol: assignment.rol,
+    });
     setEditModalOpen(true);
   };
 
@@ -46,13 +46,13 @@ export default function Asignaciones() {
   const [error, setError] = useState("");
   const [alumnos, setAlumnos] = useState([]);
   const [profesores, setProfesores] = useState([]);
-  const [assignments, setAssignments] = useState({}); // { [alumnoId]: { profesorId, rol } }
+  const [assignments, setAssignments] = useState([]);
+
   const toggleAssignments = () => {
-    setShowAssignments(!showAssignments); // Toggle the visibility of the assignments table
+    setShowAssignments(!showAssignments);
   };
 
   const [formDataEdit, setFormDataEdit] = useState({
-    alumno: "",
     profesor: "",
     rol: "",
   });
@@ -89,7 +89,7 @@ export default function Asignaciones() {
         text: "Se ha notificado al profesor correctamente.",
       });
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error notifying professor:", error);
       Swal.fire({
         icon: "error",
         title: "¡Error!",
@@ -99,7 +99,7 @@ export default function Asignaciones() {
   };
 
   const handleDownload = (assignment) => {
-    console.log("Downloading assignment with ID:", assignment.alumno_RUT);
+    console.log("Downloading assignment with RUT:", assignment.alumno_RUT);
     window.open(
       `https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`
     );
@@ -110,9 +110,12 @@ export default function Asignaciones() {
       const response = await axios.get(
         "https://apisst.administracionpublica-uv.cl/api/alumnos"
       );
-      setAlumnos(response.data);
+      const sortedAlumnos = response.data.sort((a, b) =>
+        a.nombre.localeCompare(b.nombre)
+      );
+      setAlumnos(sortedAlumnos);
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error fetching students:", error);
     }
   };
 
@@ -123,7 +126,7 @@ export default function Asignaciones() {
       );
       console.log("Correo enviado:", response.data);
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error sending email:", error);
     }
   };
 
@@ -137,7 +140,7 @@ export default function Asignaciones() {
       );
       setProfesores(sortedProfesores);
     } catch (error) {
-      console.error("Error fetching profesores:", error);
+      console.error("Error fetching professors:", error);
     }
   };
 
@@ -148,7 +151,7 @@ export default function Asignaciones() {
       );
       setAssignments(response.data);
     } catch (error) {
-      console.error("Error fetching fetched assignments:", error);
+      console.error("Error fetching assignments:", error);
     }
   };
 
@@ -165,8 +168,14 @@ export default function Asignaciones() {
       );
       console.log("Asignación eliminada:", response.data);
       fetchFetchedAssignments();
+      Swal.fire("¡Eliminado!", "La asignación ha sido eliminada.", "success");
     } catch (error) {
       console.error("Error deleting assignment:", error);
+      Swal.fire(
+        "Error",
+        "Hubo un problema al eliminar la asignación.",
+        "error"
+      );
     }
   };
 
@@ -218,15 +227,12 @@ export default function Asignaciones() {
   };
 
   const handleModify = (event) => {
-    // Cambiado a 'event' en lugar de 'alumnoId'
     event.preventDefault();
     modifyAssignment();
-    fetchFetchedAssignments();
   };
 
   const handleAssign = async (event) => {
-    // Cambiado a 'event' en lugar de 'alumnoId'
-    event.preventDefault(); // Asegúrate de prevenir el comportamiento por defecto del formulario
+    event.preventDefault();
     setError("");
     try {
       const response = await axios.post(
@@ -267,19 +273,93 @@ export default function Asignaciones() {
     p: 4,
   };
 
-  const drawerWidth = 240; // Definir drawerWidth aquí para usarlo en los estilos del Box
-  const appBarHeight = 64; // Altura típica de un AppBar en Material-UI
+  const drawerWidth = 240;
+  const appBarHeight = 64;
+
+  // Filtered assignments based on search term
+  const filteredAssignments = assignments.filter((assignment) => {
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      assignment.alumno_nombre.toLowerCase().includes(searchTermLower) ||
+      assignment.nombre_profesor.toLowerCase().includes(searchTermLower)
+    );
+  });
+
+  const columns = [
+    { field: "alumno_nombre", headerName: "Alumno", width: 200 },
+    { field: "nombre_profesor", headerName: "Profesor", width: 200 },
+    { field: "rol", headerName: "Rol", width: 150 },
+    {
+      field: "fechaAsignacion",
+      headerName: "Fecha de Asignación",
+      width: 200,
+      valueFormatter: (params) => {
+        const date = new Date(params.value);
+        const pad = (n) => n.toString().padStart(2, "0");
+        const day = pad(date.getDate());
+        const month = pad(date.getMonth() + 1);
+        const year = date.getFullYear();
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+        return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
+      },
+    },
+    {
+      field: "actions",
+      headerName: "Acciones",
+      width: 600,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+          <Button
+            onClick={() => handleModifyClick(params.row)}
+            size="small"
+            variant="outlined"
+          > 
+            Modificar
+          </Button>
+          <Button
+            onClick={() => handleDelete(params.row.asignacion_id)}
+            startIcon={<DeleteIcon />}
+            color="error"
+            size="small"
+            variant="outlined"
+          >
+            Eliminar
+          </Button>
+          <Button
+            onClick={() => handleNotify(params.row.asignacion_id)}
+            startIcon={<AttachEmailIcon />}
+            color="success"
+            size="small"
+            variant="outlined"
+          >
+            Notificar profesor
+          </Button>
+          <Button
+            onClick={() => handleDownload(params.row)}
+            startIcon={<RemoveRedEyeIcon />}
+            color="primary"
+            size="small"
+            variant="outlined"
+          >
+            Ver Ficha
+          </Button>
+        </Box>
+      ),
+    },
+  ];
 
   return (
     <>
-      <DashBoard /> {/* Se mantiene aquí */}
+      <DashBoard />
       <Box
         sx={{
-          ml: { sm: `${drawerWidth}px` }, // Margen izquierdo para compensar el Drawer
-          mt: `${appBarHeight}px`, // Margen superior para compensar el AppBar
-          p: 3, // Padding general para el contenido
-          width: { sm: `calc(100% - ${drawerWidth}px)` }, // Ajustar el ancho para no desbordar
-          boxSizing: "border-box", // Asegurar que el padding no añada ancho extra
+          ml: { sm: `${drawerWidth}px` },
+          mt: `${appBarHeight}px`,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          boxSizing: "border-box",
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "center", mb: "10px" }}>
@@ -328,28 +408,25 @@ export default function Asignaciones() {
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Alumno</InputLabel>
                 <Select
+                  name="alumno"
                   value={formData.alumno || ""}
                   label="Alumno"
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, alumno: e.target.value }))
-                  }
+                  onChange={handleInputChange}
                 >
-                  {[...alumnos]
-                    .sort((a, b) => a.nombre.localeCompare(b.nombre))
-                    .map((alumno) => (
-                      <MenuItem key={alumno.RUT} value={alumno.RUT}>
-                        {alumno.nombre}
-                      </MenuItem>
-                    ))}
+                  {alumnos.map((alumno) => (
+                    <MenuItem key={alumno.RUT} value={alumno.RUT}>
+                      {alumno.nombre}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
 
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Profesor</InputLabel>
                 <Select
+                  name="profesor"
                   value={formData.profesor || ""}
                   label="Profesor"
-                  name="profesor"
                   onChange={handleInputChange}
                 >
                   {profesores.map((profesor) => (
@@ -366,9 +443,9 @@ export default function Asignaciones() {
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Rol</InputLabel>
                 <Select
+                  name="rol"
                   value={formData.rol}
                   label="Rol"
-                  name="rol"
                   onChange={handleInputChange}
                 >
                   <MenuItem value="guia">Guía</MenuItem>
@@ -385,84 +462,33 @@ export default function Asignaciones() {
           </Box>
         </Modal>
 
-        {showAssignments &&
-          Array.isArray(assignments) &&
-          assignments.length > 0 && (
-            <TableContainer
-              component={Paper}
-              style={{
-                width: "100%" /* Ajustado a 100% */,
-                margin: "20px 0" /* Centrado, sin float */,
-              }}
-            >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Alumno</TableCell>
-                    <TableCell>Profesor</TableCell>
-                    <TableCell>Rol</TableCell>
-                    <TableCell>Fecha de Asignación</TableCell>
-                    <TableCell>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {assignments.map((assignment, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{assignment.alumno_nombre}</TableCell>
-                      <TableCell>{assignment.nombre_profesor}</TableCell>
-                      <TableCell>{assignment.rol}</TableCell>
-                      <TableCell>
-                        {new Date(assignment.fechaAsignacion).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <Button
-                            onClick={() => handleModifyClick(assignment)}
-                            startIcon={<EditIcon />}
-                            size="small"
-                            style={{ marginBottom: "8px" }}
-                          >
-                            Modificar
-                          </Button>
-                          <Button
-                            onClick={() =>
-                              handleDelete(assignment.asignacion_id)
-                            }
-                            startIcon={<DeleteIcon />}
-                            color="error"
-                            size="small"
-                            style={{ marginBottom: "8px" }}
-                          >
-                            Eliminar
-                          </Button>
-                          <Button
-                            onClick={() =>
-                              handleNotify(assignment.asignacion_id)
-                            }
-                            startIcon={<AttachEmailIcon />}
-                            color="success"
-                            size="small"
-                            style={{ marginBottom: "8px" }}
-                          >
-                            Notificar profesor
-                          </Button>
-                          <Button
-                            onClick={() => handleDownload(assignment)}
-                            startIcon={<RemoveRedEyeIcon />}
-                            color="success"
-                            size="small"
-                            style={{ marginBottom: "8px" }}
-                          >
-                            Ver Ficha
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+        {showAssignments && assignments.length > 0 && (
+          <Box sx={{ height: 400, width: "100%", mt: 3 }}>
+            <Paper sx={{ p: 2, mb: 2 }}> {/* Added padding and margin to Paper */}
+              <TextField
+                label="Buscar por nombre (alumno/profesor)"
+                variant="outlined"
+                fullWidth
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{ mb: 2 }} // Margin below the search bar
+              />
+              <DataGrid
+                rows={filteredAssignments.map((assignment) => ({
+                  ...assignment,
+                  id: assignment.asignacion_id,
+                }))}
+                columns={columns}
+                pageSizeOptions={[5, 10, 20]}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 50 },
+                  },
+                }}
+              />
+            </Paper>
+          </Box>
+        )}
 
         <Modal
           open={editModalOpen}
