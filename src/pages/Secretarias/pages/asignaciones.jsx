@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AttachEmailIcon from "@mui/icons-material/AttachEmail";
 import Swal from "sweetalert2";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import MoreVertIcon from '@mui/icons-material/MoreVert'; // Importar icono para "más opciones"
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Box,
@@ -18,15 +19,26 @@ import {
   InputLabel,
   Alert,
   Input,
-  TextField, // Import TextField for the search bar
+  TextField,
+  IconButton, // Importar IconButton
+  Menu,       // Importar Menu
 } from "@mui/material";
 import DashBoard from "../Dashboard/DashBoard";
 
 export default function Asignaciones() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentAssignment, setCurrentAssignment] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // New state for search term
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [open, setOpen] = useState(false);
+  const [showAssignments, setShowAssignments] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  // La función handleModifyClick original para abrir el modal de edición.
+  // Ahora solo se usa directamente cuando se hace clic en un botón "Modificar" individual,
+  // pero la lógica principal de establecer el estado se duplica en handleModifyFromMenu.
+  // Podrías eliminarla si solo usas el menú, pero es un patrón común tenerla por separado.
   const handleModifyClick = (assignment) => {
     setCurrentAssignment(assignment);
     setFormDataEdit({
@@ -36,17 +48,58 @@ export default function Asignaciones() {
     setEditModalOpen(true);
   };
 
-  const [open, setOpen] = useState(false);
-  const [showAssignments, setShowAssignments] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
-  const handleCloseedit = () => setEditModalOpen(false);
+  const handleCloseEdit = () => setEditModalOpen(false);
 
   const [error, setError] = useState("");
   const [alumnos, setAlumnos] = useState([]);
   const [profesores, setProfesores] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [processedAssignments, setProcessedAssignments] = useState([]);
+
+  // Estados para el menú de acciones por rol
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [assignmentForMenu, setAssignmentForMenu] = useState(null); // Almacena la asignación específica para el menú
+
+  const handleMenuClick = (event, assignment) => {
+    setAnchorEl(event.currentTarget);
+    setAssignmentForMenu(assignment);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setAssignmentForMenu(null);
+  };
+
+  // ***** CORRECCIÓN IMPORTANTE AQUÍ *****
+  const handleModifyFromMenu = () => {
+    if (assignmentForMenu) {
+        // Esta es la lógica que antes estaba en handleModifyClick
+        setCurrentAssignment(assignmentForMenu);
+        setFormDataEdit({
+          profesor: assignmentForMenu.profesor_id,
+          rol: assignmentForMenu.rol,
+        });
+        setEditModalOpen(true);
+    }
+    handleMenuClose();
+  };
+
+  const handleDeleteFromMenu = () => {
+    if (assignmentForMenu) {
+        handleDelete(assignmentForMenu.asignacion_id);
+    }
+    handleMenuClose();
+  };
+
+  const handleNotifyFromMenu = () => {
+    if (assignmentForMenu) {
+        handleNotify(assignmentForMenu.asignacion_id);
+    }
+    handleMenuClose();
+  };
+  // ***** FIN CORRECCIONES *****
+
 
   const toggleAssignments = () => {
     setShowAssignments(!showAssignments);
@@ -99,7 +152,7 @@ export default function Asignaciones() {
   };
 
   const handleDownload = (assignment) => {
-    console.log("Downloading assignment with RUT:", assignment.alumno_RUT);
+    console.log("Downloading assignment for student RUT:", assignment.alumno_RUT);
     window.open(
       `https://apisst.administracionpublica-uv.cl/api/archivos/${assignment.alumno_RUT}`
     );
@@ -149,7 +202,7 @@ export default function Asignaciones() {
       const response = await axios.get(
         "https://apisst.administracionpublica-uv.cl/api/asignaciones/"
       );
-      setAssignments(response.data);
+      setAssignments(response.data); // Store raw assignments
     } catch (error) {
       console.error("Error fetching assignments:", error);
     }
@@ -160,6 +213,71 @@ export default function Asignaciones() {
     fetchProfesores();
     fetchFetchedAssignments();
   }, []);
+
+  useEffect(() => {
+    if (assignments.length > 0) {
+      const grouped = {};
+
+      assignments.forEach((assignment) => {
+        if (!assignment || !assignment.alumno_RUT) {
+          console.warn("Skipping invalid assignment (missing alumno_RUT):", assignment);
+          return;
+        }
+
+        if (!grouped[assignment.alumno_RUT]) {
+          grouped[assignment.alumno_RUT] = {
+            id: assignment.alumno_RUT,
+            alumno_nombre: assignment.alumno_nombre,
+            alumno_RUT: assignment.alumno_RUT,
+            guia_profesor: "",
+            guia_id: null,
+            guia_fechaAsignacion: "",
+            informante_profesor: "",
+            informante_id: null,
+            informante_fechaAsignacion: "",
+            secretario_profesor: "",
+            secretario_id: null,
+            secretario_fechaAsignacion: "",
+            presidente_profesor: "",
+            presidente_id: null,
+            presidente_fechaAsignacion: "",
+            all_assignments: [],
+          };
+        }
+
+        const role = assignment.rol.toLowerCase();
+        switch (role) {
+          case "guia":
+            grouped[assignment.alumno_RUT].guia_profesor = assignment.nombre_profesor;
+            grouped[assignment.alumno_RUT].guia_id = assignment.asignacion_id;
+            grouped[assignment.alumno_RUT].guia_fechaAsignacion = assignment.fechaAsignacion;
+            break;
+          case "informante":
+            grouped[assignment.alumno_RUT].informante_profesor = assignment.nombre_profesor;
+            grouped[assignment.alumno_RUT].informante_id = assignment.asignacion_id;
+            grouped[assignment.alumno_RUT].informante_fechaAsignacion = assignment.fechaAsignacion;
+            break;
+          case "secretario":
+            grouped[assignment.alumno_RUT].secretario_profesor = assignment.nombre_profesor;
+            grouped[assignment.alumno_RUT].secretario_id = assignment.asignacion_id;
+            grouped[assignment.alumno_RUT].secretario_fechaAsignacion = assignment.fechaAsignacion;
+            break;
+          case "presidente":
+            grouped[assignment.alumno_RUT].presidente_profesor = assignment.nombre_profesor;
+            grouped[assignment.alumno_RUT].presidente_id = assignment.asignacion_id;
+            grouped[assignment.alumno_RUT].presidente_fechaAsignacion = assignment.fechaAsignacion;
+            break;
+          default:
+            console.warn("Unknown role encountered:", role, assignment);
+        }
+        grouped[assignment.alumno_RUT].all_assignments.push(assignment);
+      });
+
+      setProcessedAssignments(Object.values(grouped));
+    } else {
+      setProcessedAssignments([]);
+    }
+  }, [assignments]);
 
   const handleDeletedb = async (assignmentId) => {
     try {
@@ -180,8 +298,6 @@ export default function Asignaciones() {
   };
 
   const handleDelete = (assignmentId) => {
-    console.log("Deleting assignment with ID:", assignmentId);
-
     Swal.fire({
       title: "¿Estás seguro?",
       text: "¡No podrás revertir esto!",
@@ -193,8 +309,6 @@ export default function Asignaciones() {
     }).then((result) => {
       if (result.isConfirmed) {
         handleDeletedb(assignmentId);
-      } else {
-        console.log("Eliminación cancelada por el usuario.");
       }
     });
   };
@@ -222,7 +336,11 @@ export default function Asignaciones() {
       );
     } catch (error) {
       console.log(error);
-      setError("No se puede asignar al mismo profesor");
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Error al modificar la asignación. Intenta de nuevo.");
+      }
     }
   };
 
@@ -254,10 +372,19 @@ export default function Asignaciones() {
 
       setTimeout(() => {
         handleClose();
-      }, 1000);
+        setFormData({
+          alumno: "",
+          profesor: "",
+          rol: "",
+        });
+      }, 1500);
     } catch (error) {
       console.error("Error al crear asignación:", error.response.data);
-      setError("Alumno ya fue previamente asignado");
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Error al crear la asignación. Verifica los datos.");
+      }
     }
   };
 
@@ -276,76 +403,104 @@ export default function Asignaciones() {
   const drawerWidth = 240;
   const appBarHeight = 64;
 
-  // Filtered assignments based on search term
-  const filteredAssignments = assignments.filter((assignment) => {
+  const filteredAssignments = processedAssignments.filter((assignment) => {
     const searchTermLower = searchTerm.toLowerCase();
     return (
       assignment.alumno_nombre.toLowerCase().includes(searchTermLower) ||
-      assignment.nombre_profesor.toLowerCase().includes(searchTermLower)
+      assignment.guia_profesor.toLowerCase().includes(searchTermLower) ||
+      assignment.informante_profesor.toLowerCase().includes(searchTermLower) ||
+      assignment.secretario_profesor.toLowerCase().includes(searchTermLower) ||
+      assignment.presidente_profesor.toLowerCase().includes(searchTermLower)
     );
   });
 
+  // Helper para renderizar las celdas de profesor con acciones
+  const renderProfessorCell = (profesorName, assignmentId, alumnoRUT, rol) => {
+    // Si no hay ID de asignación (es decir, no hay profesor asignado a este rol), no renderizar el botón de acciones
+    if (!assignmentId) {
+        return (
+            <Typography variant="body2" color="text.secondary">
+                No Asignado
+            </Typography>
+        );
+    }
+
+    // Crear un objeto de asignación completo para pasarlo al menú de contexto
+    // Incluye el nombre del alumno para mostrarlo en el modal de edición.
+    const assignment = {
+      asignacion_id: assignmentId,
+      alumno_RUT: alumnoRUT,
+      rol: rol,
+      profesor_id: profesores.find(p => p.nombre === profesorName)?.profesor_id, // Busca el ID del profesor por nombre si es necesario para el formDataEdit
+      nombre_profesor: profesorName,
+      alumno_nombre: processedAssignments.find(a => a.alumno_RUT === alumnoRUT)?.alumno_nombre
+    };
+
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pr: 1 }}>
+        <Typography variant="body2" sx={{ flexGrow: 1, minWidth: '80px', pr: 1 }}>
+          {profesorName}
+        </Typography>
+        <IconButton
+          aria-label="más opciones"
+          aria-controls={`menu-${assignmentId}`}
+          aria-haspopup="true"
+          onClick={(event) => handleMenuClick(event, assignment)}
+          size="small"
+          sx={{ ml: 1 }}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    );
+  };
+
+
   const columns = [
     { field: "alumno_nombre", headerName: "Alumno", width: 200 },
-    { field: "nombre_profesor", headerName: "Profesor", width: 200 },
-    { field: "rol", headerName: "Rol", width: 150 },
     {
-      field: "fechaAsignacion",
-      headerName: "Fecha de Asignación",
-      width: 200,
-      valueFormatter: (params) => {
-        const date = new Date(params.value);
-        const pad = (n) => n.toString().padStart(2, "0");
-        const day = pad(date.getDate());
-        const month = pad(date.getMonth() + 1);
-        const year = date.getFullYear();
-        const hours = pad(date.getHours());
-        const minutes = pad(date.getMinutes());
-        const seconds = pad(date.getSeconds());
-        return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
-      },
+      field: "guia_profesor",
+      headerName: "Guía",
+      width: 220, // Ajustar ancho para acomodar nombre y botón
+      renderCell: (params) =>
+        renderProfessorCell(params.row.guia_profesor, params.row.guia_id, params.row.alumno_RUT, 'guia'),
     },
     {
-      field: "actions",
-      headerName: "Acciones",
-      width: 600,
+      field: "informante_profesor",
+      headerName: "Informante",
+      width: 220, // Ajustar ancho
+      renderCell: (params) =>
+        renderProfessorCell(params.row.informante_profesor, params.row.informante_id, params.row.alumno_RUT, 'informante'),
+    },
+    {
+      field: "secretario_profesor",
+      headerName: "Secretario",
+      width: 220, // Ajustar ancho
+      renderCell: (params) =>
+        renderProfessorCell(params.row.secretario_profesor, params.row.secretario_id, params.row.alumno_RUT, 'secretario'),
+    },
+    {
+      field: "presidente_profesor",
+      headerName: "Presidente",
+      width: 220, // Ajustar ancho
+      renderCell: (params) =>
+        renderProfessorCell(params.row.presidente_profesor, params.row.presidente_id, params.row.alumno_RUT, 'presidente'),
+    },
+    {
+      field: "ficha_alumno",
+      headerName: "Ficha Alumno",
+      width: 150,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          <Button
-            onClick={() => handleModifyClick(params.row)}
-            size="small"
-            variant="outlined"
-          > 
-            Modificar
-          </Button>
-          <Button
-            onClick={() => handleDelete(params.row.asignacion_id)}
-            startIcon={<DeleteIcon />}
-            color="error"
-            size="small"
-            variant="outlined"
-          >
-            Eliminar
-          </Button>
-          <Button
-            onClick={() => handleNotify(params.row.asignacion_id)}
-            startIcon={<AttachEmailIcon />}
-            color="success"
-            size="small"
-            variant="outlined"
-          >
-            Notificar profesor
-          </Button>
-          <Button
-            onClick={() => handleDownload(params.row)}
-            startIcon={<RemoveRedEyeIcon />}
-            color="primary"
-            size="small"
-            variant="outlined"
-          >
-            Ver Ficha
-          </Button>
-        </Box>
+        <Button
+          onClick={() => handleDownload(params.row)}
+          startIcon={<RemoveRedEyeIcon />}
+          color="primary"
+          size="small"
+          variant="outlined"
+          sx={{ fontSize: '0.75rem', minWidth: '100px' }}
+        >
+          Ver Ficha
+        </Button>
       ),
     },
   ];
@@ -373,6 +528,7 @@ export default function Asignaciones() {
           </Button>
         </Box>
 
+        {/* Modal para Crear Asignación */}
         <Modal
           open={open}
           onClose={handleClose}
@@ -462,37 +618,52 @@ export default function Asignaciones() {
           </Box>
         </Modal>
 
-        {showAssignments && assignments.length > 0 && (
-          <Box sx={{ height: 400, width: "100%", mt: 3 }}>
-            <Paper sx={{ p: 2, mb: 2 }}> {/* Added padding and margin to Paper */}
+        {/* Tabla de Asignaciones Visualizadas */}
+        {showAssignments && processedAssignments.length > 0 && (
+          <Box sx={{ height: 600, width: "100%", mt: 3 }}>
+            <Paper sx={{ p: 2, mb: 2 }}>
               <TextField
                 label="Buscar por nombre (alumno/profesor)"
                 variant="outlined"
                 fullWidth
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{ mb: 2 }} // Margin below the search bar
+                sx={{ mb: 2 }}
               />
               <DataGrid
-                rows={filteredAssignments.map((assignment) => ({
-                  ...assignment,
-                  id: assignment.asignacion_id,
-                }))}
+                rows={filteredAssignments}
                 columns={columns}
-                pageSizeOptions={[5, 10, 20]}
+                pageSizeOptions={[5, 10, 20, 50, 100]}
                 initialState={{
                   pagination: {
                     paginationModel: { pageSize: 50 },
                   },
                 }}
+                getRowId={(row) => row.id}
+                getRowHeight={() => 'auto'} // Altura automática para las filas
+                getEstimatedRowHeight={() => 70} // Estimación para virtualización
+                sx={{
+                    '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': { py: '8px' },
+                    '&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell': { py: '8px' },
+                    '&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell': { py: '8px' },
+                    '.MuiDataGrid-virtualScrollerContent': {
+                        overflowX: 'hidden',
+                    },
+                }}
               />
             </Paper>
           </Box>
         )}
+        {showAssignments && processedAssignments.length === 0 && (
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Typography variant="h6">No hay asignaciones para mostrar.</Typography>
+          </Box>
+        )}
 
+        {/* Modal para Modificar Asignación */}
         <Modal
           open={editModalOpen}
-          onClose={handleCloseedit}
+          onClose={handleCloseEdit}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
@@ -517,7 +688,7 @@ export default function Asignaciones() {
 
                   <Button
                     variant="outlined"
-                    onClick={handleCloseedit}
+                    onClick={handleCloseEdit}
                     startIcon={<HighlightOffIcon />}
                   >
                     Cerrar
@@ -583,6 +754,28 @@ export default function Asignaciones() {
             )}
           </Box>
         </Modal>
+
+        {/* Menú de Acciones (para el MoreVertIcon) */}
+        <Menu
+          id="role-actions-menu"
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button',
+          }}
+        >
+          <MenuItem onClick={handleModifyFromMenu}>
+            <Button startIcon={<HighlightOffIcon />} size="small">Modificar</Button>
+          </MenuItem>
+          <MenuItem onClick={handleDeleteFromMenu}>
+            <Button startIcon={<DeleteIcon />} color="error" size="small">Eliminar</Button>
+          </MenuItem>
+          <MenuItem onClick={handleNotifyFromMenu}>
+            <Button startIcon={<AttachEmailIcon />} color="success" size="small">Notificar</Button>
+          </MenuItem>
+        </Menu>
+
       </Box>
     </>
   );
